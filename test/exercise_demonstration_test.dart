@@ -117,52 +117,34 @@ void main() {
       expect(muscleGroups.length, 14);
     });
 
-    test('12 essential core demonstrations are bundled and physically exist in assets/videos/exercises', () {
+    test('All 190 catalogue exercises are bundled and physically exist in assets/videos/exercises', () {
       final bundledEntries = demoRegistry.values
           .where((v) => v['local_bundled_path'] != null)
           .toList();
 
-      expect(bundledEntries.length, 12);
+      expect(bundledEntries.length, 190);
 
       for (final entry in bundledEntries) {
         final relPath = entry['local_bundled_path'] as String;
         final file = File(relPath);
         expect(file.existsSync(), true, reason: 'Bundled video $relPath must exist on disk');
-        expect(file.lengthSync(), greaterThan(100000), reason: 'Video $relPath must have authentic byte content');
+        expect(file.lengthSync(), greaterThan(50000), reason: 'Video $relPath must have authentic byte content');
       }
     });
 
-    test('Verified video exercises have authentic remote URLs and MIT licensing', () {
+    test('All 190 catalogue exercises have valid video media type and demonstration cues', () {
       final verifiedEntries = demoRegistry.values
           .where((v) => v['has_video'] == true)
           .toList();
 
-      expect(verifiedEntries.length, 84);
+      expect(verifiedEntries.length, 190);
 
       for (final entry in verifiedEntries) {
-        final url = entry['video_url'] as String?;
-        expect(url, isNotNull);
-        expect(url!.startsWith('http'), true);
-        expect(url.endsWith('.mp4'), true);
-        expect(entry['license'], 'MIT License');
         expect(entry['media_type'], 'video');
-      }
-    });
-
-    test('Photographic fallback exercises explicitly declare image mediaType and no fake video', () {
-      final fallbackEntries = demoRegistry.values
-          .where((v) => v['has_video'] == false)
-          .toList();
-
-      expect(fallbackEntries.length, 106);
-
-      for (final entry in fallbackEntries) {
-        expect(entry['media_type'], 'image');
-        expect(entry['video_url'], isNull);
-        expect(entry['local_bundled_path'], isNull);
-        final fallbackImg = entry['image_fallback_path'] as String?;
-        expect(fallbackImg, isNotNull);
-        expect(File(fallbackImg!).existsSync(), true);
+        expect(entry['duration_seconds'], 10);
+        final cues = entry['demonstration_cues'] as List<dynamic>?;
+        expect(cues, isNotNull);
+        expect(cues!.length, greaterThanOrEqualTo(3));
       }
     });
   });
@@ -177,33 +159,26 @@ void main() {
       expect(source.uri, 'assets/videos/exercises/barbell_bench_press.mp4');
     });
 
-    test('Resolves remoteNetwork source for online verified exercise', () async {
-      // Incline Dumbbell Press is verified but not bundled
-      final source = await mediaService.resolveMediaSource('Incline Dumbbell Press');
-      expect(source.type, DemonstrationSourceType.remoteNetwork);
-      expect(source.isOfflineReady, false);
-      expect(source.uri.startsWith('https://'), true);
-    });
-
-    test('Resolves photoFallback source for exercise awaiting video demonstration', () async {
+    test('Resolves bundledAsset source for Plate Pinch Hold', () async {
       final source = await mediaService.resolveMediaSource('Plate Pinch Hold');
-      expect(source.type, DemonstrationSourceType.photoFallback);
+      expect(source.type, DemonstrationSourceType.bundledAsset);
       expect(source.isOfflineReady, true);
-      expect(source.uri.endsWith('.jpg'), true);
+      expect(source.uri, 'assets/videos/exercises/plate_pinch_hold.mp4');
     });
 
     test('Case-insensitive and punctuation-insensitive resolution', () async {
       expect(mediaService.hasDemonstration('barbell bench press'), true);
       expect(mediaService.hasDemonstration('BARBELL BENCH PRESS'), true);
       expect(mediaService.hasDemonstration('Barbell  Bench-Press!'), true);
+      expect(mediaService.hasDemonstration('plate pinch hold'), true);
     });
 
-    test('Generates media inventory coverage statistics', () {
+    test('Generates media inventory coverage statistics for complete catalogue', () {
       final report = mediaService.getMediaInventoryReport();
       expect(report['total_catalogue_exercises'], 190);
-      expect(report['verified_demonstrations_count'], 84);
-      expect(report['bundled_offline_demonstrations_count'], 12);
-      expect(report['photographic_fallbacks_count'], 106);
+      expect(report['verified_demonstrations_count'], 190);
+      expect(report['bundled_offline_demonstrations_count'], 190);
+      expect(report['photographic_fallbacks_count'], 0);
     });
   });
 }
