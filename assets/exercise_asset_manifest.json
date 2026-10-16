@@ -1,0 +1,1522 @@
+{
+  "Barbell Bench Press": {
+    "id": 1,
+    "slug": "barbell_bench_press",
+    "asset_path": "assets/images/exercises/barbell_bench_press.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Incline Barbell Bench Press": {
+    "id": 2,
+    "slug": "incline_barbell_bench_press",
+    "asset_path": "assets/images/exercises/incline_barbell_bench_press.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Decline Barbell Bench Press": {
+    "id": 3,
+    "slug": "decline_barbell_bench_press",
+    "asset_path": "assets/images/exercises/decline_barbell_bench_press.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Flat Dumbbell Press": {
+    "id": 4,
+    "slug": "flat_dumbbell_press",
+    "asset_path": "assets/images/exercises/flat_dumbbell_press.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Incline Dumbbell Press": {
+    "id": 5,
+    "slug": "incline_dumbbell_press",
+    "asset_path": "assets/images/exercises/incline_dumbbell_press.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Dumbbells",
+    "difficulty": "Intermediate"
+  },
+  "Decline Dumbbell Press": {
+    "id": 6,
+    "slug": "decline_dumbbell_press",
+    "asset_path": "assets/images/exercises/decline_dumbbell_press.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Dumbbells",
+    "difficulty": "Intermediate"
+  },
+  "Dumbbell Fly": {
+    "id": 7,
+    "slug": "dumbbell_fly",
+    "asset_path": "assets/images/exercises/dumbbell_fly.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Incline Dumbbell Fly": {
+    "id": 8,
+    "slug": "incline_dumbbell_fly",
+    "asset_path": "assets/images/exercises/incline_dumbbell_fly.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Dumbbells",
+    "difficulty": "Intermediate"
+  },
+  "Pec Deck Fly": {
+    "id": 9,
+    "slug": "pec_deck_fly",
+    "asset_path": "assets/images/exercises/pec_deck_fly.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Cable Chest Fly": {
+    "id": 10,
+    "slug": "cable_chest_fly",
+    "asset_path": "assets/images/exercises/cable_chest_fly.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Cable",
+    "difficulty": "Intermediate"
+  },
+  "High-to-Low Cable Crossover": {
+    "id": 11,
+    "slug": "high_to_low_cable_crossover",
+    "asset_path": "assets/images/exercises/high_to_low_cable_crossover.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Cable",
+    "difficulty": "Intermediate"
+  },
+  "Low-to-High Cable Crossover": {
+    "id": 12,
+    "slug": "low_to_high_cable_crossover",
+    "asset_path": "assets/images/exercises/low_to_high_cable_crossover.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Cable",
+    "difficulty": "Intermediate"
+  },
+  "Chest Press Machine": {
+    "id": 13,
+    "slug": "chest_press_machine",
+    "asset_path": "assets/images/exercises/chest_press_machine.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Smith Machine Bench Press": {
+    "id": 14,
+    "slug": "smith_machine_bench_press",
+    "asset_path": "assets/images/exercises/smith_machine_bench_press.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Push-Up": {
+    "id": 15,
+    "slug": "push_up",
+    "asset_path": "assets/images/exercises/push_up.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Incline Push-Up": {
+    "id": 16,
+    "slug": "incline_push_up",
+    "asset_path": "assets/images/exercises/incline_push_up.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Decline Push-Up": {
+    "id": 17,
+    "slug": "decline_push_up",
+    "asset_path": "assets/images/exercises/decline_push_up.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Bodyweight",
+    "difficulty": "Intermediate"
+  },
+  "Weighted Push-Up": {
+    "id": 18,
+    "slug": "weighted_push_up",
+    "asset_path": "assets/images/exercises/weighted_push_up.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Bodyweight",
+    "difficulty": "Advanced"
+  },
+  "Assisted Dip": {
+    "id": 19,
+    "slug": "assisted_dip",
+    "asset_path": "assets/images/exercises/assisted_dip.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Chest-Focused Dip": {
+    "id": 20,
+    "slug": "chest_focused_dip",
+    "asset_path": "assets/images/exercises/chest_focused_dip.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Bodyweight",
+    "difficulty": "Advanced"
+  },
+  "Dumbbell Pullover": {
+    "id": 21,
+    "slug": "dumbbell_pullover",
+    "asset_path": "assets/images/exercises/dumbbell_pullover.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Dumbbells",
+    "difficulty": "Intermediate"
+  },
+  "Landmine Chest Press": {
+    "id": 22,
+    "slug": "landmine_chest_press",
+    "asset_path": "assets/images/exercises/landmine_chest_press.jpg",
+    "muscle_group": "Chest",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Pull-Up": {
+    "id": 23,
+    "slug": "pull_up",
+    "asset_path": "assets/images/exercises/pull_up.jpg",
+    "muscle_group": "Lats",
+    "equipment": "Bodyweight",
+    "difficulty": "Advanced"
+  },
+  "Assisted Pull-Up": {
+    "id": 24,
+    "slug": "assisted_pull_up",
+    "asset_path": "assets/images/exercises/assisted_pull_up.jpg",
+    "muscle_group": "Lats",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Chin-Up": {
+    "id": 25,
+    "slug": "chin_up",
+    "asset_path": "assets/images/exercises/chin_up.jpg",
+    "muscle_group": "Lats",
+    "equipment": "Bodyweight",
+    "difficulty": "Intermediate"
+  },
+  "Lat Pulldown": {
+    "id": 26,
+    "slug": "lat_pulldown",
+    "asset_path": "assets/images/exercises/lat_pulldown.jpg",
+    "muscle_group": "Lats",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  "Close-Grip Lat Pulldown": {
+    "id": 27,
+    "slug": "close_grip_lat_pulldown",
+    "asset_path": "assets/images/exercises/close_grip_lat_pulldown.jpg",
+    "muscle_group": "Lats",
+    "equipment": "Cable",
+    "difficulty": "Intermediate"
+  },
+  "Wide-Grip Lat Pulldown": {
+    "id": 28,
+    "slug": "wide_grip_lat_pulldown",
+    "asset_path": "assets/images/exercises/wide_grip_lat_pulldown.jpg",
+    "muscle_group": "Lats",
+    "equipment": "Cable",
+    "difficulty": "Intermediate"
+  },
+  "Neutral-Grip Lat Pulldown": {
+    "id": 29,
+    "slug": "neutral_grip_lat_pulldown",
+    "asset_path": "assets/images/exercises/neutral_grip_lat_pulldown.jpg",
+    "muscle_group": "Lats",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  "Straight-Arm Cable Pulldown": {
+    "id": 30,
+    "slug": "straight_arm_cable_pulldown",
+    "asset_path": "assets/images/exercises/straight_arm_cable_pulldown.jpg",
+    "muscle_group": "Lats",
+    "equipment": "Cable",
+    "difficulty": "Intermediate"
+  },
+  "Barbell Bent-Over Row": {
+    "id": 31,
+    "slug": "barbell_bent_over_row",
+    "asset_path": "assets/images/exercises/barbell_bent_over_row.jpg",
+    "muscle_group": "Back",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Pendlay Row": {
+    "id": 32,
+    "slug": "pendlay_row",
+    "asset_path": "assets/images/exercises/pendlay_row.jpg",
+    "muscle_group": "Back",
+    "equipment": "Barbell",
+    "difficulty": "Advanced"
+  },
+  "T-Bar Row": {
+    "id": 33,
+    "slug": "t_bar_row",
+    "asset_path": "assets/images/exercises/t_bar_row.jpg",
+    "muscle_group": "Back",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Chest-Supported Row": {
+    "id": 34,
+    "slug": "chest_supported_row",
+    "asset_path": "assets/images/exercises/chest_supported_row.jpg",
+    "muscle_group": "Back",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Seated Cable Row": {
+    "id": 35,
+    "slug": "seated_cable_row",
+    "asset_path": "assets/images/exercises/seated_cable_row.jpg",
+    "muscle_group": "Back",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  "Single-Arm Dumbbell Row": {
+    "id": 36,
+    "slug": "single_arm_dumbbell_row",
+    "asset_path": "assets/images/exercises/single_arm_dumbbell_row.jpg",
+    "muscle_group": "Back",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Machine Row": {
+    "id": 37,
+    "slug": "machine_row",
+    "asset_path": "assets/images/exercises/machine_row.jpg",
+    "muscle_group": "Back",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Inverted Row": {
+    "id": 38,
+    "slug": "inverted_row",
+    "asset_path": "assets/images/exercises/inverted_row.jpg",
+    "muscle_group": "Back",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Landmine Row": {
+    "id": 39,
+    "slug": "landmine_row",
+    "asset_path": "assets/images/exercises/landmine_row.jpg",
+    "muscle_group": "Back",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Cable Pullover": {
+    "id": 40,
+    "slug": "cable_pullover",
+    "asset_path": "assets/images/exercises/cable_pullover.jpg",
+    "muscle_group": "Lats",
+    "equipment": "Cable",
+    "difficulty": "Intermediate"
+  },
+  "Smith Machine Row": {
+    "id": 41,
+    "slug": "smith_machine_row",
+    "asset_path": "assets/images/exercises/smith_machine_row.jpg",
+    "muscle_group": "Back",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Dumbbell Shrug": {
+    "id": 42,
+    "slug": "dumbbell_shrug",
+    "asset_path": "assets/images/exercises/dumbbell_shrug.jpg",
+    "muscle_group": "Upper Back and Traps",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Barbell Shrug": {
+    "id": 43,
+    "slug": "barbell_shrug",
+    "asset_path": "assets/images/exercises/barbell_shrug.jpg",
+    "muscle_group": "Upper Back and Traps",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Smith Machine Shrug": {
+    "id": 44,
+    "slug": "smith_machine_shrug",
+    "asset_path": "assets/images/exercises/smith_machine_shrug.jpg",
+    "muscle_group": "Upper Back and Traps",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Cable Shrug": {
+    "id": 45,
+    "slug": "cable_shrug",
+    "asset_path": "assets/images/exercises/cable_shrug.jpg",
+    "muscle_group": "Upper Back and Traps",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  "Face Pull": {
+    "id": 46,
+    "slug": "face_pull",
+    "asset_path": "assets/images/exercises/face_pull.jpg",
+    "muscle_group": "Upper Back and Traps",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  "Reverse Pec Deck": {
+    "id": 47,
+    "slug": "reverse_pec_deck",
+    "asset_path": "assets/images/exercises/reverse_pec_deck.jpg",
+    "muscle_group": "Upper Back and Traps",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Chest-Supported Rear Delt Row": {
+    "id": 48,
+    "slug": "chest_supported_rear_delt_row",
+    "asset_path": "assets/images/exercises/chest_supported_rear_delt_row.jpg",
+    "muscle_group": "Upper Back and Traps",
+    "equipment": "Dumbbells",
+    "difficulty": "Intermediate"
+  },
+  "Prone Y Raise": {
+    "id": 49,
+    "slug": "prone_y_raise",
+    "asset_path": "assets/images/exercises/prone_y_raise.jpg",
+    "muscle_group": "Upper Back and Traps",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Back Extension": {
+    "id": 50,
+    "slug": "back_extension",
+    "asset_path": "assets/images/exercises/back_extension.jpg",
+    "muscle_group": "Upper Back and Traps",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Reverse Hyperextension": {
+    "id": 51,
+    "slug": "reverse_hyperextension",
+    "asset_path": "assets/images/exercises/reverse_hyperextension.jpg",
+    "muscle_group": "Upper Back and Traps",
+    "equipment": "Machine",
+    "difficulty": "Intermediate"
+  },
+  "Seated Dumbbell Shoulder Press": {
+    "id": 52,
+    "slug": "seated_dumbbell_shoulder_press",
+    "asset_path": "assets/images/exercises/seated_dumbbell_shoulder_press.jpg",
+    "muscle_group": "Shoulders",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Standing Dumbbell Shoulder Press": {
+    "id": 53,
+    "slug": "standing_dumbbell_shoulder_press",
+    "asset_path": "assets/images/exercises/standing_dumbbell_shoulder_press.jpg",
+    "muscle_group": "Shoulders",
+    "equipment": "Dumbbells",
+    "difficulty": "Intermediate"
+  },
+  "Barbell Overhead Press": {
+    "id": 54,
+    "slug": "barbell_overhead_press",
+    "asset_path": "assets/images/exercises/barbell_overhead_press.jpg",
+    "muscle_group": "Shoulders",
+    "equipment": "Barbell",
+    "difficulty": "Advanced"
+  },
+  "Seated Barbell Press": {
+    "id": 55,
+    "slug": "seated_barbell_press",
+    "asset_path": "assets/images/exercises/seated_barbell_press.jpg",
+    "muscle_group": "Shoulders",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Machine Shoulder Press": {
+    "id": 56,
+    "slug": "machine_shoulder_press",
+    "asset_path": "assets/images/exercises/machine_shoulder_press.jpg",
+    "muscle_group": "Shoulders",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Arnold Press": {
+    "id": 57,
+    "slug": "arnold_press",
+    "asset_path": "assets/images/exercises/arnold_press.jpg",
+    "muscle_group": "Shoulders",
+    "equipment": "Dumbbells",
+    "difficulty": "Intermediate"
+  },
+  "Dumbbell Lateral Raise": {
+    "id": 58,
+    "slug": "dumbbell_lateral_raise",
+    "asset_path": "assets/images/exercises/dumbbell_lateral_raise.jpg",
+    "muscle_group": "Shoulders",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Cable Lateral Raise": {
+    "id": 59,
+    "slug": "cable_lateral_raise",
+    "asset_path": "assets/images/exercises/cable_lateral_raise.jpg",
+    "muscle_group": "Shoulders",
+    "equipment": "Cable",
+    "difficulty": "Intermediate"
+  },
+  "Machine Lateral Raise": {
+    "id": 60,
+    "slug": "machine_lateral_raise",
+    "asset_path": "assets/images/exercises/machine_lateral_raise.jpg",
+    "muscle_group": "Shoulders",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Leaning Cable Lateral Raise": {
+    "id": 61,
+    "slug": "leaning_cable_lateral_raise",
+    "asset_path": "assets/images/exercises/leaning_cable_lateral_raise.jpg",
+    "muscle_group": "Shoulders",
+    "equipment": "Cable",
+    "difficulty": "Intermediate"
+  },
+  "Front Dumbbell Raise": {
+    "id": 62,
+    "slug": "front_dumbbell_raise",
+    "asset_path": "assets/images/exercises/front_dumbbell_raise.jpg",
+    "muscle_group": "Shoulders",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Front Plate Raise": {
+    "id": 63,
+    "slug": "front_plate_raise",
+    "asset_path": "assets/images/exercises/front_plate_raise.jpg",
+    "muscle_group": "Shoulders",
+    "equipment": "Plate",
+    "difficulty": "Beginner"
+  },
+  "Cable Front Raise": {
+    "id": 64,
+    "slug": "cable_front_raise",
+    "asset_path": "assets/images/exercises/cable_front_raise.jpg",
+    "muscle_group": "Shoulders",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  "Bent-Over Rear Delt Raise": {
+    "id": 65,
+    "slug": "bent_over_rear_delt_raise",
+    "asset_path": "assets/images/exercises/bent_over_rear_delt_raise.jpg",
+    "muscle_group": "Shoulders",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Seated Rear Delt Raise": {
+    "id": 66,
+    "slug": "seated_rear_delt_raise",
+    "asset_path": "assets/images/exercises/seated_rear_delt_raise.jpg",
+    "muscle_group": "Shoulders",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Landmine Shoulder Press": {
+    "id": 67,
+    "slug": "landmine_shoulder_press",
+    "asset_path": "assets/images/exercises/landmine_shoulder_press.jpg",
+    "muscle_group": "Shoulders",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Pike Push-Up": {
+    "id": 68,
+    "slug": "pike_push_up",
+    "asset_path": "assets/images/exercises/pike_push_up.jpg",
+    "muscle_group": "Shoulders",
+    "equipment": "Bodyweight",
+    "difficulty": "Intermediate"
+  },
+  "Standing Dumbbell Curl": {
+    "id": 69,
+    "slug": "standing_dumbbell_curl",
+    "asset_path": "assets/images/exercises/standing_dumbbell_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Alternating Dumbbell Curl": {
+    "id": 70,
+    "slug": "alternating_dumbbell_curl",
+    "asset_path": "assets/images/exercises/alternating_dumbbell_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Seated Dumbbell Curl": {
+    "id": 71,
+    "slug": "seated_dumbbell_curl",
+    "asset_path": "assets/images/exercises/seated_dumbbell_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Incline Dumbbell Curl": {
+    "id": 72,
+    "slug": "incline_dumbbell_curl",
+    "asset_path": "assets/images/exercises/incline_dumbbell_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Dumbbells",
+    "difficulty": "Intermediate"
+  },
+  "Hammer Curl": {
+    "id": 73,
+    "slug": "hammer_curl",
+    "asset_path": "assets/images/exercises/hammer_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Cross-Body Hammer Curl": {
+    "id": 74,
+    "slug": "cross_body_hammer_curl",
+    "asset_path": "assets/images/exercises/cross_body_hammer_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Concentration Curl": {
+    "id": 75,
+    "slug": "concentration_curl",
+    "asset_path": "assets/images/exercises/concentration_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Preacher Curl": {
+    "id": 76,
+    "slug": "preacher_curl",
+    "asset_path": "assets/images/exercises/preacher_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "EZ-Bar Preacher Curl": {
+    "id": 77,
+    "slug": "ez_bar_preacher_curl",
+    "asset_path": "assets/images/exercises/ez_bar_preacher_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Standing EZ-Bar Curl": {
+    "id": 78,
+    "slug": "standing_ez_bar_curl",
+    "asset_path": "assets/images/exercises/standing_ez_bar_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Barbell",
+    "difficulty": "Beginner"
+  },
+  "Straight-Bar Curl": {
+    "id": 79,
+    "slug": "straight_bar_curl",
+    "asset_path": "assets/images/exercises/straight_bar_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Close-Grip Barbell Curl": {
+    "id": 80,
+    "slug": "close_grip_barbell_curl",
+    "asset_path": "assets/images/exercises/close_grip_barbell_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Wide-Grip Barbell Curl": {
+    "id": 81,
+    "slug": "wide_grip_barbell_curl",
+    "asset_path": "assets/images/exercises/wide_grip_barbell_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Cable Biceps Curl": {
+    "id": 82,
+    "slug": "cable_biceps_curl",
+    "asset_path": "assets/images/exercises/cable_biceps_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  "Low Cable Curl": {
+    "id": 83,
+    "slug": "low_cable_curl",
+    "asset_path": "assets/images/exercises/low_cable_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  "High Cable Curl": {
+    "id": 84,
+    "slug": "high_cable_curl",
+    "asset_path": "assets/images/exercises/high_cable_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Cable",
+    "difficulty": "Intermediate"
+  },
+  "Bayesian Cable Curl": {
+    "id": 85,
+    "slug": "bayesian_cable_curl",
+    "asset_path": "assets/images/exercises/bayesian_cable_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Cable",
+    "difficulty": "Advanced"
+  },
+  "Rope Hammer Curl": {
+    "id": 86,
+    "slug": "rope_hammer_curl",
+    "asset_path": "assets/images/exercises/rope_hammer_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  "Machine Biceps Curl": {
+    "id": 87,
+    "slug": "machine_biceps_curl",
+    "asset_path": "assets/images/exercises/machine_biceps_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Spider Curl": {
+    "id": 88,
+    "slug": "spider_curl",
+    "asset_path": "assets/images/exercises/spider_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Reverse Curl": {
+    "id": 89,
+    "slug": "reverse_curl",
+    "asset_path": "assets/images/exercises/reverse_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Drag Curl": {
+    "id": 90,
+    "slug": "drag_curl",
+    "asset_path": "assets/images/exercises/drag_curl.jpg",
+    "muscle_group": "Biceps",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Cable Triceps Pushdown": {
+    "id": 91,
+    "slug": "cable_triceps_pushdown",
+    "asset_path": "assets/images/exercises/cable_triceps_pushdown.jpg",
+    "muscle_group": "Triceps",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  "Rope Triceps Pushdown": {
+    "id": 92,
+    "slug": "rope_triceps_pushdown",
+    "asset_path": "assets/images/exercises/rope_triceps_pushdown.jpg",
+    "muscle_group": "Triceps",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  "Straight-Bar Pushdown": {
+    "id": 93,
+    "slug": "straight_bar_pushdown",
+    "asset_path": "assets/images/exercises/straight_bar_pushdown.jpg",
+    "muscle_group": "Triceps",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  "Reverse-Grip Pushdown": {
+    "id": 94,
+    "slug": "reverse_grip_pushdown",
+    "asset_path": "assets/images/exercises/reverse_grip_pushdown.jpg",
+    "muscle_group": "Triceps",
+    "equipment": "Cable",
+    "difficulty": "Intermediate"
+  },
+  "Overhead Cable Triceps Extension": {
+    "id": 95,
+    "slug": "overhead_cable_triceps_extension",
+    "asset_path": "assets/images/exercises/overhead_cable_triceps_extension.jpg",
+    "muscle_group": "Triceps",
+    "equipment": "Cable",
+    "difficulty": "Intermediate"
+  },
+  "Rope Overhead Extension": {
+    "id": 96,
+    "slug": "rope_overhead_extension",
+    "asset_path": "assets/images/exercises/rope_overhead_extension.jpg",
+    "muscle_group": "Triceps",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  "Single-Arm Cable Extension": {
+    "id": 97,
+    "slug": "single_arm_cable_extension",
+    "asset_path": "assets/images/exercises/single_arm_cable_extension.jpg",
+    "muscle_group": "Triceps",
+    "equipment": "Cable",
+    "difficulty": "Intermediate"
+  },
+  "Dumbbell Overhead Triceps Extension": {
+    "id": 98,
+    "slug": "dumbbell_overhead_triceps_extension",
+    "asset_path": "assets/images/exercises/dumbbell_overhead_triceps_extension.jpg",
+    "muscle_group": "Triceps",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Seated Dumbbell Triceps Extension": {
+    "id": 99,
+    "slug": "seated_dumbbell_triceps_extension",
+    "asset_path": "assets/images/exercises/seated_dumbbell_triceps_extension.jpg",
+    "muscle_group": "Triceps",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Lying EZ-Bar Triceps Extension": {
+    "id": 100,
+    "slug": "lying_ez_bar_triceps_extension",
+    "asset_path": "assets/images/exercises/lying_ez_bar_triceps_extension.jpg",
+    "muscle_group": "Triceps",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Skull Crusher": {
+    "id": 101,
+    "slug": "skull_crusher",
+    "asset_path": "assets/images/exercises/skull_crusher.jpg",
+    "muscle_group": "Triceps",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Close-Grip Bench Press": {
+    "id": 102,
+    "slug": "close_grip_bench_press",
+    "asset_path": "assets/images/exercises/close_grip_bench_press.jpg",
+    "muscle_group": "Triceps",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Assisted Triceps Dip": {
+    "id": 103,
+    "slug": "assisted_triceps_dip",
+    "asset_path": "assets/images/exercises/assisted_triceps_dip.jpg",
+    "muscle_group": "Triceps",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Bench Dip": {
+    "id": 104,
+    "slug": "bench_dip",
+    "asset_path": "assets/images/exercises/bench_dip.jpg",
+    "muscle_group": "Triceps",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Dumbbell Kickback": {
+    "id": 105,
+    "slug": "dumbbell_kickback",
+    "asset_path": "assets/images/exercises/dumbbell_kickback.jpg",
+    "muscle_group": "Triceps",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Cable Kickback": {
+    "id": 106,
+    "slug": "cable_kickback",
+    "asset_path": "assets/images/exercises/cable_kickback.jpg",
+    "muscle_group": "Triceps",
+    "equipment": "Cable",
+    "difficulty": "Intermediate"
+  },
+  "Cross-Body Cable Triceps Extension": {
+    "id": 107,
+    "slug": "cross_body_cable_triceps_extension",
+    "asset_path": "assets/images/exercises/cross_body_cable_triceps_extension.jpg",
+    "muscle_group": "Triceps",
+    "equipment": "Cable",
+    "difficulty": "Intermediate"
+  },
+  "Machine Triceps Extension": {
+    "id": 108,
+    "slug": "machine_triceps_extension",
+    "asset_path": "assets/images/exercises/machine_triceps_extension.jpg",
+    "muscle_group": "Triceps",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Diamond Push-Up": {
+    "id": 109,
+    "slug": "diamond_push_up",
+    "asset_path": "assets/images/exercises/diamond_push_up.jpg",
+    "muscle_group": "Triceps",
+    "equipment": "Bodyweight",
+    "difficulty": "Intermediate"
+  },
+  "Wrist Curl": {
+    "id": 110,
+    "slug": "wrist_curl",
+    "asset_path": "assets/images/exercises/wrist_curl.jpg",
+    "muscle_group": "Forearms",
+    "equipment": "Barbell",
+    "difficulty": "Beginner"
+  },
+  "Reverse Wrist Curl": {
+    "id": 111,
+    "slug": "reverse_wrist_curl",
+    "asset_path": "assets/images/exercises/reverse_wrist_curl.jpg",
+    "muscle_group": "Forearms",
+    "equipment": "Barbell",
+    "difficulty": "Beginner"
+  },
+  "Barbell Wrist Curl": {
+    "id": 112,
+    "slug": "barbell_wrist_curl",
+    "asset_path": "assets/images/exercises/barbell_wrist_curl.jpg",
+    "muscle_group": "Forearms",
+    "equipment": "Barbell",
+    "difficulty": "Beginner"
+  },
+  "Dumbbell Wrist Curl": {
+    "id": 113,
+    "slug": "dumbbell_wrist_curl",
+    "asset_path": "assets/images/exercises/dumbbell_wrist_curl.jpg",
+    "muscle_group": "Forearms",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Farmer's Carry": {
+    "id": 114,
+    "slug": "farmers_carry",
+    "asset_path": "assets/images/exercises/farmers_carry.jpg",
+    "muscle_group": "Forearms",
+    "equipment": "Dumbbells",
+    "difficulty": "Intermediate"
+  },
+  "Dead Hang": {
+    "id": 115,
+    "slug": "dead_hang",
+    "asset_path": "assets/images/exercises/dead_hang.jpg",
+    "muscle_group": "Forearms",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Plate Pinch Hold": {
+    "id": 116,
+    "slug": "plate_pinch_hold",
+    "asset_path": "assets/images/exercises/plate_pinch_hold.jpg",
+    "muscle_group": "Forearms",
+    "equipment": "Plate",
+    "difficulty": "Intermediate"
+  },
+  "Wrist Roller": {
+    "id": 117,
+    "slug": "wrist_roller",
+    "asset_path": "assets/images/exercises/wrist_roller.jpg",
+    "muscle_group": "Forearms",
+    "equipment": "Specialty",
+    "difficulty": "Intermediate"
+  },
+  "Cable Wrist Curl": {
+    "id": 118,
+    "slug": "cable_wrist_curl",
+    "asset_path": "assets/images/exercises/cable_wrist_curl.jpg",
+    "muscle_group": "Forearms",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  "Barbell Back Squat": {
+    "id": 119,
+    "slug": "barbell_back_squat",
+    "asset_path": "assets/images/exercises/barbell_back_squat.jpg",
+    "muscle_group": "Quadriceps",
+    "equipment": "Barbell",
+    "difficulty": "Advanced"
+  },
+  "Front Squat": {
+    "id": 120,
+    "slug": "front_squat",
+    "asset_path": "assets/images/exercises/front_squat.jpg",
+    "muscle_group": "Quadriceps",
+    "equipment": "Barbell",
+    "difficulty": "Advanced"
+  },
+  "Goblet Squat": {
+    "id": 121,
+    "slug": "goblet_squat",
+    "asset_path": "assets/images/exercises/goblet_squat.jpg",
+    "muscle_group": "Quadriceps",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Smith Machine Squat": {
+    "id": 122,
+    "slug": "smith_machine_squat",
+    "asset_path": "assets/images/exercises/smith_machine_squat.jpg",
+    "muscle_group": "Quadriceps",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Hack Squat": {
+    "id": 123,
+    "slug": "hack_squat",
+    "asset_path": "assets/images/exercises/hack_squat.jpg",
+    "muscle_group": "Quadriceps",
+    "equipment": "Machine",
+    "difficulty": "Intermediate"
+  },
+  "Leg Press": {
+    "id": 124,
+    "slug": "leg_press",
+    "asset_path": "assets/images/exercises/leg_press.jpg",
+    "muscle_group": "Quadriceps",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Bulgarian Split Squat": {
+    "id": 125,
+    "slug": "bulgarian_split_squat",
+    "asset_path": "assets/images/exercises/bulgarian_split_squat.jpg",
+    "muscle_group": "Quadriceps",
+    "equipment": "Dumbbells",
+    "difficulty": "Intermediate"
+  },
+  "Walking Lunge": {
+    "id": 126,
+    "slug": "walking_lunge",
+    "asset_path": "assets/images/exercises/walking_lunge.jpg",
+    "muscle_group": "Quadriceps",
+    "equipment": "Dumbbells",
+    "difficulty": "Intermediate"
+  },
+  "Reverse Lunge": {
+    "id": 127,
+    "slug": "reverse_lunge",
+    "asset_path": "assets/images/exercises/reverse_lunge.jpg",
+    "muscle_group": "Quadriceps",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Forward Lunge": {
+    "id": 128,
+    "slug": "forward_lunge",
+    "asset_path": "assets/images/exercises/forward_lunge.jpg",
+    "muscle_group": "Quadriceps",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Step-Up": {
+    "id": 129,
+    "slug": "step_up",
+    "asset_path": "assets/images/exercises/step_up.jpg",
+    "muscle_group": "Quadriceps",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Leg Extension": {
+    "id": 130,
+    "slug": "leg_extension",
+    "asset_path": "assets/images/exercises/leg_extension.jpg",
+    "muscle_group": "Quadriceps",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Sissy Squat": {
+    "id": 131,
+    "slug": "sissy_squat",
+    "asset_path": "assets/images/exercises/sissy_squat.jpg",
+    "muscle_group": "Quadriceps",
+    "equipment": "Bodyweight",
+    "difficulty": "Advanced"
+  },
+  "Split Squat": {
+    "id": 132,
+    "slug": "split_squat",
+    "asset_path": "assets/images/exercises/split_squat.jpg",
+    "muscle_group": "Quadriceps",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Belt Squat": {
+    "id": 133,
+    "slug": "belt_squat",
+    "asset_path": "assets/images/exercises/belt_squat.jpg",
+    "muscle_group": "Quadriceps",
+    "equipment": "Machine",
+    "difficulty": "Intermediate"
+  },
+  "Romanian Deadlift": {
+    "id": 134,
+    "slug": "romanian_deadlift",
+    "asset_path": "assets/images/exercises/romanian_deadlift.jpg",
+    "muscle_group": "Hamstrings",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Conventional Deadlift": {
+    "id": 135,
+    "slug": "conventional_deadlift",
+    "asset_path": "assets/images/exercises/conventional_deadlift.jpg",
+    "muscle_group": "Hamstrings",
+    "equipment": "Barbell",
+    "difficulty": "Advanced"
+  },
+  "Stiff-Leg Deadlift": {
+    "id": 136,
+    "slug": "stiff_leg_deadlift",
+    "asset_path": "assets/images/exercises/stiff_leg_deadlift.jpg",
+    "muscle_group": "Hamstrings",
+    "equipment": "Barbell",
+    "difficulty": "Advanced"
+  },
+  "Seated Leg Curl": {
+    "id": 137,
+    "slug": "seated_leg_curl",
+    "asset_path": "assets/images/exercises/seated_leg_curl.jpg",
+    "muscle_group": "Hamstrings",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Lying Leg Curl": {
+    "id": 138,
+    "slug": "lying_leg_curl",
+    "asset_path": "assets/images/exercises/lying_leg_curl.jpg",
+    "muscle_group": "Hamstrings",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Standing Leg Curl": {
+    "id": 139,
+    "slug": "standing_leg_curl",
+    "asset_path": "assets/images/exercises/standing_leg_curl.jpg",
+    "muscle_group": "Hamstrings",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Single-Leg Romanian Deadlift": {
+    "id": 140,
+    "slug": "single_leg_romanian_deadlift",
+    "asset_path": "assets/images/exercises/single_leg_romanian_deadlift.jpg",
+    "muscle_group": "Hamstrings",
+    "equipment": "Dumbbells",
+    "difficulty": "Intermediate"
+  },
+  "Good Morning": {
+    "id": 141,
+    "slug": "good_morning",
+    "asset_path": "assets/images/exercises/good_morning.jpg",
+    "muscle_group": "Hamstrings",
+    "equipment": "Barbell",
+    "difficulty": "Advanced"
+  },
+  "Nordic Hamstring Curl": {
+    "id": 142,
+    "slug": "nordic_hamstring_curl",
+    "asset_path": "assets/images/exercises/nordic_hamstring_curl.jpg",
+    "muscle_group": "Hamstrings",
+    "equipment": "Bodyweight",
+    "difficulty": "Advanced"
+  },
+  "Cable Pull-Through": {
+    "id": 143,
+    "slug": "cable_pull_through",
+    "asset_path": "assets/images/exercises/cable_pull_through.jpg",
+    "muscle_group": "Hamstrings",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  "Glute-Ham Raise": {
+    "id": 144,
+    "slug": "glute_ham_raise",
+    "asset_path": "assets/images/exercises/glute_ham_raise.jpg",
+    "muscle_group": "Hamstrings",
+    "equipment": "Machine",
+    "difficulty": "Advanced"
+  },
+  "Barbell Hip Thrust": {
+    "id": 145,
+    "slug": "barbell_hip_thrust",
+    "asset_path": "assets/images/exercises/barbell_hip_thrust.jpg",
+    "muscle_group": "Glutes",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Dumbbell Hip Thrust": {
+    "id": 146,
+    "slug": "dumbbell_hip_thrust",
+    "asset_path": "assets/images/exercises/dumbbell_hip_thrust.jpg",
+    "muscle_group": "Glutes",
+    "equipment": "Dumbbells",
+    "difficulty": "Beginner"
+  },
+  "Glute Bridge": {
+    "id": 147,
+    "slug": "glute_bridge",
+    "asset_path": "assets/images/exercises/glute_bridge.jpg",
+    "muscle_group": "Glutes",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Single-Leg Glute Bridge": {
+    "id": 148,
+    "slug": "single_leg_glute_bridge",
+    "asset_path": "assets/images/exercises/single_leg_glute_bridge.jpg",
+    "muscle_group": "Glutes",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Cable Glute Kickback": {
+    "id": 149,
+    "slug": "cable_glute_kickback",
+    "asset_path": "assets/images/exercises/cable_glute_kickback.jpg",
+    "muscle_group": "Glutes",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  "Machine Glute Kickback": {
+    "id": 150,
+    "slug": "machine_glute_kickback",
+    "asset_path": "assets/images/exercises/machine_glute_kickback.jpg",
+    "muscle_group": "Glutes",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Sumo Squat": {
+    "id": 151,
+    "slug": "sumo_squat",
+    "asset_path": "assets/images/exercises/sumo_squat.jpg",
+    "muscle_group": "Glutes",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Hip Abduction Machine": {
+    "id": 152,
+    "slug": "hip_abduction_machine",
+    "asset_path": "assets/images/exercises/hip_abduction_machine.jpg",
+    "muscle_group": "Glutes",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Banded Lateral Walk": {
+    "id": 153,
+    "slug": "banded_lateral_walk",
+    "asset_path": "assets/images/exercises/banded_lateral_walk.jpg",
+    "muscle_group": "Glutes",
+    "equipment": "Bands",
+    "difficulty": "Beginner"
+  },
+  "Standing Calf Raise": {
+    "id": 154,
+    "slug": "standing_calf_raise",
+    "asset_path": "assets/images/exercises/standing_calf_raise.jpg",
+    "muscle_group": "Calves",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Seated Calf Raise": {
+    "id": 155,
+    "slug": "seated_calf_raise",
+    "asset_path": "assets/images/exercises/seated_calf_raise.jpg",
+    "muscle_group": "Calves",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Leg Press Calf Raise": {
+    "id": 156,
+    "slug": "leg_press_calf_raise",
+    "asset_path": "assets/images/exercises/leg_press_calf_raise.jpg",
+    "muscle_group": "Calves",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Smith Machine Calf Raise": {
+    "id": 157,
+    "slug": "smith_machine_calf_raise",
+    "asset_path": "assets/images/exercises/smith_machine_calf_raise.jpg",
+    "muscle_group": "Calves",
+    "equipment": "Machine",
+    "difficulty": "Beginner"
+  },
+  "Single-Leg Calf Raise": {
+    "id": 158,
+    "slug": "single_leg_calf_raise",
+    "asset_path": "assets/images/exercises/single_leg_calf_raise.jpg",
+    "muscle_group": "Calves",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Donkey Calf Raise": {
+    "id": 159,
+    "slug": "donkey_calf_raise",
+    "asset_path": "assets/images/exercises/donkey_calf_raise.jpg",
+    "muscle_group": "Calves",
+    "equipment": "Machine",
+    "difficulty": "Intermediate"
+  },
+  "Tibialis Raise": {
+    "id": 160,
+    "slug": "tibialis_raise",
+    "asset_path": "assets/images/exercises/tibialis_raise.jpg",
+    "muscle_group": "Calves",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Crunch": {
+    "id": 161,
+    "slug": "crunch",
+    "asset_path": "assets/images/exercises/crunch.jpg",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Reverse Crunch": {
+    "id": 162,
+    "slug": "reverse_crunch",
+    "asset_path": "assets/images/exercises/reverse_crunch.jpg",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Bicycle Crunch": {
+    "id": 163,
+    "slug": "bicycle_crunch",
+    "asset_path": "assets/images/exercises/bicycle_crunch.jpg",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Hanging Knee Raise": {
+    "id": 164,
+    "slug": "hanging_knee_raise",
+    "asset_path": "assets/images/exercises/hanging_knee_raise.jpg",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Hanging Leg Raise": {
+    "id": 165,
+    "slug": "hanging_leg_raise",
+    "asset_path": "assets/images/exercises/hanging_leg_raise.jpg",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Advanced"
+  },
+  "Captain's Chair Knee Raise": {
+    "id": 166,
+    "slug": "captains_chair_knee_raise",
+    "asset_path": "assets/images/exercises/captains_chair_knee_raise.jpg",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Cable Crunch": {
+    "id": 167,
+    "slug": "cable_crunch",
+    "asset_path": "assets/images/exercises/cable_crunch.jpg",
+    "muscle_group": "Abs and Core",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  "Kneeling Rope Crunch": {
+    "id": 168,
+    "slug": "kneeling_rope_crunch",
+    "asset_path": "assets/images/exercises/kneeling_rope_crunch.jpg",
+    "muscle_group": "Abs and Core",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  "Ab Wheel Rollout": {
+    "id": 169,
+    "slug": "ab_wheel_rollout",
+    "asset_path": "assets/images/exercises/ab_wheel_rollout.jpg",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Advanced"
+  },
+  "Plank": {
+    "id": 170,
+    "slug": "plank",
+    "asset_path": "assets/images/exercises/plank.jpg",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Side Plank": {
+    "id": 171,
+    "slug": "side_plank",
+    "asset_path": "assets/images/exercises/side_plank.jpg",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Dead Bug": {
+    "id": 172,
+    "slug": "dead_bug",
+    "asset_path": "assets/images/exercises/dead_bug.jpg",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Bird Dog": {
+    "id": 173,
+    "slug": "bird_dog",
+    "asset_path": "assets/images/exercises/bird_dog.jpg",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Pallof Press": {
+    "id": 174,
+    "slug": "pallof_press",
+    "asset_path": "assets/images/exercises/pallof_press.jpg",
+    "muscle_group": "Abs and Core",
+    "equipment": "Cable",
+    "difficulty": "Beginner"
+  },
+  "Russian Twist": {
+    "id": 175,
+    "slug": "russian_twist",
+    "asset_path": "assets/images/exercises/russian_twist.jpg",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Mountain Climber": {
+    "id": 176,
+    "slug": "mountain_climber",
+    "asset_path": "assets/images/exercises/mountain_climber.jpg",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Wood Chop": {
+    "id": 177,
+    "slug": "wood_chop",
+    "asset_path": "assets/images/exercises/wood_chop.jpg",
+    "muscle_group": "Abs and Core",
+    "equipment": "Cable",
+    "difficulty": "Intermediate"
+  },
+  "Decline Sit-Up": {
+    "id": 178,
+    "slug": "decline_sit_up",
+    "asset_path": "assets/images/exercises/decline_sit_up.jpg",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Intermediate"
+  },
+  "Stability Ball Crunch": {
+    "id": 179,
+    "slug": "stability_ball_crunch",
+    "asset_path": "assets/images/exercises/stability_ball_crunch.jpg",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Hollow Body Hold": {
+    "id": 180,
+    "slug": "hollow_body_hold",
+    "asset_path": "assets/images/exercises/hollow_body_hold.jpg",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight",
+    "difficulty": "Advanced"
+  },
+  "Trap Bar Deadlift": {
+    "id": 181,
+    "slug": "trap_bar_deadlift",
+    "asset_path": "assets/images/exercises/trap_bar_deadlift.jpg",
+    "muscle_group": "Full Body",
+    "equipment": "Barbell",
+    "difficulty": "Intermediate"
+  },
+  "Thruster": {
+    "id": 182,
+    "slug": "thruster",
+    "asset_path": "assets/images/exercises/thruster.jpg",
+    "muscle_group": "Full Body",
+    "equipment": "Barbell",
+    "difficulty": "Advanced"
+  },
+  "Kettlebell Swing": {
+    "id": 183,
+    "slug": "kettlebell_swing",
+    "asset_path": "assets/images/exercises/kettlebell_swing.jpg",
+    "muscle_group": "Full Body",
+    "equipment": "Kettlebell",
+    "difficulty": "Intermediate"
+  },
+  "Turkish Get-Up": {
+    "id": 184,
+    "slug": "turkish_get_up",
+    "asset_path": "assets/images/exercises/turkish_get_up.jpg",
+    "muscle_group": "Full Body",
+    "equipment": "Kettlebell",
+    "difficulty": "Advanced"
+  },
+  "Sled Push": {
+    "id": 185,
+    "slug": "sled_push",
+    "asset_path": "assets/images/exercises/sled_push.jpg",
+    "muscle_group": "Full Body",
+    "equipment": "Specialty",
+    "difficulty": "Intermediate"
+  },
+  "Sled Pull": {
+    "id": 186,
+    "slug": "sled_pull",
+    "asset_path": "assets/images/exercises/sled_pull.jpg",
+    "muscle_group": "Full Body",
+    "equipment": "Specialty",
+    "difficulty": "Intermediate"
+  },
+  "Battle Rope Exercise": {
+    "id": 187,
+    "slug": "battle_rope_exercise",
+    "asset_path": "assets/images/exercises/battle_rope_exercise.jpg",
+    "muscle_group": "Full Body",
+    "equipment": "Specialty",
+    "difficulty": "Intermediate"
+  },
+  "Bodyweight Squat": {
+    "id": 188,
+    "slug": "bodyweight_squat",
+    "asset_path": "assets/images/exercises/bodyweight_squat.jpg",
+    "muscle_group": "Quadriceps",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Burpee": {
+    "id": 189,
+    "slug": "burpee",
+    "asset_path": "assets/images/exercises/burpee.jpg",
+    "muscle_group": "Full Body",
+    "equipment": "Bodyweight",
+    "difficulty": "Intermediate"
+  },
+  "Bear Crawl": {
+    "id": 190,
+    "slug": "bear_crawl",
+    "asset_path": "assets/images/exercises/bear_crawl.jpg",
+    "muscle_group": "Full Body",
+    "equipment": "Bodyweight",
+    "difficulty": "Intermediate"
+  }
+}
