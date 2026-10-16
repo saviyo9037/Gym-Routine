@@ -3,8 +3,10 @@ import 'package:intl/intl.dart';
 
 import '../core/theme.dart';
 import '../models/exercise.dart';
+import '../models/exercise_demonstration.dart';
 import '../services/database_service.dart';
-import '../widgets/exercise_image_widget.dart';
+import '../services/exercise_media_service.dart';
+import '../widgets/exercise_demonstration_player.dart';
 import '../widgets/media_attachment_section.dart';
 import 'active_workout_screen.dart';
 
@@ -34,6 +36,8 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
   late double _targetWeightKg;
   late int _targetRestSeconds;
 
+  ExerciseDemonstration? _demonstration;
+
   @override
   void initState() {
     super.initState();
@@ -43,6 +47,16 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
     _targetReps = _exercise.defaultReps;
     _targetWeightKg = _exercise.defaultWeightKg;
     _targetRestSeconds = _exercise.restSeconds;
+    _loadDemonstration();
+  }
+
+  Future<void> _loadDemonstration() async {
+    await ExerciseMediaService.instance.initialize();
+    if (mounted) {
+      setState(() {
+        _demonstration = ExerciseMediaService.instance.getDemonstration(_exercise.name);
+      });
+    }
   }
 
   Future<void> _toggleFavourite() async {
@@ -533,11 +547,21 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
-          // Demonstration Image App Bar
+          // Pinned App Bar with controls and title
           SliverAppBar(
-            expandedHeight: 280,
             pinned: true,
             backgroundColor: AppColors.background,
+            elevation: 0,
+            title: Text(
+              _exercise.name,
+              style: const TextStyle(
+                color: AppColors.textMain,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
             actions: [
               IconButton(
                 icon: Icon(
@@ -625,32 +649,6 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                 ],
               ),
             ],
-            flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  ExerciseImageWidget(
-                    imagePath: _exercise.imagePath,
-                    personalPhotoPath: _exercise.personalPhotoPath,
-                    exerciseName: _exercise.name,
-                    borderRadius: BorderRadius.zero,
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.transparent,
-                          AppColors.background.withValues(alpha: 0.8),
-                          AppColors.background,
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
 
           SliverToBoxAdapter(
@@ -659,6 +657,15 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Prominent Exercise Demonstration Player
+                  ExerciseDemonstrationPlayer(
+                    exerciseName: _exercise.name,
+                    fallbackImagePath: _exercise.imagePath,
+                    personalPhotoPath: _exercise.personalPhotoPath,
+                    height: 250,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  const SizedBox(height: 16),
                   // Badges Row
                   Wrap(
                     spacing: 8,
@@ -804,6 +811,117 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                     ],
                   ),
                   const SizedBox(height: 22),
+
+                  // Demonstration Movement Breakdown Card
+                  if (_demonstration != null &&
+                      _demonstration!.demonstrationCues.isNotEmpty) ...[
+                    _buildSectionHeader('DEMONSTRATION MOVEMENT BREAKDOWN'),
+                    Container(
+                      margin: const EdgeInsets.only(top: 8, bottom: 20),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.cardSurface,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: _demonstration!.hasVideo
+                              ? AppColors.primary.withValues(alpha: 0.35)
+                              : AppColors.border,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                _demonstration!.hasVideo
+                                    ? Icons.video_library_rounded
+                                    : Icons.photo_library_rounded,
+                                color: AppColors.primary,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                _demonstration!.hasVideo
+                                    ? '3-Phase Biomechanical Breakdown (~10s)'
+                                    : 'Technique Reference Guide',
+                                style: const TextStyle(
+                                  color: AppColors.primary,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          ..._demonstration!.demonstrationCues.map(
+                            (cue) => Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    margin: const EdgeInsets.only(top: 5, right: 10),
+                                    width: 6,
+                                    height: 6,
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.primary,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      cue,
+                                      style: const TextStyle(
+                                        color: AppColors.textMain,
+                                        fontSize: 13,
+                                        height: 1.45,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const Divider(color: AppColors.border, height: 20),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Media: ${_demonstration!.attribution}',
+                                  style: const TextStyle(
+                                    color: AppColors.textMuted,
+                                    fontSize: 11,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.surfaceElevated,
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: AppColors.border),
+                                ),
+                                child: Text(
+                                  _demonstration!.license,
+                                  style: const TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
 
                   // Suggested Plan Card with Edit affordance
                   Row(

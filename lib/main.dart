@@ -11,6 +11,7 @@ import 'screens/settings_screen.dart';
 import 'screens/add_edit_exercise_screen.dart';
 import 'screens/alarm_ringing_screen.dart';
 import 'services/alarm_service.dart';
+import 'services/exercise_media_service.dart';
 import 'data/db_helper.dart';
 
 void main() async {
@@ -31,6 +32,13 @@ void main() async {
     await DatabaseHelper.instance.database;
   } catch (e) {
     debugPrint('Database init error: $e');
+  }
+
+  // Initialize Exercise Demonstration Media Service
+  try {
+    await ExerciseMediaService.instance.initialize();
+  } catch (e) {
+    debugPrint('Media service init error: $e');
   }
 
   runApp(const RepTrackApp());

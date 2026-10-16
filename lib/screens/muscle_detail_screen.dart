@@ -8,6 +8,7 @@ import '../models/exercise.dart';
 import '../models/media_attachment.dart';
 import '../services/database_service.dart';
 import '../services/media_service.dart';
+import '../services/exercise_media_service.dart';
 import '../widgets/exercise_image_widget.dart';
 import '../widgets/media_attachment_section.dart';
 import 'exercise_detail_screen.dart';
@@ -63,6 +64,7 @@ class _MuscleDetailScreenState extends State<MuscleDetailScreen> {
   }
 
   Future<void> _loadData() async {
+    await ExerciseMediaService.instance.initialize();
     final exList = await _dbService.getCatalogueExercises(
       _muscleGroup.name,
       sortBy: _selectedSort,
@@ -767,16 +769,60 @@ class _MuscleDetailScreenState extends State<MuscleDetailScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Exercise Demonstration Image (Large and distinct)
+            // Exercise Demonstration Image (Large and distinct) with Video Badge
             SizedBox(
               width: 120,
               height: 120,
-              child: ExerciseImageWidget(
-                imagePath: ex.imagePath,
-                personalPhotoPath: ex.personalPhotoPath,
-                exerciseName: ex.name,
-                borderRadius: BorderRadius.zero,
-                fit: BoxFit.cover,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  ExerciseImageWidget(
+                    imagePath: ex.imagePath,
+                    personalPhotoPath: ex.personalPhotoPath,
+                    exerciseName: ex.name,
+                    borderRadius: BorderRadius.zero,
+                    fit: BoxFit.cover,
+                  ),
+                  if (ExerciseMediaService.instance.hasDemonstration(ex.name))
+                    Positioned(
+                      bottom: 6,
+                      left: 6,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2.5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.8),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: AppColors.primary.withValues(alpha: 0.6),
+                            width: 0.8,
+                          ),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.play_arrow_rounded,
+                              color: AppColors.primary,
+                              size: 12,
+                            ),
+                            SizedBox(width: 2),
+                            Text(
+                              'VIDEO',
+                              style: TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
             Expanded(
