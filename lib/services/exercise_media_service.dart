@@ -79,8 +79,12 @@ class ExerciseMediaService {
     return _registryById[id];
   }
 
-  bool hasDemonstration(String name) {
-    final demo = getDemonstration(name);
+  bool hasDemonstration(String name, {int? exerciseId}) {
+    ExerciseDemonstration? demo;
+    if (exerciseId != null && exerciseId > 0) {
+      demo = getDemonstrationById(exerciseId);
+    }
+    demo ??= getDemonstration(name);
     return demo != null && demo.hasVideo;
   }
 
@@ -93,24 +97,34 @@ class ExerciseMediaService {
     return demoDir;
   }
 
-  Future<File> _getCachedFileForExercise(String exerciseName) async {
+  Future<File> _getCachedFileForExercise(
+    String exerciseName, {
+    int? exerciseId,
+  }) async {
     final dir = await _getDemonstrationsDirectory();
+    final prefix = exerciseId != null && exerciseId > 0 ? 'ex_${exerciseId}_' : '';
     final slug = _normalize(exerciseName);
-    return File(p.join(dir.path, '$slug.mp4'));
+    return File(p.join(dir.path, '$prefix$slug.mp4'));
   }
 
-  Future<bool> isDownloaded(String exerciseName) async {
+  Future<bool> isDownloaded(
+    String exerciseName, {
+    int? exerciseId,
+  }) async {
     try {
-      final file = await _getCachedFileForExercise(exerciseName);
+      final file = await _getCachedFileForExercise(exerciseName, exerciseId: exerciseId);
       return await file.exists() && (await file.length()) > 0;
     } catch (_) {
       return false;
     }
   }
 
-  Future<String?> getLocalCachedVideoPath(String exerciseName) async {
+  Future<String?> getLocalCachedVideoPath(
+    String exerciseName, {
+    int? exerciseId,
+  }) async {
     try {
-      final file = await _getCachedFileForExercise(exerciseName);
+      final file = await _getCachedFileForExercise(exerciseName, exerciseId: exerciseId);
       if (await file.exists() && (await file.length()) > 0) {
         return file.path;
       }
@@ -120,10 +134,15 @@ class ExerciseMediaService {
 
   Future<DemonstrationMediaSource> resolveMediaSource(
     String exerciseName, {
+    int? exerciseId,
     String? fallbackImagePath,
   }) async {
     await initialize();
-    final demo = getDemonstration(exerciseName);
+    ExerciseDemonstration? demo;
+    if (exerciseId != null && exerciseId > 0) {
+      demo = getDemonstrationById(exerciseId);
+    }
+    demo ??= getDemonstration(exerciseName);
 
     if (demo == null || !demo.hasVideo) {
       return DemonstrationMediaSource(
@@ -143,7 +162,7 @@ class ExerciseMediaService {
     }
 
     // 2. Check if downloaded in app-private storage
-    final localPath = await getLocalCachedVideoPath(exerciseName);
+    final localPath = await getLocalCachedVideoPath(exerciseName, exerciseId: exerciseId);
     if (localPath != null) {
       return DemonstrationMediaSource(
         type: DemonstrationSourceType.downloadedFile,
@@ -172,15 +191,20 @@ class ExerciseMediaService {
 
   Future<File?> downloadDemonstration(
     String exerciseName, {
+    int? exerciseId,
     void Function(double progress)? onProgress,
   }) async {
     await initialize();
-    final demo = getDemonstration(exerciseName);
+    ExerciseDemonstration? demo;
+    if (exerciseId != null && exerciseId > 0) {
+      demo = getDemonstrationById(exerciseId);
+    }
+    demo ??= getDemonstration(exerciseName);
     if (demo == null || demo.videoUrl == null || demo.videoUrl!.isEmpty) {
       return null;
     }
 
-    final targetFile = await _getCachedFileForExercise(exerciseName);
+    final targetFile = await _getCachedFileForExercise(exerciseName, exerciseId: exerciseId);
     final tempFile = File('${targetFile.path}.tmp');
 
     try {
@@ -226,9 +250,12 @@ class ExerciseMediaService {
     }
   }
 
-  Future<bool> deleteDownloadedDemonstration(String exerciseName) async {
+  Future<bool> deleteDownloadedDemonstration(
+    String exerciseName, {
+    int? exerciseId,
+  }) async {
     try {
-      final file = await _getCachedFileForExercise(exerciseName);
+      final file = await _getCachedFileForExercise(exerciseName, exerciseId: exerciseId);
       if (await file.exists()) {
         await file.delete();
         return true;

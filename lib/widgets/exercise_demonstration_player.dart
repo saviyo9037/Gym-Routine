@@ -9,6 +9,7 @@ import '../services/exercise_media_service.dart';
 import 'exercise_image_widget.dart';
 
 class ExerciseDemonstrationPlayer extends StatefulWidget {
+  final int? exerciseId;
   final String exerciseName;
   final String? fallbackImagePath;
   final String? personalPhotoPath;
@@ -18,6 +19,7 @@ class ExerciseDemonstrationPlayer extends StatefulWidget {
 
   const ExerciseDemonstrationPlayer({
     super.key,
+    this.exerciseId,
     required this.exerciseName,
     this.fallbackImagePath,
     this.personalPhotoPath,
@@ -39,6 +41,7 @@ class _ExerciseDemonstrationPlayerState
   DemonstrationMediaSource? _mediaSource;
   ExerciseDemonstration? _demonstration;
 
+  int _initToken = 0;
   bool _isLoading = true;
   bool _hasError = false;
   String? _errorMessage;
@@ -58,7 +61,9 @@ class _ExerciseDemonstrationPlayerState
   @override
   void didUpdateWidget(covariant ExerciseDemonstrationPlayer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.exerciseName != widget.exerciseName) {
+    if (oldWidget.exerciseId != widget.exerciseId ||
+        oldWidget.exerciseName != widget.exerciseName) {
+      _initToken++;
       _disposeController();
       _initializePlayer();
     }
@@ -77,21 +82,34 @@ class _ExerciseDemonstrationPlayerState
   }
 
   Future<void> _initializePlayer() async {
+    final currentToken = ++_initToken;
+    _disposeController();
+
     setState(() {
       _isLoading = true;
       _hasError = false;
       _errorMessage = null;
+      _controller = null;
     });
 
     try {
       await _mediaService.initialize();
-      _demonstration = _mediaService.getDemonstration(widget.exerciseName);
+      if (!mounted || currentToken != _initToken) return;
+
+      ExerciseDemonstration? demo;
+      if (widget.exerciseId != null && widget.exerciseId! > 0) {
+        demo = _mediaService.getDemonstrationById(widget.exerciseId!);
+      }
+      demo ??= _mediaService.getDemonstration(widget.exerciseName);
+      _demonstration = demo;
+
       final source = await _mediaService.resolveMediaSource(
         widget.exerciseName,
+        exerciseId: widget.exerciseId,
         fallbackImagePath: widget.fallbackImagePath,
       );
 
-      if (!mounted) return;
+      if (!mounted || currentToken != _initToken) return;
       _mediaSource = source;
 
       if (source.type == DemonstrationSourceType.photoFallback) {
@@ -117,6 +135,11 @@ class _ExerciseDemonstrationPlayerState
       }
 
       await controller.initialize();
+      if (!mounted || currentToken != _initToken) {
+        controller.dispose();
+        return;
+      }
+
       await controller.setVolume(_isMuted ? 0.0 : 1.0);
       await controller.setLooping(false);
 
@@ -126,14 +149,17 @@ class _ExerciseDemonstrationPlayerState
 
       controller.addListener(_videoListener);
 
-      if (mounted) {
+      if (mounted && currentToken == _initToken) {
         setState(() {
           _controller = controller;
           _isLoading = false;
         });
+      } else {
+        controller.removeListener(_videoListener);
+        controller.dispose();
       }
     } catch (e) {
-      if (mounted) {
+      if (mounted && currentToken == _initToken) {
         setState(() {
           _hasError = true;
           _errorMessage = 'Could not load demonstration video';
@@ -157,6 +183,7 @@ class _ExerciseDemonstrationPlayerState
 
   @override
   void dispose() {
+    _initToken++;
     WidgetsBinding.instance.removeObserver(this);
     _disposeController();
     super.dispose();
@@ -202,6 +229,7 @@ class _ExerciseDemonstrationPlayerState
     try {
       final file = await _mediaService.downloadDemonstration(
         widget.exerciseName,
+        exerciseId: widget.exerciseId,
         onProgress: (prog) {
           if (mounted) {
             setState(() {
@@ -245,6 +273,7 @@ class _ExerciseDemonstrationPlayerState
   Future<void> _deleteDownloaded() async {
     final deleted = await _mediaService.deleteDownloadedDemonstration(
       widget.exerciseName,
+      exerciseId: widget.exerciseId,
     );
     if (deleted && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

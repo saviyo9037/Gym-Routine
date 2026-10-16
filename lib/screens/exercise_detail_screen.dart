@@ -50,11 +50,33 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
     _loadDemonstration();
   }
 
+  @override
+  void didUpdateWidget(covariant ExerciseDetailScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.exercise.id != widget.exercise.id ||
+        oldWidget.exercise.name != widget.exercise.name) {
+      setState(() {
+        _exercise = widget.exercise;
+        _notesController.text = _exercise.personalNotes ?? '';
+        _targetSets = _exercise.defaultSets;
+        _targetReps = _exercise.defaultReps;
+        _targetWeightKg = _exercise.defaultWeightKg;
+        _targetRestSeconds = _exercise.restSeconds;
+      });
+      _loadDemonstration();
+    }
+  }
+
   Future<void> _loadDemonstration() async {
     await ExerciseMediaService.instance.initialize();
     if (mounted) {
+      ExerciseDemonstration? demo;
+      if (_exercise.id != null && _exercise.id! > 0) {
+        demo = ExerciseMediaService.instance.getDemonstrationById(_exercise.id!);
+      }
+      demo ??= ExerciseMediaService.instance.getDemonstration(_exercise.name);
       setState(() {
-        _demonstration = ExerciseMediaService.instance.getDemonstration(_exercise.name);
+        _demonstration = demo;
       });
     }
   }
@@ -659,6 +681,8 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                 children: [
                   // Prominent Exercise Demonstration Player
                   ExerciseDemonstrationPlayer(
+                    key: ValueKey('demo_player_${_exercise.id}_${_exercise.name}'),
+                    exerciseId: _exercise.id,
                     exerciseName: _exercise.name,
                     fallbackImagePath: _exercise.imagePath,
                     personalPhotoPath: _exercise.personalPhotoPath,
