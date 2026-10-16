@@ -46,7 +46,8 @@ class _AudioPlayerCardState extends State<AudioPlayerCard> {
   void initState() {
     super.initState();
     _currentAttachment = widget.attachment;
-    if (_currentAttachment.durationSeconds != null && _currentAttachment.durationSeconds! > 0) {
+    if (_currentAttachment.durationSeconds != null &&
+        _currentAttachment.durationSeconds! > 0) {
       _duration = Duration(seconds: _currentAttachment.durationSeconds!);
     }
     _resolvePath();
@@ -54,7 +55,9 @@ class _AudioPlayerCardState extends State<AudioPlayerCard> {
   }
 
   Future<void> _resolvePath() async {
-    final path = await _mediaService.resolveFilePath(_currentAttachment.filePath);
+    final path = await _mediaService.resolveFilePath(
+      _currentAttachment.filePath,
+    );
     final exists = await File(path).exists();
     if (mounted) {
       setState(() {
@@ -86,7 +89,8 @@ class _AudioPlayerCardState extends State<AudioPlayerCard> {
 
     _durSub = _mediaService.onDurationChanged.listen((dur) {
       if (!mounted) return;
-      if (_mediaService.currentlyPlayingPath == _resolvedPath && dur > Duration.zero) {
+      if (_mediaService.currentlyPlayingPath == _resolvedPath &&
+          dur > Duration.zero) {
         setState(() => _duration = dur);
       }
     });
@@ -154,7 +158,10 @@ class _AudioPlayerCardState extends State<AudioPlayerCard> {
           children: [
             ListTile(
               leading: const Icon(Icons.mic_rounded, color: AppColors.primary),
-              title: const Text('Record Voice Note', style: TextStyle(color: Colors.white)),
+              title: const Text(
+                'Record Voice Note',
+                style: TextStyle(color: Colors.white),
+              ),
               onTap: () {
                 Navigator.pop(sheetCtx);
                 VoiceRecorderDialog.show(
@@ -167,8 +174,14 @@ class _AudioPlayerCardState extends State<AudioPlayerCard> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.audio_file_rounded, color: AppColors.primary),
-              title: const Text('Import Audio File', style: TextStyle(color: Colors.white)),
+              leading: const Icon(
+                Icons.audio_file_rounded,
+                color: AppColors.primary,
+              ),
+              title: const Text(
+                'Import Audio File',
+                style: TextStyle(color: Colors.white),
+              ),
               onTap: () async {
                 Navigator.pop(sheetCtx);
                 final newPath = await _mediaService.pickAudioFile();
@@ -220,14 +233,20 @@ class _AudioPlayerCardState extends State<AudioPlayerCard> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surfaceElevated,
-        title: const Text('Delete Audio?', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Delete Audio?',
+          style: TextStyle(color: Colors.white),
+        ),
         content: const Text(
           'Are you sure you want to delete this voice memo? This cannot be undone.',
           style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
-            child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
             onPressed: () => Navigator.pop(ctx, false),
           ),
           ElevatedButton(
@@ -290,7 +309,11 @@ class _AudioPlayerCardState extends State<AudioPlayerCard> {
                   color: AppColors.primary.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.mic_rounded, color: AppColors.primary, size: 18),
+                child: const Icon(
+                  Icons.mic_rounded,
+                  color: AppColors.primary,
+                  size: 18,
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -311,18 +334,29 @@ class _AudioPlayerCardState extends State<AudioPlayerCard> {
                       _currentAttachment.createdAt.length >= 10
                           ? _currentAttachment.createdAt.substring(0, 10)
                           : _currentAttachment.createdAt,
-                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 11,
+                      ),
                     ),
                   ],
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.sync_rounded, color: AppColors.textSecondary, size: 18),
+                icon: const Icon(
+                  Icons.sync_rounded,
+                  color: AppColors.textSecondary,
+                  size: 18,
+                ),
                 tooltip: 'Replace Audio',
                 onPressed: _replaceAudio,
               ),
               IconButton(
-                icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 18),
+                icon: const Icon(
+                  Icons.delete_outline_rounded,
+                  color: Colors.redAccent,
+                  size: 18,
+                ),
                 tooltip: 'Delete Audio',
                 onPressed: _deleteAudio,
               ),
@@ -340,7 +374,11 @@ class _AudioPlayerCardState extends State<AudioPlayerCard> {
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 18),
+                  Icon(
+                    Icons.warning_amber_rounded,
+                    color: Colors.amber,
+                    size: 18,
+                  ),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -362,12 +400,18 @@ class _AudioPlayerCardState extends State<AudioPlayerCard> {
                 thumbColor: AppColors.primary,
               ),
               child: Slider(
-                value: _position.inMilliseconds.clamp(
-                  0,
-                  _duration.inMilliseconds > 0 ? _duration.inMilliseconds : 1,
-                ).toDouble(),
+                value: _position.inMilliseconds
+                    .clamp(
+                      0,
+                      _duration.inMilliseconds > 0
+                          ? _duration.inMilliseconds
+                          : 1,
+                    )
+                    .toDouble(),
                 min: 0,
-                max: _duration.inMilliseconds > 0 ? _duration.inMilliseconds.toDouble() : 1.0,
+                max: _duration.inMilliseconds > 0
+                    ? _duration.inMilliseconds.toDouble()
+                    : 1.0,
                 onChanged: _seekTo,
               ),
             ),
@@ -389,32 +433,55 @@ class _AudioPlayerCardState extends State<AudioPlayerCard> {
                   Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.replay_10_rounded, color: AppColors.textSecondary, size: 22),
+                        icon: const Icon(
+                          Icons.replay_10_rounded,
+                          color: AppColors.textSecondary,
+                          size: 22,
+                        ),
                         onPressed: () {
-                          final newPos = _position - const Duration(seconds: 10);
-                          _seekTo(newPos.inMilliseconds.clamp(0, _duration.inMilliseconds).toDouble());
+                          final newPos =
+                              _position - const Duration(seconds: 10);
+                          _seekTo(
+                            newPos.inMilliseconds
+                                .clamp(0, _duration.inMilliseconds)
+                                .toDouble(),
+                          );
                         },
                       ),
                       IconButton(
                         icon: Icon(
-                          _isPlaying ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded,
+                          _isPlaying
+                              ? Icons.pause_circle_filled_rounded
+                              : Icons.play_circle_fill_rounded,
                           color: AppColors.primary,
                           size: 38,
                         ),
                         onPressed: _togglePlay,
                       ),
                       IconButton(
-                        icon: const Icon(Icons.forward_10_rounded, color: AppColors.textSecondary, size: 22),
+                        icon: const Icon(
+                          Icons.forward_10_rounded,
+                          color: AppColors.textSecondary,
+                          size: 22,
+                        ),
                         onPressed: () {
-                          final newPos = _position + const Duration(seconds: 10);
-                          _seekTo(newPos.inMilliseconds.clamp(0, _duration.inMilliseconds).toDouble());
+                          final newPos =
+                              _position + const Duration(seconds: 10);
+                          _seekTo(
+                            newPos.inMilliseconds
+                                .clamp(0, _duration.inMilliseconds)
+                                .toDouble(),
+                          );
                         },
                       ),
                     ],
                   ),
                   Text(
                     _formatDuration(_duration),
-                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),

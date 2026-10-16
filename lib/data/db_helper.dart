@@ -85,19 +85,29 @@ class DatabaseHelper {
     }
     if (oldVersion < 5) {
       try {
-        await db.execute("ALTER TABLE routines ADD COLUMN alarm_type TEXT DEFAULT 'notification'");
+        await db.execute(
+          "ALTER TABLE routines ADD COLUMN alarm_type TEXT DEFAULT 'notification'",
+        );
       } catch (_) {}
       try {
-        await db.execute("ALTER TABLE routines ADD COLUMN is_alarm_enabled INTEGER DEFAULT 1");
+        await db.execute(
+          "ALTER TABLE routines ADD COLUMN is_alarm_enabled INTEGER DEFAULT 1",
+        );
       } catch (_) {}
       try {
-        await db.execute("ALTER TABLE routines ADD COLUMN sound_name TEXT DEFAULT 'Digital Beep'");
+        await db.execute(
+          "ALTER TABLE routines ADD COLUMN sound_name TEXT DEFAULT 'Digital Beep'",
+        );
       } catch (_) {}
       try {
-        await db.execute("ALTER TABLE routines ADD COLUMN is_vibration_enabled INTEGER DEFAULT 1");
+        await db.execute(
+          "ALTER TABLE routines ADD COLUMN is_vibration_enabled INTEGER DEFAULT 1",
+        );
       } catch (_) {}
       try {
-        await db.execute("ALTER TABLE routines ADD COLUMN snooze_minutes INTEGER DEFAULT 10");
+        await db.execute(
+          "ALTER TABLE routines ADD COLUMN snooze_minutes INTEGER DEFAULT 10",
+        );
       } catch (_) {}
       try {
         await db.execute("ALTER TABLE routines ADD COLUMN food_details TEXT");
@@ -415,7 +425,8 @@ class DatabaseHelper {
         'end_time': '08:00',
         'repeat_days': '1,2,3,4,5,6,7',
         'notes': 'Energizing balanced breakfast',
-        'food_details': 'Oats or boiled eggs, banana, peanut butter toast, milk / tea',
+        'food_details':
+            'Oats or boiled eggs, banana, peanut butter toast, milk / tea',
         'is_reminder_enabled': 1,
         'reminder_minutes_before': 10,
         'alarm_type': 'notification',
@@ -455,7 +466,8 @@ class DatabaseHelper {
         'end_time': '11:00',
         'repeat_days': '1,2,3,4,5',
         'notes': 'Mid-morning hydration and recharge snack',
-        'food_details': 'Green tea / coffee, roasted chana, almonds, or fresh fruit',
+        'food_details':
+            'Green tea / coffee, roasted chana, almonds, or fresh fruit',
         'is_reminder_enabled': 1,
         'reminder_minutes_before': 5,
         'alarm_type': 'notification',
@@ -495,7 +507,8 @@ class DatabaseHelper {
         'end_time': '17:00',
         'repeat_days': '1,2,3,4,5,6,7',
         'notes': 'Pre-workout carb replenishment and focus snack',
-        'food_details': 'Banana, boiled eggs, black coffee, or sprouted legumes',
+        'food_details':
+            'Banana, boiled eggs, black coffee, or sprouted legumes',
         'is_reminder_enabled': 1,
         'reminder_minutes_before': 10,
         'alarm_type': 'notification',
@@ -535,7 +548,8 @@ class DatabaseHelper {
         'end_time': '21:30',
         'repeat_days': '1,2,3,4,5,6,7',
         'notes': 'Calculated 15m after gym workout end time (20:30)',
-        'food_details': 'High protein dinner: grilled chicken / paneer / dal, rice or roti',
+        'food_details':
+            'High protein dinner: grilled chicken / paneer / dal, rice or roti',
         'is_reminder_enabled': 1,
         'reminder_minutes_before': 10,
         'alarm_type': 'notification',
@@ -622,10 +636,10 @@ class DatabaseHelper {
       'updated_at': DateTime.now().toIso8601String(),
     });
 
-    // Exercises for Today
+    // Exercises for Today (Biceps & Chest)
     await db.insert('planned_exercises', {
       'plan_id': todayPlanId,
-      'exercise_id': 1, // Standing Dumbbell Curl
+      'exercise_id': 69, // Standing Dumbbell Curl
       'exercise_name': 'Standing Dumbbell Curl',
       'muscle_group_name': 'Biceps',
       'exercise_order': 0,
@@ -639,7 +653,7 @@ class DatabaseHelper {
 
     await db.insert('planned_exercises', {
       'plan_id': todayPlanId,
-      'exercise_id': 2, // Hammer Curl
+      'exercise_id': 73, // Hammer Curl
       'exercise_name': 'Hammer Curl',
       'muscle_group_name': 'Biceps',
       'exercise_order': 1,
@@ -653,7 +667,7 @@ class DatabaseHelper {
 
     await db.insert('planned_exercises', {
       'plan_id': todayPlanId,
-      'exercise_id': 7, // Barbell Bench Press
+      'exercise_id': 1, // Barbell Bench Press
       'exercise_name': 'Barbell Bench Press',
       'muscle_group_name': 'Chest',
       'exercise_order': 2,
@@ -665,12 +679,26 @@ class DatabaseHelper {
       'image_path': 'assets/images/exercises/barbell_bench_press.jpg',
     });
 
-    // Tomorrow: Back (2) & Triceps (4)
+    await db.insert('planned_exercises', {
+      'plan_id': todayPlanId,
+      'exercise_id': 2, // Incline Barbell Bench Press
+      'exercise_name': 'Incline Barbell Bench Press',
+      'muscle_group_name': 'Chest',
+      'exercise_order': 3,
+      'target_sets': 3,
+      'target_reps': 10,
+      'target_weight_kg': 50.0,
+      'rest_seconds': 90,
+      'notes': 'Control the bar to upper chest clavicular angle.',
+      'image_path': 'assets/images/exercises/incline_barbell_bench_press.jpg',
+    });
+
+    // Tomorrow: Back (2) & Triceps (7)
     final tomorrowPlanId = await db.insert('workout_plans', {
       'date': tomorrowStr,
       'primary_muscle_id': 2,
       'primary_muscle_name': 'Back',
-      'secondary_muscle_id': 4,
+      'secondary_muscle_id': 7,
       'secondary_muscle_name': 'Triceps',
       'notes': 'Pull day volume paired with tricep extension pump.',
       'trainer_instructions':
@@ -683,7 +711,7 @@ class DatabaseHelper {
 
     await db.insert('planned_exercises', {
       'plan_id': tomorrowPlanId,
-      'exercise_id': 9, // Lat Pulldown
+      'exercise_id': 26, // Lat Pulldown
       'exercise_name': 'Lat Pulldown',
       'muscle_group_name': 'Back',
       'exercise_order': 0,
@@ -697,8 +725,8 @@ class DatabaseHelper {
 
     await db.insert('planned_exercises', {
       'plan_id': tomorrowPlanId,
-      'exercise_id': 10, // Bent-Over Barbell Row
-      'exercise_name': 'Bent-Over Barbell Row',
+      'exercise_id': 31, // Barbell Bent-Over Row
+      'exercise_name': 'Barbell Bent-Over Row',
       'muscle_group_name': 'Back',
       'exercise_order': 1,
       'target_sets': 4,
@@ -706,13 +734,13 @@ class DatabaseHelper {
       'target_weight_kg': 50.0,
       'rest_seconds': 90,
       'notes': 'Hinge hips 45 degrees, pull to lower ribs.',
-      'image_path': 'assets/images/exercises/barbell_row.jpg',
+      'image_path': 'assets/images/exercises/barbell_bent_over_row.jpg',
     });
 
     await db.insert('planned_exercises', {
       'plan_id': tomorrowPlanId,
-      'exercise_id': 11, // Tricep Rope Pushdown
-      'exercise_name': 'Tricep Rope Pushdown',
+      'exercise_id': 91, // Cable Triceps Pushdown
+      'exercise_name': 'Cable Triceps Pushdown',
       'muscle_group_name': 'Triceps',
       'exercise_order': 2,
       'target_sets': 3,
@@ -720,7 +748,7 @@ class DatabaseHelper {
       'target_weight_kg': 20.0,
       'rest_seconds': 75,
       'notes': 'Spread rope ends at the bottom lockout.',
-      'image_path': 'assets/images/exercises/tricep_rope_pushdown.jpg',
+      'image_path': 'assets/images/exercises/cable_triceps_pushdown.jpg',
     });
   }
 

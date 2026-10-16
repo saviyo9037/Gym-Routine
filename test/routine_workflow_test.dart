@@ -5,55 +5,64 @@ import 'package:reptrack/models/routine_today_item.dart';
 
 void main() {
   group('Routine Model & Overnight Calculation Tests', () {
-    test('Standard daytime routine calculates duration and overnight correctly', () {
-      final gym = Routine(
-        id: 1,
-        title: 'Morning Strength Workout',
-        category: 'Gym',
-        startTime: '07:00',
-        endTime: '08:30',
-        repeatDays: [1, 2, 3, 4, 5, 6], // Mon - Sat
-      );
+    test(
+      'Standard daytime routine calculates duration and overnight correctly',
+      () {
+        final gym = Routine(
+          id: 1,
+          title: 'Morning Strength Workout',
+          category: 'Gym',
+          startTime: '07:00',
+          endTime: '08:30',
+          repeatDays: [1, 2, 3, 4, 5, 6], // Mon - Sat
+        );
 
-      expect(gym.isOvernight, isFalse);
-      expect(gym.durationMinutes, equals(90));
-      expect(gym.formattedDuration, equals('1h 30m'));
-      expect(gym.formattedTimeRange, equals('07:00 – 08:30'));
-      expect(gym.categoryEnum, equals(RoutineCategory.gym));
-    });
+        expect(gym.isOvernight, isFalse);
+        expect(gym.durationMinutes, equals(90));
+        expect(gym.formattedDuration, equals('1h 30m'));
+        expect(gym.formattedTimeRange, equals('07:00 – 08:30'));
+        expect(gym.categoryEnum, equals(RoutineCategory.gym));
+      },
+    );
 
-    test('Overnight sleep routine crossing midnight calculates 480 minutes (8h)', () {
-      final sleep = Routine(
-        id: 2,
-        title: 'Deep Recovery Sleep',
-        category: 'Sleep',
-        startTime: '22:30',
-        endTime: '06:30',
-        repeatDays: [1, 2, 3, 4, 5, 6, 7],
-      );
+    test(
+      'Overnight sleep routine crossing midnight calculates 480 minutes (8h)',
+      () {
+        final sleep = Routine(
+          id: 2,
+          title: 'Deep Recovery Sleep',
+          category: 'Sleep',
+          startTime: '22:30',
+          endTime: '06:30',
+          repeatDays: [1, 2, 3, 4, 5, 6, 7],
+        );
 
-      expect(sleep.isOvernight, isTrue);
-      // From 22:30 to 24:00 is 90 mins, 00:00 to 06:30 is 390 mins -> 480 mins = 8 hours
-      expect(sleep.durationMinutes, equals(480));
-      expect(sleep.formattedDuration, equals('8h'));
-      expect(sleep.formattedTimeRange, equals('22:30 – 06:30'));
-      expect(sleep.categoryEnum, equals(RoutineCategory.sleep));
-    });
+        expect(sleep.isOvernight, isTrue);
+        // From 22:30 to 24:00 is 90 mins, 00:00 to 06:30 is 390 mins -> 480 mins = 8 hours
+        expect(sleep.durationMinutes, equals(480));
+        expect(sleep.formattedDuration, equals('8h'));
+        expect(sleep.formattedTimeRange, equals('22:30 – 06:30'));
+        expect(sleep.categoryEnum, equals(RoutineCategory.sleep));
+      },
+    );
 
-    test('Short overnight shift (e.g. 23:45 to 00:30) calculates 45 minutes', () {
-      final shift = Routine(
-        id: 3,
-        title: 'Midnight Check',
-        category: 'Work',
-        startTime: '23:45',
-        endTime: '00:30',
-        repeatDays: [1, 2, 3, 4, 5],
-      );
+    test(
+      'Short overnight shift (e.g. 23:45 to 00:30) calculates 45 minutes',
+      () {
+        final shift = Routine(
+          id: 3,
+          title: 'Midnight Check',
+          category: 'Work',
+          startTime: '23:45',
+          endTime: '00:30',
+          repeatDays: [1, 2, 3, 4, 5],
+        );
 
-      expect(shift.isOvernight, isTrue);
-      expect(shift.durationMinutes, equals(45));
-      expect(shift.formattedDuration, equals('45m'));
-    });
+        expect(shift.isOvernight, isTrue);
+        expect(shift.durationMinutes, equals(45));
+        expect(shift.formattedDuration, equals('45m'));
+      },
+    );
 
     test('Repeat days formatting handles standard patterns', () {
       final everyday = Routine(
@@ -93,27 +102,30 @@ void main() {
       expect(customDays.formattedRepeatDays, equals('Mon, Wed, Fri'));
     });
 
-    test('appliesToDate accurately checks weekday match and enabled status', () {
-      // October 16, 2026 is a Friday (weekday = 5)
-      final fridayDate = DateTime(2026, 10, 16);
-      // October 17, 2026 is a Saturday (weekday = 6)
-      final saturdayDate = DateTime(2026, 10, 17);
+    test(
+      'appliesToDate accurately checks weekday match and enabled status',
+      () {
+        // October 16, 2026 is a Friday (weekday = 5)
+        final fridayDate = DateTime(2026, 10, 16);
+        // October 17, 2026 is a Saturday (weekday = 6)
+        final saturdayDate = DateTime(2026, 10, 17);
 
-      final weekdayRoutine = Routine(
-        title: 'Weekday Study',
-        category: 'Study',
-        startTime: '18:00',
-        endTime: '19:30',
-        repeatDays: [1, 2, 3, 4, 5],
-        isEnabled: true,
-      );
+        final weekdayRoutine = Routine(
+          title: 'Weekday Study',
+          category: 'Study',
+          startTime: '18:00',
+          endTime: '19:30',
+          repeatDays: [1, 2, 3, 4, 5],
+          isEnabled: true,
+        );
 
-      expect(weekdayRoutine.appliesToDate(fridayDate), isTrue);
-      expect(weekdayRoutine.appliesToDate(saturdayDate), isFalse);
+        expect(weekdayRoutine.appliesToDate(fridayDate), isTrue);
+        expect(weekdayRoutine.appliesToDate(saturdayDate), isFalse);
 
-      final disabledRoutine = weekdayRoutine.copyWith(isEnabled: false);
-      expect(disabledRoutine.appliesToDate(fridayDate), isFalse);
-    });
+        final disabledRoutine = weekdayRoutine.copyWith(isEnabled: false);
+        expect(disabledRoutine.appliesToDate(fridayDate), isFalse);
+      },
+    );
 
     test('Routine serialization toMap and fromMap preserves all fields', () {
       final original = Routine(
@@ -184,10 +196,7 @@ void main() {
         repeatDays: [1, 2, 3, 4, 5, 6, 7],
       );
 
-      final item = RoutineTodayItem(
-        routine: sleepRoutine,
-        date: testDate,
-      );
+      final item = RoutineTodayItem(routine: sleepRoutine, date: testDate);
 
       expect(item.startDateTime, equals(DateTime(2026, 10, 16, 22, 30)));
       // End time is 06:30 on NEXT day (October 17)
@@ -220,37 +229,40 @@ void main() {
       expect(completedItem.isCompleted, isTrue);
     });
 
-    test('Past completion history is decoupled from routine schedule changes', () {
-      // Simulating a routine that gets rescheduled from 07:00 to 09:00
-      final routineOriginal = Routine(
-        id: 8,
-        title: 'Morning Run',
-        category: 'Walking',
-        startTime: '07:00',
-        endTime: '08:00',
-        repeatDays: [1, 3, 5],
-      );
+    test(
+      'Past completion history is decoupled from routine schedule changes',
+      () {
+        // Simulating a routine that gets rescheduled from 07:00 to 09:00
+        final routineOriginal = Routine(
+          id: 8,
+          title: 'Morning Run',
+          category: 'Walking',
+          startTime: '07:00',
+          endTime: '08:00',
+          repeatDays: [1, 3, 5],
+        );
 
-      final pastLog = RoutineCompletion(
-        id: 101,
-        routineId: 8,
-        date: '2026-10-14',
-        status: 'completed',
-        notes: 'Logged at original 7am slot',
-      );
+        final pastLog = RoutineCompletion(
+          id: 101,
+          routineId: 8,
+          date: '2026-10-14',
+          status: 'completed',
+          notes: 'Logged at original 7am slot',
+        );
 
-      // User changes routine schedule to 09:00
-      final routineRescheduled = routineOriginal.copyWith(
-        startTime: '09:00',
-        endTime: '10:00',
-        repeatDays: [2, 4, 6],
-      );
+        // User changes routine schedule to 09:00
+        final routineRescheduled = routineOriginal.copyWith(
+          startTime: '09:00',
+          endTime: '10:00',
+          repeatDays: [2, 4, 6],
+        );
 
-      // The historical log remains unaltered and valid
-      expect(pastLog.routineId, equals(routineRescheduled.id));
-      expect(pastLog.status, equals('completed'));
-      expect(pastLog.notes, equals('Logged at original 7am slot'));
-    });
+        // The historical log remains unaltered and valid
+        expect(pastLog.routineId, equals(routineRescheduled.id));
+        expect(pastLog.status, equals('completed'));
+        expect(pastLog.notes, equals('Logged at original 7am slot'));
+      },
+    );
   });
 
   group('Routine Overlap & Conflict Detection Tests', () {
@@ -379,7 +391,10 @@ void main() {
       expect(map['sound_name'], equals('Gentle Chime'));
       expect(map['is_vibration_enabled'], equals(1));
       expect(map['snooze_minutes'], equals(5));
-      expect(map['food_details'], equals('Oatmeal, 3 whole eggs, banana, black coffee'));
+      expect(
+        map['food_details'],
+        equals('Oatmeal, 3 whole eggs, banana, black coffee'),
+      );
 
       final restored = Routine.fromMap(map);
       expect(restored.alarmType, equals('alarm'));
@@ -421,7 +436,8 @@ void main() {
         dinnerHour = (dinnerHour + (dinnerMin ~/ 60)) % 24;
         dinnerMin %= 60;
       }
-      final calculated = '${dinnerHour.toString().padLeft(2, '0')}:${dinnerMin.toString().padLeft(2, '0')}';
+      final calculated =
+          '${dinnerHour.toString().padLeft(2, '0')}:${dinnerMin.toString().padLeft(2, '0')}';
       expect(calculated, equals('20:45'));
 
       // Edge case: Gym ending at 23:50 -> Dinner at 00:05
@@ -435,9 +451,9 @@ void main() {
         dinnerHour2 = (dinnerHour2 + (dinnerMin2 ~/ 60)) % 24;
         dinnerMin2 %= 60;
       }
-      final calculated2 = '${dinnerHour2.toString().padLeft(2, '0')}:${dinnerMin2.toString().padLeft(2, '0')}';
+      final calculated2 =
+          '${dinnerHour2.toString().padLeft(2, '0')}:${dinnerMin2.toString().padLeft(2, '0')}';
       expect(calculated2, equals('00:05'));
     });
   });
 }
-

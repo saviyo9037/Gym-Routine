@@ -7,6 +7,7 @@ import '../models/muscle_group.dart';
 import '../models/exercise.dart';
 import '../models/plan_change_log.dart';
 import '../services/database_service.dart';
+import '../services/exercise_terminology_service.dart';
 import '../widgets/change_log_dialog.dart';
 import '../widgets/exercise_image_widget.dart';
 import '../widgets/media_attachment_section.dart';
@@ -94,11 +95,10 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
             final filtered = filterQuery.isEmpty
                 ? _allExercises
                 : _allExercises.where((e) {
-                    final q = filterQuery.toLowerCase();
-                    return e.name.toLowerCase().contains(q) ||
-                        e.muscleGroupName.toLowerCase().contains(q) ||
-                        e.secondaryMuscles.toLowerCase().contains(q) ||
-                        e.equipment.toLowerCase().contains(q);
+                    return ExerciseTerminologyService.instance.matchesSearch(
+                      e,
+                      filterQuery,
+                    );
                   }).toList();
 
             return DraggableScrollableSheet(
@@ -142,7 +142,8 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
                           fontSize: 14,
                         ),
                         decoration: InputDecoration(
-                          hintText: 'Search by exercise, muscle, equipment...',
+                          hintText:
+                              'Search by gym name, slang, RDL, butterfly...',
                           prefixIcon: const Icon(
                             Icons.search,
                             color: AppColors.primary,
@@ -174,6 +175,26 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
                             const Divider(color: AppColors.border, height: 1),
                         itemBuilder: (context, index) {
                           final ex = filtered[index];
+                          final term = ExerciseTerminologyService.instance
+                              .getTerminology(id: ex.id, name: ex.name);
+                          final displayName =
+                              term?.recommendedDisplayName.isNotEmpty == true
+                              ? term!.recommendedDisplayName
+                              : ex.name;
+                          final primaryAlias =
+                              term != null && term.aliases.isNotEmpty
+                              ? term.aliases.firstWhere(
+                                  (a) =>
+                                      a.toLowerCase() !=
+                                          displayName.toLowerCase() &&
+                                      a.toLowerCase() != ex.name.toLowerCase(),
+                                  orElse: () => term.aliases.first,
+                                )
+                              : '';
+                          final friendlyMuscle = ExerciseTerminologyService
+                              .instance
+                              .getFriendlyMuscleName(ex.muscleGroupName);
+
                           return ListTile(
                             leading: ClipRRect(
                               borderRadius: BorderRadius.circular(8),
@@ -188,7 +209,7 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
                               ),
                             ),
                             title: Text(
-                              ex.name,
+                              displayName,
                               style: const TextStyle(
                                 color: AppColors.textMain,
                                 fontWeight: FontWeight.w600,
@@ -196,7 +217,11 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
                               ),
                             ),
                             subtitle: Text(
-                              '${ex.muscleGroupName} • ${ex.equipment} • ${ex.difficulty}',
+                              primaryAlias.isNotEmpty &&
+                                      primaryAlias.toLowerCase() !=
+                                          displayName.toLowerCase()
+                                  ? '$friendlyMuscle • ${ex.equipment} (Also: $primaryAlias)'
+                                  : '$friendlyMuscle • ${ex.equipment} • ${ex.difficulty}',
                               style: const TextStyle(
                                 color: AppColors.textSecondary,
                                 fontSize: 11.5,
@@ -352,6 +377,183 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
     );
   }
 
+  void _showSixDaySplitDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: AppColors.surfaceElevated,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.calendar_view_week_rounded, color: AppColors.primary),
+              SizedBox(width: 8),
+              Text(
+                '6-Day Training Split',
+                style: TextStyle(
+                  color: AppColors.textMain,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17,
+                ),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Configurable 6-day training schedule + 1 rest day for hypertrophy and cardiovascular conditioning:',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _buildSplitRow(
+                  'Day 1 (Mon)',
+                  'Chest + Triceps',
+                  'Bench press, incline press & cable pushdowns',
+                ),
+                _buildSplitRow(
+                  'Day 2 (Tue)',
+                  'Back + Biceps',
+                  'Lat pulldowns, rows & curls',
+                ),
+                _buildSplitRow(
+                  'Day 3 (Wed)',
+                  'Shoulders + Abs',
+                  'Overhead presses, lateral raises & core circuits',
+                ),
+                _buildSplitRow(
+                  'Day 4 (Thu)',
+                  'Legs',
+                  'Squats, RDLs, lunges & calf raises',
+                ),
+                _buildSplitRow(
+                  'Day 5 (Fri)',
+                  'Chest + Back',
+                  'Upper body antagonist volume supersets',
+                ),
+                _buildSplitRow(
+                  'Day 6 (Sat)',
+                  'Arms + Cardio',
+                  'Arm pump paired with running / skipping conditioning',
+                ),
+                _buildSplitRow(
+                  'Day 7 (Sun)',
+                  'Rest & Recovery',
+                  'Complete muscular recovery & mobility',
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  '* Preserves your existing custom plans. You can freely customize exercises, sets/reps, and rest days for any date.',
+                  style: TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 11.5,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text(
+                'Close',
+                style: TextStyle(color: AppColors.textSecondary),
+              ),
+            ),
+            ElevatedButton.icon(
+              onPressed: () async {
+                Navigator.pop(ctx);
+                setState(() => _isLoading = true);
+                await _dbService.applySixDaySplitPreset(
+                  _selectedDate,
+                  overwriteExisting: false,
+                );
+                _loadData();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        '6-Day Split applied! Any previously customized days were preserved.',
+                      ),
+                      backgroundColor: AppColors.successDark,
+                    ),
+                  );
+                }
+              },
+              icon: const Icon(
+                Icons.check_rounded,
+                color: Colors.black,
+                size: 18,
+              ),
+              label: const Text(
+                'Apply Split to Week',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildSplitRow(String day, String muscles, String desc) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 82,
+            child: Text(
+              day,
+              style: const TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  muscles,
+                  style: const TextStyle(
+                    color: AppColors.textMain,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                  ),
+                ),
+                Text(
+                  desc,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -372,6 +574,14 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
       appBar: AppBar(
         title: const Text('WORKOUT PLANNER'),
         actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.calendar_view_week_rounded,
+              color: AppColors.primary,
+            ),
+            tooltip: '6-Day Split Preset',
+            onPressed: _showSixDaySplitDialog,
+          ),
           if (_changeLogs.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.history_rounded, color: AppColors.primary),
@@ -385,6 +595,38 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // 7-Day Weekly Bar Header with 6-Day split action
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  '7-DAY SCHEDULE (6-DAY SPLIT)',
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.1,
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: _showSixDaySplitDialog,
+                  icon: const Icon(
+                    Icons.auto_awesome_rounded,
+                    size: 14,
+                    color: AppColors.primary,
+                  ),
+                  label: const Text(
+                    'Preset Split',
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
             // 7-Day Weekly Bar
             _buildWeeklyBar(),
             const SizedBox(height: 20),

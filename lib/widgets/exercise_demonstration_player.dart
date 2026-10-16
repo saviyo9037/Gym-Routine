@@ -34,7 +34,8 @@ class ExerciseDemonstrationPlayer extends StatefulWidget {
 }
 
 class _ExerciseDemonstrationPlayerState
-    extends State<ExerciseDemonstrationPlayer> with WidgetsBindingObserver {
+    extends State<ExerciseDemonstrationPlayer>
+    with WidgetsBindingObserver {
   final ExerciseMediaService _mediaService = ExerciseMediaService.instance;
 
   VideoPlayerController? _controller;
@@ -97,10 +98,12 @@ class _ExerciseDemonstrationPlayerState
       if (!mounted || currentToken != _initToken) return;
 
       ExerciseDemonstration? demo;
-      if (widget.exerciseId != null && widget.exerciseId! > 0) {
+      if (widget.exerciseName.isNotEmpty) {
+        demo = _mediaService.getDemonstration(widget.exerciseName);
+      }
+      if (demo == null && widget.exerciseId != null && widget.exerciseId! > 0) {
         demo = _mediaService.getDemonstrationById(widget.exerciseId!);
       }
-      demo ??= _mediaService.getDemonstration(widget.exerciseName);
       _demonstration = demo;
 
       final source = await _mediaService.resolveMediaSource(
@@ -347,7 +350,8 @@ class _ExerciseDemonstrationPlayerState
             // 4. Content / Controls Overlay
             if (_hasError)
               _buildErrorOverlay()
-            else if (_mediaSource?.type == DemonstrationSourceType.photoFallback)
+            else if (_mediaSource?.type ==
+                DemonstrationSourceType.photoFallback)
               _buildPhotoFallbackOverlay()
             else
               _buildVideoControlsOverlay(),
@@ -434,10 +438,7 @@ class _ExerciseDemonstrationPlayerState
             const SizedBox(height: 6),
             Text(
               _errorMessage ?? 'Failed to play demonstration',
-              style: const TextStyle(
-                color: AppColors.textMain,
-                fontSize: 12.5,
-              ),
+              style: const TextStyle(color: AppColors.textMain, fontSize: 12.5),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 10),
@@ -448,7 +449,10 @@ class _ExerciseDemonstrationPlayerState
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 6,
+                ),
                 textStyle: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -465,8 +469,8 @@ class _ExerciseDemonstrationPlayerState
     final controller = _controller;
     final isInitialized = controller != null && controller.value.isInitialized;
     final isPlaying = isInitialized && controller.value.isPlaying;
-    final isEnded = isInitialized &&
-        controller.value.position >= controller.value.duration;
+    final isEnded =
+        isInitialized && controller.value.position >= controller.value.duration;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -541,35 +545,35 @@ class _ExerciseDemonstrationPlayerState
                     ),
                   )
                 : (_showControls || !isPlaying
-                    ? AnimatedOpacity(
-                        opacity: _showControls || !isPlaying ? 1.0 : 0.0,
-                        duration: const Duration(milliseconds: 250),
-                        child: Container(
-                          width: 58,
-                          height: 58,
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.65),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppColors.primary,
-                              width: 1.5,
+                      ? AnimatedOpacity(
+                          opacity: _showControls || !isPlaying ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 250),
+                          child: Container(
+                            width: 58,
+                            height: 58,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.65),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppColors.primary,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: IconButton(
+                              icon: Icon(
+                                isEnded
+                                    ? Icons.replay_rounded
+                                    : (isPlaying
+                                          ? Icons.pause_rounded
+                                          : Icons.play_arrow_rounded),
+                                color: AppColors.primary,
+                                size: 34,
+                              ),
+                              onPressed: isEnded ? _replay : _togglePlayPause,
                             ),
                           ),
-                          child: IconButton(
-                            icon: Icon(
-                              isEnded
-                                  ? Icons.replay_rounded
-                                  : (isPlaying
-                                      ? Icons.pause_rounded
-                                      : Icons.play_arrow_rounded),
-                              color: AppColors.primary,
-                              size: 34,
-                            ),
-                            onPressed: isEnded ? _replay : _togglePlayPause,
-                          ),
-                        ),
-                      )
-                    : const SizedBox.shrink()),
+                        )
+                      : const SizedBox.shrink()),
           ),
 
           // Bottom Timeline Scrubber and Controls
@@ -579,7 +583,10 @@ class _ExerciseDemonstrationPlayerState
               left: 12,
               right: 12,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.7),
                   borderRadius: BorderRadius.circular(12),
@@ -597,8 +604,8 @@ class _ExerciseDemonstrationPlayerState
                             isEnded
                                 ? Icons.replay_rounded
                                 : (isPlaying
-                                    ? Icons.pause_rounded
-                                    : Icons.play_arrow_rounded),
+                                      ? Icons.pause_rounded
+                                      : Icons.play_arrow_rounded),
                             color: AppColors.primary,
                             size: 20,
                           ),
@@ -618,7 +625,9 @@ class _ExerciseDemonstrationPlayerState
                               activeTrackColor: AppColors.primary,
                               inactiveTrackColor: Colors.white24,
                               thumbColor: AppColors.primary,
-                              overlayColor: AppColors.primary.withValues(alpha: 0.2),
+                              overlayColor: AppColors.primary.withValues(
+                                alpha: 0.2,
+                              ),
                             ),
                             child: Slider(
                               value: controller.value.position.inMilliseconds

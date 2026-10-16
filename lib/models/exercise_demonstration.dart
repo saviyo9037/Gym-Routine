@@ -33,7 +33,8 @@ class ExerciseDemonstration {
     this.demonstrationCues = const [],
   });
 
-  bool get isBundled => localBundledPath != null && localBundledPath!.isNotEmpty;
+  bool get isBundled =>
+      localBundledPath != null && localBundledPath!.isNotEmpty;
 
   Map<String, dynamic> toMap() {
     return {
@@ -71,7 +72,8 @@ class ExerciseDemonstration {
       durationSeconds: map['duration_seconds'] as int? ?? 10,
       license: map['license'] as String? ?? 'MIT License',
       attribution: map['attribution'] as String? ?? '',
-      demonstrationCues: (map['demonstration_cues'] as List<dynamic>?)
+      demonstrationCues:
+          (map['demonstration_cues'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           const [],

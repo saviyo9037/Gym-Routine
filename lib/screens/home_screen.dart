@@ -48,7 +48,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final recent = await _dbService.getRecentSessions(5);
     final todayRoutineItems = await _routineService.getTodayRoutineItems();
     final nextRoutine = await _routineService.getNextUpcomingRoutine();
-    final completedRoutines = todayRoutineItems.where((i) => i.isCompleted).length;
+    final completedRoutines = todayRoutineItems
+        .where((i) => i.isCompleted)
+        .length;
 
     if (mounted) {
       setState(() {
@@ -158,7 +160,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           tooltip: 'My Routine',
                           style: IconButton.styleFrom(
                             backgroundColor: AppColors.surfaceElevated,
-                            side: const BorderSide(color: AppColors.primary, width: 1.2),
+                            side: const BorderSide(
+                              color: AppColors.primary,
+                              width: 1.2,
+                            ),
                           ),
                           onPressed: () {
                             if (widget.onNavigateToTab != null) {
@@ -167,7 +172,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => const RoutineManagementScreen(),
+                                  builder: (_) =>
+                                      const RoutineManagementScreen(),
                                 ),
                               ).then((_) => _loadDashboardData());
                             }
@@ -395,15 +401,23 @@ class _HomeScreenState extends State<HomeScreen> {
                   decoration: BoxDecoration(
                     color: plan?.isCompleted == true
                         ? AppColors.success.withValues(alpha: 0.2)
-                        : AppColors.primary.withValues(alpha: 0.15),
+                        : (plan?.isRestDay == true
+                              ? AppColors.surfaceElevated
+                              : AppColors.primary.withValues(alpha: 0.15)),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    plan?.isCompleted == true ? 'COMPLETED' : 'READY TO START',
+                    plan?.isCompleted == true
+                        ? 'COMPLETED'
+                        : (plan?.isRestDay == true
+                              ? 'REST DAY'
+                              : 'READY TO START'),
                     style: TextStyle(
                       color: plan?.isCompleted == true
                           ? AppColors.success
-                          : AppColors.primary,
+                          : (plan?.isRestDay == true
+                                ? AppColors.textSecondary
+                                : AppColors.primary),
                       fontSize: 10.5,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 0.8,
@@ -465,11 +479,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                       const SizedBox(height: 14),
 
-                      // Exercise list chips
+                      // Exercise list chips (Shows all planned exercises without 3-item cap)
                       Wrap(
                         spacing: 6,
                         runSpacing: 6,
-                        children: plan.exercises.take(3).map((pe) {
+                        children: plan.exercises.map((pe) {
                           return Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 10,
@@ -531,40 +545,94 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'No workout scheduled for today yet.',
-                        style: TextStyle(
-                          color: AppColors.textMain,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      const Text(
-                        'Select two muscle groups and customize your exercise program.',
-                        style: TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 13,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton.icon(
-                        onPressed: () =>
-                            widget.onNavigateToTab?.call(2), // Workout Plan tab (index 2)
-                        icon: const Icon(
-                          Icons.add_rounded,
-                          color: Colors.black,
-                        ),
-                        label: const Text('Create Today\'s Workout'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
+                : (plan != null && plan.isRestDay
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary.withValues(
+                                      alpha: 0.15,
+                                    ),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.bedtime_rounded,
+                                    color: AppColors.primary,
+                                    size: 20,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                const Text(
+                                  'Scheduled Rest & Recovery Day',
+                                  style: TextStyle(
+                                    color: AppColors.textMain,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            const Text(
+                              'Today is dedicated to recovery, muscle growth, and mobility. Hydrate, eat nutrient-dense meals, and recharge.',
+                              style: TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 13,
+                                height: 1.4,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            OutlinedButton.icon(
+                              onPressed: () => widget.onNavigateToTab?.call(2),
+                              icon: const Icon(
+                                Icons.calendar_month_rounded,
+                                size: 16,
+                              ),
+                              label: const Text('View 6-Day Weekly Schedule'),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppColors.primary,
+                                side: const BorderSide(color: AppColors.border),
+                              ),
+                            ),
+                          ],
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'No workout scheduled for today yet.',
+                              style: TextStyle(
+                                color: AppColors.textMain,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            const Text(
+                              'Select muscle groups and customize your exercise program.',
+                              style: TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 13,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton.icon(
+                              onPressed: () => widget.onNavigateToTab?.call(2),
+                              icon: const Icon(
+                                Icons.add_rounded,
+                                color: Colors.black,
+                              ),
+                              label: const Text('Create Today\'s Workout'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                              ),
+                            ),
+                          ],
+                        )),
           ),
         ],
       ),
@@ -669,9 +737,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               const SizedBox(height: 10),
-              // Exercises list preview
+              // Exercises list preview (Shows all exercises planned for tomorrow)
               Column(
-                children: tomorrow.exercises.take(3).map((pe) {
+                children: tomorrow.exercises.map((pe) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 3),
                     child: Row(
@@ -737,9 +805,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ] else ...[
-              const Text(
-                'Rest day planned for tomorrow, or no exercises configured.',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+              Text(
+                tomorrow?.isRestDay == true
+                    ? 'Scheduled Rest & Recovery Day for tomorrow.'
+                    : 'No workout scheduled for tomorrow yet. Tap "Edit Tomorrow" to configure.',
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 13,
+                ),
               ),
             ],
           ],
@@ -800,7 +873,9 @@ class _HomeScreenState extends State<HomeScreen> {
               child: _buildActionBtn(
                 icon: Icons.edit_calendar_rounded,
                 label: 'Weekly Plan',
-                onTap: () => widget.onNavigateToTab?.call(2), // Workout Plan tab (index 2)
+                onTap: () => widget.onNavigateToTab?.call(
+                  2,
+                ), // Workout Plan tab (index 2)
               ),
             ),
             const SizedBox(width: 8),
@@ -868,7 +943,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             if (_recentSessions.isNotEmpty)
               TextButton(
-                onPressed: () => widget.onNavigateToTab?.call(4), // History tab (index 4)
+                onPressed: () =>
+                    widget.onNavigateToTab?.call(4), // History tab (index 4)
                 child: const Text(
                   'View All',
                   style: TextStyle(color: AppColors.primary, fontSize: 12),
@@ -987,7 +1063,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildRoutineHeaderButton() {
     final nextItem = _nextRoutineItem;
     final hasRoutines = _todayRoutinesCount > 0;
-    final allCompleted = hasRoutines && _todayCompletedRoutinesCount == _todayRoutinesCount;
+    final allCompleted =
+        hasRoutines && _todayCompletedRoutinesCount == _todayRoutinesCount;
 
     String headline;
     String subtitle;
@@ -1002,13 +1079,15 @@ class _HomeScreenState extends State<HomeScreen> {
         accentColor = AppColors.primary;
       } else {
         headline = 'Next: ${nextItem.routine.title}';
-        subtitle = 'Starts at ${nextItem.routine.startTime} • ${nextItem.routine.formattedDuration}';
+        subtitle =
+            'Starts at ${nextItem.routine.startTime} • ${nextItem.routine.formattedDuration}';
         iconData = Icons.alarm_on_rounded;
         accentColor = nextItem.routine.color;
       }
     } else if (allCompleted) {
       headline = 'All routines completed today!';
-      subtitle = '$_todayCompletedRoutinesCount of $_todayRoutinesCount done • Great discipline';
+      subtitle =
+          '$_todayCompletedRoutinesCount of $_todayRoutinesCount done • Great discipline';
       iconData = Icons.task_alt_rounded;
       accentColor = const Color(0xFF00B894);
     } else if (!hasRoutines) {
@@ -1018,7 +1097,8 @@ class _HomeScreenState extends State<HomeScreen> {
       accentColor = AppColors.primary;
     } else {
       headline = 'My Daily Routine';
-      subtitle = '$_todayCompletedRoutinesCount of $_todayRoutinesCount completed • Tap to view';
+      subtitle =
+          '$_todayCompletedRoutinesCount of $_todayRoutinesCount completed • Tap to view';
       iconData = Icons.schedule_rounded;
       accentColor = AppColors.primary;
     }
@@ -1027,10 +1107,7 @@ class _HomeScreenState extends State<HomeScreen> {
       decoration: BoxDecoration(
         color: AppColors.cardSurface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.primary,
-          width: 1.5,
-        ),
+        border: Border.all(color: AppColors.primary, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withValues(alpha: 0.15),
@@ -1066,14 +1143,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   decoration: BoxDecoration(
                     color: accentColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: accentColor.withValues(alpha: 0.4)),
+                    border: Border.all(
+                      color: accentColor.withValues(alpha: 0.4),
+                    ),
                   ),
                   child: Center(
-                    child: Icon(
-                      iconData,
-                      color: accentColor,
-                      size: 24,
-                    ),
+                    child: Icon(iconData, color: accentColor, size: 24),
                   ),
                 ),
                 const SizedBox(width: 14),
@@ -1105,7 +1180,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           if (hasRoutines) ...[
                             const SizedBox(width: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 1,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.surfaceElevated,
                                 borderRadius: BorderRadius.circular(4),

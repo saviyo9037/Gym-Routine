@@ -61,28 +61,31 @@ void main() {
       expect(revived.durationSeconds, equals(45));
     });
 
-    test('Correctly serializes and deserializes audio attachment with duration', () {
-      final att = MediaAttachment(
-        id: 30,
-        entityType: 'plan',
-        entityId: 5,
-        mediaType: 'audio',
-        filePath: '/data/user/0/com.example.reptrack/files/reptrack_media/voice_789.m4a',
-        title: 'Trainer Voice Cue',
-        durationSeconds: 18,
-      );
+    test(
+      'Correctly serializes and deserializes audio attachment with duration',
+      () {
+        final att = MediaAttachment(
+          id: 30,
+          entityType: 'plan',
+          entityId: 5,
+          mediaType: 'audio',
+          filePath: '/data/user/0/com.example.reptrack/files/reptrack_media/voice_789.m4a',
+          title: 'Trainer Voice Cue',
+          durationSeconds: 18,
+        );
 
-      final map = att.toMap();
-      expect(map['id'], equals(30));
-      expect(map['entity_type'], equals('plan'));
-      expect(map['media_type'], equals('audio'));
-      expect(map['duration_seconds'], equals(18));
+        final map = att.toMap();
+        expect(map['id'], equals(30));
+        expect(map['entity_type'], equals('plan'));
+        expect(map['media_type'], equals('audio'));
+        expect(map['duration_seconds'], equals(18));
 
-      final revived = MediaAttachment.fromMap(map);
-      expect(revived.mediaType, equals('audio'));
-      expect(revived.durationSeconds, equals(18));
-      expect(revived.title, equals('Trainer Voice Cue'));
-    });
+        final revived = MediaAttachment.fromMap(map);
+        expect(revived.mediaType, equals('audio'));
+        expect(revived.durationSeconds, equals(18));
+        expect(revived.title, equals('Trainer Voice Cue'));
+      },
+    );
 
     test('copyWith produces non-destructive replaced attachments', () {
       final original = MediaAttachment(
@@ -117,7 +120,13 @@ void main() {
     });
 
     test('Supports all 5 required attachment entity types', () {
-      final allowedEntities = ['exercise', 'muscle', 'plan', 'session', 'workout_exercise'];
+      final allowedEntities = [
+        'exercise',
+        'muscle',
+        'plan',
+        'session',
+        'workout_exercise',
+      ];
       for (final entity in allowedEntities) {
         final att = MediaAttachment(
           entityType: entity,
@@ -147,12 +156,54 @@ void main() {
 
     test('Filtering attachments by entityType and entityId isolates target attachments', () {
       final allAttachments = [
-        MediaAttachment(id: 1, entityType: 'exercise', entityId: 10, mediaType: 'photo', filePath: 'p1.jpg', title: 'Ex 10 Photo'),
-        MediaAttachment(id: 2, entityType: 'exercise', entityId: 20, mediaType: 'video', filePath: 'v1.mp4', title: 'Ex 20 Video'),
-        MediaAttachment(id: 3, entityType: 'muscle', entityId: 10, mediaType: 'photo', filePath: 'p2.jpg', title: 'Muscle 10 Photo'),
-        MediaAttachment(id: 4, entityType: 'session', entityId: 5, mediaType: 'audio', filePath: 'a1.m4a', title: 'Session 5 Audio'),
-        MediaAttachment(id: 5, entityType: 'plan', entityId: 7, mediaType: 'video', filePath: 'v2.mp4', title: 'Plan 7 Video'),
-        MediaAttachment(id: 6, entityType: 'exercise', entityId: 10, mediaType: 'audio', filePath: 'a2.m4a', title: 'Ex 10 Audio'),
+        MediaAttachment(
+          id: 1,
+          entityType: 'exercise',
+          entityId: 10,
+          mediaType: 'photo',
+          filePath: 'p1.jpg',
+          title: 'Ex 10 Photo',
+        ),
+        MediaAttachment(
+          id: 2,
+          entityType: 'exercise',
+          entityId: 20,
+          mediaType: 'video',
+          filePath: 'v1.mp4',
+          title: 'Ex 20 Video',
+        ),
+        MediaAttachment(
+          id: 3,
+          entityType: 'muscle',
+          entityId: 10,
+          mediaType: 'photo',
+          filePath: 'p2.jpg',
+          title: 'Muscle 10 Photo',
+        ),
+        MediaAttachment(
+          id: 4,
+          entityType: 'session',
+          entityId: 5,
+          mediaType: 'audio',
+          filePath: 'a1.m4a',
+          title: 'Session 5 Audio',
+        ),
+        MediaAttachment(
+          id: 5,
+          entityType: 'plan',
+          entityId: 7,
+          mediaType: 'video',
+          filePath: 'v2.mp4',
+          title: 'Plan 7 Video',
+        ),
+        MediaAttachment(
+          id: 6,
+          entityType: 'exercise',
+          entityId: 10,
+          mediaType: 'audio',
+          filePath: 'a2.m4a',
+          title: 'Ex 10 Audio',
+        ),
       ];
 
       final ex10Attachments = allAttachments

@@ -9,10 +9,10 @@ import 'package:reptrack/screens/exercise_library_screen.dart';
 void main() {
   group('Comprehensive Gym Exercise Library Expansion Tests', () {
     test(
-      'Verifies 14 target muscle groups are defined with valid asset banners',
+      'Verifies 15 target muscle groups are defined with valid asset banners',
       () {
         final groups = SeedData.muscleGroups;
-        expect(groups.length, equals(14));
+        expect(groups.length, equals(15));
 
         final expectedNames = [
           'Chest',
@@ -29,6 +29,7 @@ void main() {
           'Calves',
           'Abs and Core',
           'Full Body',
+          'Cardio',
         ];
 
         final actualNames = groups.map((g) => g.name).toList();
@@ -86,9 +87,9 @@ void main() {
       }
     });
 
-    test('Verifies all 190 catalogue exercises have non-empty details and distinct local images', () {
+    test('Verifies all 201 catalogue exercises have non-empty details and distinct local images', () {
       final exercises = SeedData.exercises;
-      expect(exercises.length, equals(190));
+      expect(exercises.length, equals(201));
 
       final seenNames = <String>{};
       final seenImages = <String>{};
@@ -166,7 +167,7 @@ void main() {
       }
     });
 
-    test('Verifies exercise_asset_manifest.json contains all 190 entries and all paths exist', () {
+    test('Verifies exercise_asset_manifest.json contains all 201 entries and all paths exist', () {
       final manifestFile = File('assets/exercise_asset_manifest.json');
       expect(
         manifestFile.existsSync(),
@@ -176,7 +177,7 @@ void main() {
 
       final content = manifestFile.readAsStringSync();
       final Map<String, dynamic> manifest = json.decode(content);
-      expect(manifest.length, equals(190));
+      expect(manifest.length, equals(201));
 
       for (final entry in manifest.entries) {
         final path = entry.value['asset_path'] as String;

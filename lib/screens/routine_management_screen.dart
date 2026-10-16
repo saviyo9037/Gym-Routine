@@ -26,7 +26,8 @@ class RoutineManagementScreen extends StatefulWidget {
   });
 
   @override
-  State<RoutineManagementScreen> createState() => _RoutineManagementScreenState();
+  State<RoutineManagementScreen> createState() =>
+      _RoutineManagementScreenState();
 }
 
 class _RoutineManagementScreenState extends State<RoutineManagementScreen>
@@ -80,13 +81,18 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
     final today = await _routineService.getTodayRoutineItems();
     final all = await _routineService.getAllRoutines();
     final stats = await _routineService.getWeeklyRoutineStats(DateTime.now());
-    final weeklyDay = await _routineService.getRoutineItemsForDate(_selectedWeeklyDate);
+    final weeklyDay = await _routineService.getRoutineItemsForDate(
+      _selectedWeeklyDate,
+    );
     final nextMeal = await _routineService.getNextUpcomingMeal();
     final dinnerTime = await _routineService.getSuggestedDinnerTime();
 
     // Check for routine overlaps across today's enabled routines
     final warnings = <String>[];
-    final activeToday = today.where((i) => i.routine.isEnabled).map((i) => i.routine).toList();
+    final activeToday = today
+        .where((i) => i.routine.isEnabled)
+        .map((i) => i.routine)
+        .toList();
     for (int i = 0; i < activeToday.length; i++) {
       for (int j = i + 1; j < activeToday.length; j++) {
         if (activeToday[i].overlapsWith(activeToday[j])) {
@@ -114,19 +120,17 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
   Future<void> _openGymWorkout() async {
     final todayPlan = await DatabaseService().getTodayPlan();
     if (!mounted) return;
-    if (todayPlan != null && !todayPlan.isRestDay && todayPlan.exercises.isNotEmpty) {
+    if (todayPlan != null &&
+        !todayPlan.isRestDay &&
+        todayPlan.exercises.isNotEmpty) {
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (_) => ActiveWorkoutScreen(plan: todayPlan),
-        ),
+        MaterialPageRoute(builder: (_) => ActiveWorkoutScreen(plan: todayPlan)),
       );
     } else {
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (_) => const WorkoutPlanScreen(),
-        ),
+        MaterialPageRoute(builder: (_) => const WorkoutPlanScreen()),
       );
     }
   }
@@ -134,11 +138,15 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
   Future<void> _triggerQuickTestAlarm([Routine? routine]) async {
     final title = routine?.title ?? 'RepTrack Test Alarm';
     final category = routine?.category ?? 'Gym';
-    final isAudible = routine != null ? (routine.alarmType == 'alarm' || routine.isAlarmEnabled) : true;
+    final isAudible = routine != null
+        ? (routine.alarmType == 'alarm' || routine.isAlarmEnabled)
+        : true;
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Triggering real test alarm for "$title" in 2 seconds...'),
+        content: Text(
+          'Triggering real test alarm for "$title" in 2 seconds...',
+        ),
         backgroundColor: AppColors.primary,
         duration: const Duration(seconds: 2),
       ),
@@ -186,9 +194,7 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
   Future<void> _navigateToAddRoutine() async {
     final result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(
-        builder: (_) => const AddEditRoutineScreen(),
-      ),
+      MaterialPageRoute(builder: (_) => const AddEditRoutineScreen()),
     );
     if (result == true) {
       await _loadAllData();
@@ -206,9 +212,7 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
   Future<void> _navigateToEditRoutine(Routine routine) async {
     final result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(
-        builder: (_) => AddEditRoutineScreen(routine: routine),
-      ),
+      MaterialPageRoute(builder: (_) => AddEditRoutineScreen(routine: routine)),
     );
     if (result == true) {
       await _loadAllData();
@@ -223,7 +227,11 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
     }
   }
 
-  Future<void> _toggleCompletion(int routineId, DateTime date, String status) async {
+  Future<void> _toggleCompletion(
+    int routineId,
+    DateTime date,
+    String status,
+  ) async {
     // Find if already completed/skipped
     final existingItem = _todayItems.firstWhere(
       (item) => item.routine.id == routineId,
@@ -234,7 +242,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
     );
 
     if (existingItem.completion?.status.toLowerCase() == status.toLowerCase()) {
-      await _routineService.removeRoutineCompletion(routineId: routineId, date: date);
+      await _routineService.removeRoutineCompletion(
+        routineId: routineId,
+        date: date,
+      );
     } else {
       await _routineService.setRoutineCompletion(
         routineId: routineId,
@@ -257,7 +268,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
     );
 
     if (existingItem.completion?.status.toLowerCase() == status.toLowerCase()) {
-      await _routineService.removeRoutineCompletion(routineId: routineId, date: date);
+      await _routineService.removeRoutineCompletion(
+        routineId: routineId,
+        date: date,
+      );
     } else {
       await _routineService.setRoutineCompletion(
         routineId: routineId,
@@ -326,8 +340,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
 
     if (pickedEnd == null || !mounted || routine.id == null) return;
 
-    final newStart = '${pickedStart.hour.toString().padLeft(2, '0')}:${pickedStart.minute.toString().padLeft(2, '0')}';
-    final newEnd = '${pickedEnd.hour.toString().padLeft(2, '0')}:${pickedEnd.minute.toString().padLeft(2, '0')}';
+    final newStart =
+        '${pickedStart.hour.toString().padLeft(2, '0')}:${pickedStart.minute.toString().padLeft(2, '0')}';
+    final newEnd =
+        '${pickedEnd.hour.toString().padLeft(2, '0')}:${pickedEnd.minute.toString().padLeft(2, '0')}';
 
     await _routineService.updateRoutineTime(routine.id!, newStart, newEnd);
     await _loadAllData();
@@ -335,7 +351,9 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Time updated for "${routine.title}" ($newStart – $newEnd)'),
+          content: Text(
+            'Time updated for "${routine.title}" ($newStart – $newEnd)',
+          ),
           backgroundColor: AppColors.cardSurface,
         ),
       );
@@ -368,7 +386,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
               ),
               title: const Text(
                 'Change Repeat Days',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               content: SizedBox(
                 width: double.maxFinite,
@@ -387,13 +408,17 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                           checkmarkColor: Colors.black,
                           labelStyle: TextStyle(
                             color: isSelected ? Colors.black : Colors.white,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
                           ),
                           backgroundColor: AppColors.cardSurface,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                             side: BorderSide(
-                              color: isSelected ? AppColors.primary : AppColors.border,
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : AppColors.border,
                             ),
                           ),
                           onSelected: (selected) {
@@ -417,7 +442,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: AppColors.textSecondary),
+                  ),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -449,7 +477,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
           borderRadius: BorderRadius.circular(16),
           side: const BorderSide(color: AppColors.border),
         ),
-        title: const Text('Delete Routine?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Delete Routine?',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         content: Text(
           'Are you sure you want to permanently delete "${routine.title}"? This will also remove its logged completions.',
           style: const TextStyle(color: AppColors.textSecondary),
@@ -457,7 +488,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -503,16 +537,24 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
         elevation: 0,
         leading: Navigator.canPop(context)
             ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+                icon: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
                 onPressed: () => Navigator.pop(context),
               )
             : (widget.onBackToHome != null
-                ? IconButton(
-                    icon: const Icon(Icons.home_rounded, color: AppColors.primary, size: 22),
-                    tooltip: 'Back to Home',
-                    onPressed: widget.onBackToHome,
-                  )
-                : null),
+                  ? IconButton(
+                      icon: const Icon(
+                        Icons.home_rounded,
+                        color: AppColors.primary,
+                        size: 22,
+                      ),
+                      tooltip: 'Back to Home',
+                      onPressed: widget.onBackToHome,
+                    )
+                  : null),
         title: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -526,16 +568,17 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
             ),
             Text(
               'Daily Schedule & Discipline Tracker',
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 11,
-              ),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
             ),
           ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.alarm_on_rounded, color: AppColors.primary, size: 22),
+            icon: const Icon(
+              Icons.alarm_on_rounded,
+              color: AppColors.primary,
+              size: 22,
+            ),
             tooltip: 'Alarm Settings',
             onPressed: () async {
               await Navigator.push(
@@ -546,7 +589,11 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
             },
           ),
           IconButton(
-            icon: const Icon(Icons.notifications_active_rounded, color: AppColors.primary, size: 22),
+            icon: const Icon(
+              Icons.notifications_active_rounded,
+              color: AppColors.primary,
+              size: 22,
+            ),
             tooltip: 'Test Alarm Now',
             onPressed: () => _triggerQuickTestAlarm(),
           ),
@@ -557,11 +604,19 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.black,
                 elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 8,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               icon: const Icon(Icons.add_rounded, size: 18),
-              label: const Text('Add', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+              label: const Text(
+                'Add',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              ),
               onPressed: _navigateToAddRoutine,
             ),
           ),
@@ -585,7 +640,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
               dividerColor: Colors.transparent,
               labelColor: Colors.black,
               unselectedLabelColor: AppColors.textSecondary,
-              labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+              labelStyle: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
               tabs: const [
                 Tab(text: "Today's Schedule"),
                 Tab(text: "Weekly Schedule"),
@@ -642,10 +700,7 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  AppColors.cardSurface,
-                  AppColors.surfaceElevated,
-                ],
+                colors: [AppColors.cardSurface, AppColors.surfaceElevated],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -682,7 +737,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                       ],
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.surfaceElevated,
                         borderRadius: BorderRadius.circular(10),
@@ -706,7 +764,9 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                     value: progress,
                     minHeight: 6,
                     backgroundColor: Colors.white10,
-                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      AppColors.primary,
+                    ),
                   ),
                 ),
               ],
@@ -727,7 +787,11 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                 children: [
                   const Row(
                     children: [
-                      Icon(Icons.warning_amber_rounded, color: AppColors.primary, size: 20),
+                      Icon(
+                        Icons.warning_amber_rounded,
+                        color: AppColors.primary,
+                        size: 20,
+                      ),
                       SizedBox(width: 8),
                       Text(
                         'SCHEDULE OVERLAP DETECTED',
@@ -741,21 +805,32 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                     ],
                   ),
                   const SizedBox(height: 8),
-                  ..._overlapWarnings.map((w) => Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('• ', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
-                        Expanded(
-                          child: Text(
-                            w,
-                            style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ..._overlapWarnings.map(
+                    (w) => Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            '• ',
+                            style: TextStyle(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      ],
+                          Expanded(
+                            child: Text(
+                              w,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  )),
+                  ),
                 ],
               ),
             ),
@@ -768,7 +843,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
               decoration: BoxDecoration(
                 color: AppColors.cardSurface,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: const Color(0xFF00B894).withValues(alpha: 0.5), width: 1.2),
+                border: Border.all(
+                  color: const Color(0xFF00B894).withValues(alpha: 0.5),
+                  width: 1.2,
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -778,7 +856,11 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                     children: [
                       const Row(
                         children: [
-                          Icon(Icons.restaurant_rounded, color: Color(0xFF00B894), size: 18),
+                          Icon(
+                            Icons.restaurant_rounded,
+                            color: Color(0xFF00B894),
+                            size: 18,
+                          ),
                           SizedBox(width: 6),
                           Text(
                             'NEXT MEAL REMINDER',
@@ -792,9 +874,13 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                         ],
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF00B894).withValues(alpha: 0.15),
+                          color: const Color(0xFF00B894)
+                              .withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -817,7 +903,8 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  if (_nextMealItem!.routine.foodDetails != null && _nextMealItem!.routine.foodDetails!.isNotEmpty) ...[
+                  if (_nextMealItem!.routine.foodDetails != null &&
+                      _nextMealItem!.routine.foodDetails!.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
                       '🥗 Meal Notes: ${_nextMealItem!.routine.foodDetails!}',
@@ -830,14 +917,21 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                   if (_suggestedDinnerTime != null) ...[
                     const SizedBox(height: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.surfaceElevated,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.bolt_rounded, color: AppColors.primary, size: 16),
+                          const Icon(
+                            Icons.bolt_rounded,
+                            color: AppColors.primary,
+                            size: 16,
+                          ),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
@@ -875,7 +969,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
               ),
               Text(
                 '${_todayItems.length} activities',
-                style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 11,
+                ),
               ),
             ],
           ),
@@ -926,8 +1023,8 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
           color: isCurrent
               ? AppColors.primary
               : isNextUpcoming
-                  ? AppColors.primary.withValues(alpha: 0.4)
-                  : AppColors.border,
+              ? AppColors.primary.withValues(alpha: 0.4)
+              : AppColors.border,
           width: isCurrent ? 1.8 : 1.0,
         ),
         boxShadow: isCurrent
@@ -936,7 +1033,7 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                   color: AppColors.primary.withValues(alpha: 0.15),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
-                )
+                ),
               ]
             : null,
       ),
@@ -958,14 +1055,21 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                       children: [
                         if (isCurrent) ...[
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.primary,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: const Row(
                               children: [
-                                Icon(Icons.play_arrow_rounded, size: 12, color: Colors.black),
+                                Icon(
+                                  Icons.play_arrow_rounded,
+                                  size: 12,
+                                  color: Colors.black,
+                                ),
                                 SizedBox(width: 3),
                                 Text(
                                   'NOW ACTIVE',
@@ -982,7 +1086,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                           const SizedBox(width: 8),
                         ] else if (isNextUpcoming) ...[
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.primary.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(6),
@@ -1000,7 +1107,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                           const SizedBox(width: 8),
                         ],
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
                             color: catColor.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(6),
@@ -1015,18 +1125,28 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                           ),
                         ),
                         const SizedBox(width: 6),
-                        if (routine.alarmType == 'alarm' || routine.isAlarmEnabled)
+                        if (routine.alarmType == 'alarm' ||
+                            routine.isAlarmEnabled)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.primary.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: AppColors.primary.withValues(alpha: 0.5)),
+                              border: Border.all(
+                                color: AppColors.primary.withValues(alpha: 0.5),
+                              ),
                             ),
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.alarm_on_rounded, size: 11, color: AppColors.primary),
+                                Icon(
+                                  Icons.alarm_on_rounded,
+                                  size: 11,
+                                  color: AppColors.primary,
+                                ),
                                 SizedBox(width: 3),
                                 Text(
                                   'ALARM',
@@ -1041,7 +1161,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                           )
                         else if (routine.alarmType == 'notification')
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.blueAccent.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(6),
@@ -1049,7 +1172,11 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.notifications_none_rounded, size: 11, color: Colors.blueAccent),
+                                Icon(
+                                  Icons.notifications_none_rounded,
+                                  size: 11,
+                                  color: Colors.blueAccent,
+                                ),
                                 SizedBox(width: 3),
                                 Text(
                                   'NOTIF',
@@ -1083,7 +1210,9 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                       decoration: BoxDecoration(
                         color: catColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: catColor.withValues(alpha: 0.3)),
+                        border: Border.all(
+                          color: catColor.withValues(alpha: 0.3),
+                        ),
                       ),
                       child: Icon(routine.icon, color: catColor, size: 22),
                     ),
@@ -1095,16 +1224,24 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                           Text(
                             routine.title,
                             style: TextStyle(
-                              color: item.isCompleted ? AppColors.textSecondary : Colors.white,
+                              color: item.isCompleted
+                                  ? AppColors.textSecondary
+                                  : Colors.white,
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
-                              decoration: item.isCompleted ? TextDecoration.lineThrough : null,
+                              decoration: item.isCompleted
+                                  ? TextDecoration.lineThrough
+                                  : null,
                             ),
                           ),
                           const SizedBox(height: 3),
                           Row(
                             children: [
-                              const Icon(Icons.access_time_rounded, size: 13, color: AppColors.textSecondary),
+                              const Icon(
+                                Icons.access_time_rounded,
+                                size: 13,
+                                color: AppColors.textSecondary,
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 routine.formattedTimeRange,
@@ -1116,7 +1253,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                               ),
                               const SizedBox(width: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 1,
+                                ),
                                 decoration: BoxDecoration(
                                   color: AppColors.surfaceElevated,
                                   borderRadius: BorderRadius.circular(4),
@@ -1132,7 +1272,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                               ),
                               if (routine.isOvernight) ...[
                                 const SizedBox(width: 6),
-                                const Text('🌙', style: TextStyle(fontSize: 11)),
+                                const Text(
+                                  '🌙',
+                                  style: TextStyle(fontSize: 11),
+                                ),
                               ],
                             ],
                           ),
@@ -1159,11 +1302,15 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                   ),
                 ],
 
-                if (routine.foodDetails != null && routine.foodDetails!.isNotEmpty) ...[
+                if (routine.foodDetails != null &&
+                    routine.foodDetails!.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Container(
                     margin: const EdgeInsets.only(left: 44),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.surfaceElevated,
                       borderRadius: BorderRadius.circular(8),
@@ -1172,7 +1319,11 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.restaurant_menu_rounded, size: 14, color: Color(0xFF00B894)),
+                        const Icon(
+                          Icons.restaurant_menu_rounded,
+                          size: 14,
+                          color: Color(0xFF00B894),
+                        ),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
@@ -1198,14 +1349,25 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                       child: OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.primary,
-                          side: const BorderSide(color: AppColors.primary, width: 1.2),
+                          side: const BorderSide(
+                            color: AppColors.primary,
+                            width: 1.2,
+                          ),
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
-                        icon: const Icon(Icons.fitness_center_rounded, size: 16),
+                        icon: const Icon(
+                          Icons.fitness_center_rounded,
+                          size: 16,
+                        ),
                         label: const Text(
                           'Start / View Today\'s Workout Plan',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         onPressed: _openGymWorkout,
                       ),
@@ -1223,16 +1385,26 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                   children: [
                     TextButton.icon(
                       style: TextButton.styleFrom(
-                        foregroundColor: item.isSkipped ? Colors.white : Colors.amberAccent,
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        foregroundColor: item.isSkipped
+                            ? Colors.white
+                            : Colors.amberAccent,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                       ),
                       icon: Icon(
-                        item.isSkipped ? Icons.undo_rounded : Icons.fast_forward_rounded,
+                        item.isSkipped
+                            ? Icons.undo_rounded
+                            : Icons.fast_forward_rounded,
                         size: 16,
                       ),
                       label: Text(
                         item.isSkipped ? 'Unskip' : 'Skip',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       onPressed: () {
                         if (routine.id != null) {
@@ -1247,20 +1419,34 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                             ? Colors.grey.shade800
                             : const Color(0xFF00B894),
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                       icon: Icon(
-                        item.isCompleted ? Icons.undo_rounded : Icons.check_circle_rounded,
+                        item.isCompleted
+                            ? Icons.undo_rounded
+                            : Icons.check_circle_rounded,
                         size: 16,
                       ),
                       label: Text(
                         item.isCompleted ? 'Done' : 'Mark Done',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       onPressed: () {
                         if (routine.id != null) {
-                          _toggleCompletion(routine.id!, item.date, 'completed');
+                          _toggleCompletion(
+                            routine.id!,
+                            item.date,
+                            'completed',
+                          );
                         }
                       },
                     ),
@@ -1311,7 +1497,9 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
+                      border: Border.all(
+                        color: AppColors.primary.withValues(alpha: 0.4),
+                      ),
                     ),
                     child: Center(
                       child: Text(
@@ -1350,7 +1538,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                         if (_weeklyStats!.skippedCount > 0)
                           Text(
                             '${_weeklyStats!.skippedCount} routines skipped',
-                            style: const TextStyle(color: Colors.amberAccent, fontSize: 11),
+                            style: const TextStyle(
+                              color: Colors.amberAccent,
+                              fontSize: 11,
+                            ),
                           ),
                       ],
                     ),
@@ -1375,10 +1566,12 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
 
           Row(
             children: weekDays.map((day) {
-              final isSelected = day.year == _selectedWeeklyDate.year &&
+              final isSelected =
+                  day.year == _selectedWeeklyDate.year &&
                   day.month == _selectedWeeklyDate.month &&
                   day.day == _selectedWeeklyDate.day;
-              final isToday = day.year == now.year &&
+              final isToday =
+                  day.year == now.year &&
                   day.month == now.month &&
                   day.day == now.day;
 
@@ -1395,15 +1588,15 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                       color: isSelected
                           ? AppColors.primary
                           : isToday
-                              ? AppColors.surfaceElevated
-                              : AppColors.cardSurface,
+                          ? AppColors.surfaceElevated
+                          : AppColors.cardSurface,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isSelected
                             ? AppColors.primary
                             : isToday
-                                ? AppColors.primary.withValues(alpha: 0.5)
-                                : AppColors.border,
+                            ? AppColors.primary.withValues(alpha: 0.5)
+                            : AppColors.border,
                       ),
                     ),
                     child: Column(
@@ -1411,7 +1604,9 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                         Text(
                           dayLetter,
                           style: TextStyle(
-                            color: isSelected ? Colors.black : AppColors.textSecondary,
+                            color: isSelected
+                                ? Colors.black
+                                : AppColors.textSecondary,
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
                           ),
@@ -1434,8 +1629,8 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                             color: isSelected
                                 ? Colors.black
                                 : isToday
-                                    ? AppColors.primary
-                                    : Colors.transparent,
+                                ? AppColors.primary
+                                : Colors.transparent,
                           ),
                         ),
                       ],
@@ -1453,7 +1648,9 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                DateFormat('EEEE, MMM d').format(_selectedWeeklyDate).toUpperCase(),
+                DateFormat('EEEE, MMM d')
+                    .format(_selectedWeeklyDate)
+                    .toUpperCase(),
                 style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 11,
@@ -1463,7 +1660,11 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
               ),
               Text(
                 '$completedCount / $totalCount Done',
-                style: const TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -1510,15 +1711,22 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                   title: Text(
                     routine.title,
                     style: TextStyle(
-                      color: item.isCompleted ? AppColors.textSecondary : Colors.white,
+                      color: item.isCompleted
+                          ? AppColors.textSecondary
+                          : Colors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      decoration: item.isCompleted ? TextDecoration.lineThrough : null,
+                      decoration: item.isCompleted
+                          ? TextDecoration.lineThrough
+                          : null,
                     ),
                   ),
                   subtitle: Text(
                     '${routine.formattedTimeRange} (${routine.formattedDuration})',
-                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
                   ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -1526,8 +1734,12 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                       _buildStatusChip(item.status),
                       IconButton(
                         icon: Icon(
-                          item.isCompleted ? Icons.check_circle_rounded : Icons.check_circle_outline_rounded,
-                          color: item.isCompleted ? const Color(0xFF00B894) : AppColors.textSecondary,
+                          item.isCompleted
+                              ? Icons.check_circle_rounded
+                              : Icons.check_circle_outline_rounded,
+                          color: item.isCompleted
+                              ? const Color(0xFF00B894)
+                              : AppColors.textSecondary,
                           size: 20,
                         ),
                         onPressed: () {
@@ -1573,7 +1785,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
               ),
               Text(
                 '${_allRoutines.length} total',
-                style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 11,
+                ),
               ),
             ],
           ),
@@ -1596,7 +1811,9 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                   color: AppColors.cardSurface,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: routine.isEnabled ? AppColors.border : Colors.grey.shade900,
+                    color: routine.isEnabled
+                        ? AppColors.border
+                        : Colors.grey.shade900,
                   ),
                 ),
                 child: Material(
@@ -1635,7 +1852,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                                 Row(
                                   children: [
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: catColor.withValues(alpha: 0.15),
                                         borderRadius: BorderRadius.circular(4),
@@ -1650,17 +1870,29 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                                       ),
                                     ),
                                     const SizedBox(width: 6),
-                                    if (routine.alarmType == 'alarm' || routine.isAlarmEnabled)
+                                    if (routine.alarmType == 'alarm' ||
+                                        routine.isAlarmEnabled)
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 2,
+                                        ),
                                         decoration: BoxDecoration(
-                                          color: AppColors.primary.withValues(alpha: 0.2),
-                                          borderRadius: BorderRadius.circular(4),
+                                          color: AppColors.primary.withValues(
+                                            alpha: 0.2,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
                                         ),
                                         child: const Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            Icon(Icons.alarm_on_rounded, size: 10, color: AppColors.primary),
+                                            Icon(
+                                              Icons.alarm_on_rounded,
+                                              size: 10,
+                                              color: AppColors.primary,
+                                            ),
                                             SizedBox(width: 2),
                                             Text(
                                               'ALARM',
@@ -1673,7 +1905,8 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                                           ],
                                         ),
                                       )
-                                    else if (routine.alarmType == 'notification')
+                                    else if (routine.alarmType ==
+                                        'notification')
                                       const Icon(
                                         Icons.notifications_active_rounded,
                                         size: 13,
@@ -1681,7 +1914,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                                       ),
                                     if (routine.isOvernight) ...[
                                       const SizedBox(width: 4),
-                                      const Text('🌙', style: TextStyle(fontSize: 10)),
+                                      const Text(
+                                        '🌙',
+                                        style: TextStyle(fontSize: 10),
+                                      ),
                                     ],
                                   ],
                                 ),
@@ -1689,7 +1925,9 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                                 Text(
                                   routine.title,
                                   style: TextStyle(
-                                    color: routine.isEnabled ? Colors.white : AppColors.textSecondary,
+                                    color: routine.isEnabled
+                                        ? Colors.white
+                                        : AppColors.textSecondary,
                                     fontSize: 15,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -1702,7 +1940,8 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                                     fontSize: 11,
                                   ),
                                 ),
-                                if (routine.foodDetails != null && routine.foodDetails!.isNotEmpty) ...[
+                                if (routine.foodDetails != null &&
+                                    routine.foodDetails!.isNotEmpty) ...[
                                   const SizedBox(height: 2),
                                   Text(
                                     '🥗 ${routine.foodDetails!}',
@@ -1778,18 +2017,18 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
       ),
       child: Text(
         label,
-        style: TextStyle(
-          color: fg,
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-        ),
+        style: TextStyle(color: fg, fontSize: 10, fontWeight: FontWeight.bold),
       ),
     );
   }
 
   Widget _buildRoutinePopupMenu(Routine routine, {RoutineTodayItem? item}) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert_rounded, color: AppColors.textSecondary, size: 20),
+      icon: const Icon(
+        Icons.more_vert_rounded,
+        color: AppColors.textSecondary,
+        size: 20,
+      ),
       color: AppColors.surfaceElevated,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -1845,7 +2084,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
             children: [
               Icon(Icons.info_outline_rounded, size: 18, color: Colors.white),
               SizedBox(width: 10),
-              Text('View Details', style: TextStyle(color: Colors.white, fontSize: 13)),
+              Text(
+                'View Details',
+                style: TextStyle(color: Colors.white, fontSize: 13),
+              ),
             ],
           ),
         ),
@@ -1855,7 +2097,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
             children: [
               Icon(Icons.edit_rounded, size: 18, color: AppColors.primary),
               SizedBox(width: 10),
-              Text('Edit Routine', style: TextStyle(color: Colors.white, fontSize: 13)),
+              Text(
+                'Edit Routine',
+                style: TextStyle(color: Colors.white, fontSize: 13),
+              ),
             ],
           ),
         ),
@@ -1865,7 +2110,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
             children: [
               Icon(Icons.schedule_rounded, size: 18, color: Colors.cyanAccent),
               SizedBox(width: 10),
-              Text('Change Time', style: TextStyle(color: Colors.white, fontSize: 13)),
+              Text(
+                'Change Time',
+                style: TextStyle(color: Colors.white, fontSize: 13),
+              ),
             ],
           ),
         ),
@@ -1873,9 +2121,16 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
           value: 'days',
           child: Row(
             children: [
-              Icon(Icons.calendar_month_rounded, size: 18, color: Colors.amberAccent),
+              Icon(
+                Icons.calendar_month_rounded,
+                size: 18,
+                color: Colors.amberAccent,
+              ),
               SizedBox(width: 10),
-              Text('Change Repeat Days', style: TextStyle(color: Colors.white, fontSize: 13)),
+              Text(
+                'Change Repeat Days',
+                style: TextStyle(color: Colors.white, fontSize: 13),
+              ),
             ],
           ),
         ),
@@ -1883,9 +2138,16 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
           value: 'test_alarm',
           child: Row(
             children: [
-              Icon(Icons.notifications_active_rounded, size: 18, color: AppColors.primary),
+              Icon(
+                Icons.notifications_active_rounded,
+                size: 18,
+                color: AppColors.primary,
+              ),
               SizedBox(width: 10),
-              Text('Test Alarm Now', style: TextStyle(color: Colors.white, fontSize: 13)),
+              Text(
+                'Test Alarm Now',
+                style: TextStyle(color: Colors.white, fontSize: 13),
+              ),
             ],
           ),
         ),
@@ -1895,7 +2157,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
             children: [
               Icon(Icons.alarm_on_rounded, size: 18, color: AppColors.primary),
               SizedBox(width: 10),
-              Text('Alarm Settings', style: TextStyle(color: Colors.white, fontSize: 13)),
+              Text(
+                'Alarm Settings',
+                style: TextStyle(color: Colors.white, fontSize: 13),
+              ),
             ],
           ),
         ),
@@ -1904,9 +2169,13 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
           child: Row(
             children: [
               Icon(
-                routine.isEnabled ? Icons.pause_circle_outline_rounded : Icons.play_circle_outline_rounded,
+                routine.isEnabled
+                    ? Icons.pause_circle_outline_rounded
+                    : Icons.play_circle_outline_rounded,
                 size: 18,
-                color: routine.isEnabled ? Colors.orangeAccent : const Color(0xFF00B894),
+                color: routine.isEnabled
+                    ? Colors.orangeAccent
+                    : const Color(0xFF00B894),
               ),
               const SizedBox(width: 10),
               Text(
@@ -1921,9 +2190,16 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
           value: 'complete',
           child: Row(
             children: [
-              Icon(Icons.check_circle_rounded, size: 18, color: Color(0xFF00B894)),
+              Icon(
+                Icons.check_circle_rounded,
+                size: 18,
+                color: Color(0xFF00B894),
+              ),
               SizedBox(width: 10),
-              Text('Mark Completed', style: TextStyle(color: Colors.white, fontSize: 13)),
+              Text(
+                'Mark Completed',
+                style: TextStyle(color: Colors.white, fontSize: 13),
+              ),
             ],
           ),
         ),
@@ -1931,9 +2207,16 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
           value: 'skip',
           child: Row(
             children: [
-              Icon(Icons.fast_forward_rounded, size: 18, color: Colors.amberAccent),
+              Icon(
+                Icons.fast_forward_rounded,
+                size: 18,
+                color: Colors.amberAccent,
+              ),
               SizedBox(width: 10),
-              Text('Mark Skipped', style: TextStyle(color: Colors.white, fontSize: 13)),
+              Text(
+                'Mark Skipped',
+                style: TextStyle(color: Colors.white, fontSize: 13),
+              ),
             ],
           ),
         ),
@@ -1942,9 +2225,16 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
           value: 'delete',
           child: Row(
             children: [
-              Icon(Icons.delete_outline_rounded, size: 18, color: Colors.redAccent),
+              Icon(
+                Icons.delete_outline_rounded,
+                size: 18,
+                color: Colors.redAccent,
+              ),
               SizedBox(width: 10),
-              Text('Delete Routine', style: TextStyle(color: Colors.redAccent, fontSize: 13)),
+              Text(
+                'Delete Routine',
+                style: TextStyle(color: Colors.redAccent, fontSize: 13),
+              ),
             ],
           ),
         ),
@@ -2003,11 +2293,16 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.black,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             ),
             icon: const Icon(Icons.add_rounded, size: 18),
-            label: Text(buttonLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
+            label: Text(
+              buttonLabel,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
             onPressed: onButtonPressed,
           ),
         ],

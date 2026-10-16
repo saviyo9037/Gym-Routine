@@ -12,6 +12,7 @@ import 'screens/add_edit_exercise_screen.dart';
 import 'screens/alarm_ringing_screen.dart';
 import 'services/alarm_service.dart';
 import 'services/exercise_media_service.dart';
+import 'services/exercise_terminology_service.dart';
 import 'data/db_helper.dart';
 
 void main() async {
@@ -39,6 +40,13 @@ void main() async {
     await ExerciseMediaService.instance.initialize();
   } catch (e) {
     debugPrint('Media service init error: $e');
+  }
+
+  // Initialize Exercise Terminology Service
+  try {
+    await ExerciseTerminologyService.instance.initialize();
+  } catch (e) {
+    debugPrint('Terminology service init error: $e');
   }
 
   runApp(const RepTrackApp());

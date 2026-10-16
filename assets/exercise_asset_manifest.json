@@ -1518,5 +1518,93 @@
     "muscle_group": "Full Body",
     "equipment": "Bodyweight",
     "difficulty": "Intermediate"
+  },
+  "Treadmill Walking": {
+    "id": 191,
+    "slug": "treadmill_walking",
+    "asset_path": "assets/images/exercises/treadmill_walking.jpg",
+    "muscle_group": "Cardio",
+    "equipment": "Treadmill",
+    "difficulty": "Beginner"
+  },
+  "Treadmill Running": {
+    "id": 192,
+    "slug": "treadmill_running",
+    "asset_path": "assets/images/exercises/treadmill_running.jpg",
+    "muscle_group": "Cardio",
+    "equipment": "Treadmill",
+    "difficulty": "Intermediate"
+  },
+  "Outdoor Walking": {
+    "id": 193,
+    "slug": "outdoor_walking",
+    "asset_path": "assets/images/exercises/outdoor_walking.jpg",
+    "muscle_group": "Cardio",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "Outdoor Running": {
+    "id": 194,
+    "slug": "outdoor_running",
+    "asset_path": "assets/images/exercises/outdoor_running.jpg",
+    "muscle_group": "Cardio",
+    "equipment": "Bodyweight",
+    "difficulty": "Intermediate"
+  },
+  "Stationary Cycling": {
+    "id": 195,
+    "slug": "stationary_cycling",
+    "asset_path": "assets/images/exercises/stationary_cycling.jpg",
+    "muscle_group": "Cardio",
+    "equipment": "Exercise Bike",
+    "difficulty": "Beginner"
+  },
+  "Elliptical Trainer": {
+    "id": 196,
+    "slug": "elliptical_trainer",
+    "asset_path": "assets/images/exercises/elliptical_trainer.jpg",
+    "muscle_group": "Cardio",
+    "equipment": "Elliptical",
+    "difficulty": "Beginner"
+  },
+  "Rowing Machine": {
+    "id": 197,
+    "slug": "rowing_machine",
+    "asset_path": "assets/images/exercises/rowing_machine.jpg",
+    "muscle_group": "Cardio",
+    "equipment": "Rowing Machine",
+    "difficulty": "Intermediate"
+  },
+  "Stair Climber": {
+    "id": 198,
+    "slug": "stair_climber",
+    "asset_path": "assets/images/exercises/stair_climber.jpg",
+    "muscle_group": "Cardio",
+    "equipment": "Stair Climber",
+    "difficulty": "Intermediate"
+  },
+  "Jump Rope": {
+    "id": 199,
+    "slug": "jump_rope",
+    "asset_path": "assets/images/exercises/jump_rope.jpg",
+    "muscle_group": "Cardio",
+    "equipment": "Jump Rope",
+    "difficulty": "Intermediate"
+  },
+  "Jumping Jacks": {
+    "id": 200,
+    "slug": "jumping_jacks",
+    "asset_path": "assets/images/exercises/jumping_jacks.jpg",
+    "muscle_group": "Cardio",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
+  },
+  "High Knees": {
+    "id": 201,
+    "slug": "high_knees",
+    "asset_path": "assets/images/exercises/high_knees.jpg",
+    "muscle_group": "Cardio",
+    "equipment": "Bodyweight",
+    "difficulty": "Beginner"
   }
 }

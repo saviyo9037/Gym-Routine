@@ -18,7 +18,9 @@ class AlarmPermissionStatus {
   });
 
   bool get isFullyConfigured =>
-      canScheduleExactAlarms && notificationsEnabled && isBatteryOptimizationIgnored;
+      canScheduleExactAlarms &&
+      notificationsEnabled &&
+      isBatteryOptimizationIgnored;
 }
 
 class AlarmService {
@@ -42,10 +44,17 @@ class AlarmService {
       final now = DateTime.now();
       final startParts = routine.startTime.split(':');
       final hour = int.tryParse(startParts[0]) ?? 0;
-      final minute = int.tryParse(startParts.length > 1 ? startParts[1] : '0') ?? 0;
+      final minute =
+          int.tryParse(startParts.length > 1 ? startParts[1] : '0') ?? 0;
 
       // Find next occurrence matching routine's repeat days
-      DateTime targetDate = DateTime(now.year, now.month, now.day, hour, minute);
+      DateTime targetDate = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        hour,
+        minute,
+      );
 
       // If time has already passed today, check tomorrow onwards
       if (targetDate.isBefore(now)) {
@@ -77,7 +86,9 @@ class AlarmService {
       );
       return success ?? true;
     } catch (e) {
-      debugPrint('[AlarmService] Error scheduling alarm for routine ${routine.id}: $e');
+      debugPrint(
+        '[AlarmService] Error scheduling alarm for routine ${routine.id}: $e',
+      );
       return false;
     }
   }
@@ -110,7 +121,9 @@ class AlarmService {
         'delaySeconds': delaySeconds,
         'isAudible': isAudible,
       });
-      debugPrint('[AlarmService] Test alarm launched with delay $delaySeconds s');
+      debugPrint(
+        '[AlarmService] Test alarm launched with delay $delaySeconds s',
+      );
       return res ?? true;
     } catch (e) {
       debugPrint('[AlarmService] Error triggering test alarm: $e');
@@ -130,7 +143,11 @@ class AlarmService {
   }
 
   /// Snoozes alarm for X minutes
-  Future<void> snoozeAlarm(int routineId, {int snoozeMinutes = 10, String? title}) async {
+  Future<void> snoozeAlarm(
+    int routineId, {
+    int snoozeMinutes = 10,
+    String? title,
+  }) async {
     try {
       await _channel.invokeMethod('snoozeAlarm', {
         'routineId': routineId,
@@ -138,7 +155,9 @@ class AlarmService {
         'title': title ?? 'Routine Alarm',
       });
       await _stopFallbackAudio();
-      debugPrint('[AlarmService] Snoozed routine $routineId for $snoozeMinutes minutes');
+      debugPrint(
+        '[AlarmService] Snoozed routine $routineId for $snoozeMinutes minutes',
+      );
     } catch (e) {
       debugPrint('[AlarmService] Error snoozing alarm: $e');
     }
@@ -147,12 +166,16 @@ class AlarmService {
   /// Checks current Android permissions (Exact Alarm, Notification, Battery Optimization, DND)
   Future<AlarmPermissionStatus> checkPermissions() async {
     try {
-      final map = await _channel.invokeMapMethod<String, dynamic>('checkPermissions');
+      final map = await _channel.invokeMapMethod<String, dynamic>(
+        'checkPermissions',
+      );
       if (map != null) {
         return AlarmPermissionStatus(
-          canScheduleExactAlarms: map['canScheduleExactAlarms'] as bool? ?? true,
+          canScheduleExactAlarms:
+              map['canScheduleExactAlarms'] as bool? ?? true,
           notificationsEnabled: map['notificationsEnabled'] as bool? ?? true,
-          isBatteryOptimizationIgnored: map['isBatteryOptimizationIgnored'] as bool? ?? false,
+          isBatteryOptimizationIgnored:
+              map['isBatteryOptimizationIgnored'] as bool? ?? false,
           isDndAccessGranted: map['isDndAccessGranted'] as bool? ?? false,
         );
       }
@@ -198,7 +221,9 @@ class AlarmService {
   /// Retrieves intent extras if the app was launched by a ringing alarm
   Future<Map<String, dynamic>?> getTriggeredAlarmData() async {
     try {
-      final map = await _channel.invokeMapMethod<String, dynamic>('getTriggeredAlarmData');
+      final map = await _channel.invokeMapMethod<String, dynamic>(
+        'getTriggeredAlarmData',
+      );
       return map;
     } catch (e) {
       debugPrint('[AlarmService] Error checking triggered alarm data: $e');

@@ -231,8 +231,12 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
         startTime: _formatTime(_startTime),
         endTime: _formatTime(_endTime),
         repeatDays: _repeatDays,
-        notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
-        foodDetails: _foodDetailsController.text.trim().isEmpty ? null : _foodDetailsController.text.trim(),
+        notes: _notesController.text.trim().isEmpty
+            ? null
+            : _notesController.text.trim(),
+        foodDetails: _foodDetailsController.text.trim().isEmpty
+            ? null
+            : _foodDetailsController.text.trim(),
         isReminderEnabled: _isReminderEnabled,
         reminderMinutesBefore: _reminderMinutesBefore,
         alarmType: _alarmType,
@@ -241,7 +245,8 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
         isVibrationEnabled: _isVibrationEnabled,
         snoozeMinutes: _snoozeMinutes,
         isEnabled: _isEnabled,
-        colorHex: '#${_selectedCategory.defaultColor.toARGB32().toRadixString(16).substring(2).toUpperCase()}',
+        colorHex:
+            '#${_selectedCategory.defaultColor.toARGB32().toRadixString(16).substring(2).toUpperCase()}',
       );
 
       if (widget.routine == null) {
@@ -287,7 +292,11 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
         backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.white,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -307,15 +316,23 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                   ? const SizedBox(
                       width: 14,
                       height: 14,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.black,
+                      ),
                     )
                   : const Icon(Icons.check_rounded, size: 18),
               label: Text(isEditing ? 'Save' : 'Create'),
               style: TextButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
           ),
@@ -339,12 +356,19 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.warning_amber_rounded, color: Colors.amberAccent, size: 20),
+                      const Icon(
+                        Icons.warning_amber_rounded,
+                        color: Colors.amberAccent,
+                        size: 20,
+                      ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           'Schedule Overlap: Coincides with "${overlapping.title}" (${overlapping.formattedTimeRange}) on shared days.',
-                          style: const TextStyle(color: Colors.white, fontSize: 12),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                     ],
@@ -358,11 +382,18 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                 controller: _titleController,
                 style: const TextStyle(color: Colors.white, fontSize: 16),
                 decoration: InputDecoration(
-                  hintText: 'e.g., Breakfast, Office Work, Gym Workout, Sleep Prep',
-                  hintStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                  hintText:
+                      'e.g., Breakfast, Office Work, Gym Workout, Sleep Prep',
+                  hintStyle: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 14,
+                  ),
                   filled: true,
                   fillColor: AppColors.cardSurface,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: AppColors.border),
@@ -373,7 +404,10 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                    borderSide: const BorderSide(
+                      color: AppColors.primary,
+                      width: 1.5,
+                    ),
                   ),
                 ),
                 validator: (val) {
@@ -408,7 +442,9 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                     backgroundColor: AppColors.cardSurface,
                     labelStyle: TextStyle(
                       color: isSelected ? Colors.black : Colors.white,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w500,
                       fontSize: 12,
                     ),
                     shape: RoundedRectangleBorder(
@@ -422,7 +458,8 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                         setState(() {
                           _selectedCategory = cat;
                           // If gym or sleep, suggest audible alarm default
-                          if (cat == RoutineCategory.gym || cat == RoutineCategory.sleep) {
+                          if (cat == RoutineCategory.gym ||
+                              cat == RoutineCategory.sleep) {
                             _alarmType = 'alarm';
                           }
                         });
@@ -439,7 +476,13 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _buildSectionTitle('FOOD DETAILS & MEAL NUTRITION'),
-                    const Text('Optional & Editable', style: TextStyle(color: AppColors.textSecondary, fontSize: 10)),
+                    const Text(
+                      'Optional & Editable',
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 10,
+                      ),
+                    ),
                   ],
                 ),
                 TextFormField(
@@ -448,7 +491,10 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                   style: const TextStyle(color: Colors.white, fontSize: 14),
                   decoration: InputDecoration(
                     hintText: 'e.g., Rice / roti, lentils/dal, boiled eggs, banana, chicken breast...',
-                    hintStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                    hintStyle: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 13,
+                    ),
                     filled: true,
                     fillColor: AppColors.cardSurface,
                     contentPadding: const EdgeInsets.all(14),
@@ -462,7 +508,10 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                      borderSide: const BorderSide(
+                        color: AppColors.primary,
+                        width: 1.5,
+                      ),
                     ),
                   ),
                 ),
@@ -472,7 +521,13 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                   runSpacing: 6,
                   children: _commonFoodSuggestions.map((suggestion) {
                     return ActionChip(
-                      label: Text(suggestion, style: const TextStyle(fontSize: 11, color: Colors.white)),
+                      label: Text(
+                        suggestion,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.white,
+                        ),
+                      ),
                       backgroundColor: AppColors.surfaceElevated,
                       side: const BorderSide(color: AppColors.border),
                       onPressed: () {
@@ -497,16 +552,25 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                   decoration: BoxDecoration(
                     color: AppColors.primary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                    border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.restaurant_rounded, color: AppColors.primary, size: 18),
+                      const Icon(
+                        Icons.restaurant_rounded,
+                        color: AppColors.primary,
+                        size: 18,
+                      ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           'Tip: Dinner will be suggested 15 minutes after gym completion (${_formatTime(_endTime)}).',
-                          style: const TextStyle(color: Colors.white, fontSize: 11.5),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11.5,
+                          ),
                         ),
                       ),
                     ],
@@ -541,7 +605,10 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
 
               // Overnight Banner and Duration Info
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: _isOvernight
                       ? const Color(0xFF6C5CE7).withValues(alpha: 0.15)
@@ -556,9 +623,13 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                 child: Row(
                   children: [
                     Icon(
-                      _isOvernight ? Icons.nightlight_round : Icons.timelapse_rounded,
+                      _isOvernight
+                          ? Icons.nightlight_round
+                          : Icons.timelapse_rounded,
                       size: 18,
-                      color: _isOvernight ? const Color(0xFFB388FF) : AppColors.primary,
+                      color: _isOvernight
+                          ? const Color(0xFFB388FF)
+                          : AppColors.primary,
                     ),
                     const SizedBox(width: 10),
                     Expanded(
@@ -567,7 +638,9 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                             ? 'Overnight Schedule: Crosses midnight into next morning ($_durationLabel)'
                             : 'Total Duration: $_durationLabel',
                         style: TextStyle(
-                          color: _isOvernight ? const Color(0xFFB388FF) : AppColors.textMain,
+                          color: _isOvernight
+                              ? const Color(0xFFB388FF)
+                              : AppColors.textMain,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -586,11 +659,20 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                   _buildSectionTitle('REPEAT DAYS'),
                   Row(
                     children: [
-                      _buildPresetTextBtn('All', () => _applyPresetDays([1, 2, 3, 4, 5, 6, 7])),
+                      _buildPresetTextBtn(
+                        'All',
+                        () => _applyPresetDays([1, 2, 3, 4, 5, 6, 7]),
+                      ),
                       const SizedBox(width: 8),
-                      _buildPresetTextBtn('Weekdays', () => _applyPresetDays([1, 2, 3, 4, 5])),
+                      _buildPresetTextBtn(
+                        'Weekdays',
+                        () => _applyPresetDays([1, 2, 3, 4, 5]),
+                      ),
                       const SizedBox(width: 8),
-                      _buildPresetTextBtn('Weekends', () => _applyPresetDays([6, 7])),
+                      _buildPresetTextBtn(
+                        'Weekends',
+                        () => _applyPresetDays([6, 7]),
+                      ),
                     ],
                   ),
                 ],
@@ -608,13 +690,17 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                     backgroundColor: AppColors.cardSurface,
                     labelStyle: TextStyle(
                       color: isSelected ? Colors.black : Colors.white,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w500,
                       fontSize: 12,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                       side: BorderSide(
-                        color: isSelected ? AppColors.primary : AppColors.border,
+                        color: isSelected
+                            ? AppColors.primary
+                            : AppColors.border,
                       ),
                     ),
                     onSelected: (selected) {
@@ -628,7 +714,9 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('At least one day must be selected'),
+                                content: Text(
+                                  'At least one day must be selected',
+                                ),
                                 duration: Duration(seconds: 1),
                               ),
                             );
@@ -688,13 +776,27 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Alarm Sound', style: TextStyle(color: Colors.white, fontSize: 13)),
+                          const Text(
+                            'Alarm Sound',
+                            style: TextStyle(color: Colors.white, fontSize: 13),
+                          ),
                           DropdownButton<String>(
                             value: _soundName,
                             dropdownColor: AppColors.surfaceElevated,
                             underline: const SizedBox(),
-                            style: const TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.bold),
-                            items: _soundOptions.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
+                            style: const TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            items: _soundOptions
+                                .map(
+                                  (s) => DropdownMenuItem(
+                                    value: s,
+                                    child: Text(s),
+                                  ),
+                                )
+                                .toList(),
                             onChanged: (val) {
                               if (val != null) setState(() => _soundName = val);
                             },
@@ -705,11 +807,15 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Vibrate during alarm', style: TextStyle(color: Colors.white, fontSize: 13)),
+                          const Text(
+                            'Vibrate during alarm',
+                            style: TextStyle(color: Colors.white, fontSize: 13),
+                          ),
                           Switch(
                             value: _isVibrationEnabled,
                             activeThumbColor: AppColors.primary,
-                            onChanged: (val) => setState(() => _isVibrationEnabled = val),
+                            onChanged: (val) =>
+                                setState(() => _isVibrationEnabled = val),
                           ),
                         ],
                       ),
@@ -717,20 +823,41 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Snooze Duration', style: TextStyle(color: Colors.white, fontSize: 13)),
+                          const Text(
+                            'Snooze Duration',
+                            style: TextStyle(color: Colors.white, fontSize: 13),
+                          ),
                           DropdownButton<int>(
                             value: _snoozeMinutes,
                             dropdownColor: AppColors.surfaceElevated,
                             underline: const SizedBox(),
-                            style: const TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
                             items: const [
-                              DropdownMenuItem(value: 5, child: Text('5 minutes')),
-                              DropdownMenuItem(value: 10, child: Text('10 minutes')),
-                              DropdownMenuItem(value: 15, child: Text('15 minutes')),
-                              DropdownMenuItem(value: 20, child: Text('20 minutes')),
+                              DropdownMenuItem(
+                                value: 5,
+                                child: Text('5 minutes'),
+                              ),
+                              DropdownMenuItem(
+                                value: 10,
+                                child: Text('10 minutes'),
+                              ),
+                              DropdownMenuItem(
+                                value: 15,
+                                child: Text('15 minutes'),
+                              ),
+                              DropdownMenuItem(
+                                value: 20,
+                                child: Text('20 minutes'),
+                              ),
                             ],
                             onChanged: (val) {
-                              if (val != null) setState(() => _snoozeMinutes = val);
+                              if (val != null) {
+                                setState(() => _snoozeMinutes = val);
+                              }
                             },
                           ),
                         ],
@@ -745,7 +872,10 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
               // Active / Enabled Status
               _buildSectionTitle('STATUS'),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.cardSurface,
                   borderRadius: BorderRadius.circular(12),
@@ -770,7 +900,10 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                           _isEnabled
                               ? 'Active and scheduled on selected days'
                               : 'Paused — will not appear on daily schedule',
-                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 11,
+                          ),
                         ),
                       ],
                     ),
@@ -793,7 +926,10 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                 style: const TextStyle(color: Colors.white, fontSize: 14),
                 decoration: InputDecoration(
                   hintText: 'Specific cues, focus items, reading pages...',
-                  hintStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                  hintStyle: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 13,
+                  ),
                   filled: true,
                   fillColor: AppColors.cardSurface,
                   contentPadding: const EdgeInsets.all(14),
@@ -807,7 +943,10 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                    borderSide: const BorderSide(
+                      color: AppColors.primary,
+                      width: 1.5,
+                    ),
                   ),
                 ),
               ),
@@ -823,10 +962,15 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                         foregroundColor: AppColors.textSecondary,
                         side: const BorderSide(color: AppColors.border),
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancel', style: TextStyle(fontWeight: FontWeight.w600)),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -836,12 +980,17 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.black,
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                       onPressed: _isSaving ? null : _saveRoutine,
                       child: Text(
                         isEditing ? 'Save Changes' : 'Create Routine',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
                       ),
                     ),
                   ),
@@ -870,7 +1019,9 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.18) : AppColors.surfaceElevated,
+          color: isSelected
+              ? color.withValues(alpha: 0.18)
+              : AppColors.surfaceElevated,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isSelected ? color : AppColors.border,
@@ -929,11 +1080,21 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+            Text(
+              label,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 11,
+              ),
+            ),
             const SizedBox(height: 6),
             Row(
               children: [
-                const Icon(Icons.access_time_rounded, color: AppColors.primary, size: 18),
+                const Icon(
+                  Icons.access_time_rounded,
+                  color: AppColors.primary,
+                  size: 18,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   _formatTime(time),

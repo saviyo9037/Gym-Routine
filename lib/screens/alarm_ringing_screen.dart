@@ -98,16 +98,25 @@ class _AlarmRingingScreenState extends State<AlarmRingingScreen>
               children: [
                 // Top header tag
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
+                    border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.4),
+                    ),
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.alarm_on_rounded, size: 16, color: AppColors.primary),
+                      Icon(
+                        Icons.alarm_on_rounded,
+                        size: 16,
+                        color: AppColors.primary,
+                      ),
                       SizedBox(width: 8),
                       Text(
                         'ROUTINE ALARM ACTIVE',
@@ -133,7 +142,10 @@ class _AlarmRingingScreenState extends State<AlarmRingingScreen>
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: AppColors.primary.withValues(alpha: 0.12),
-                          border: Border.all(color: AppColors.primary, width: 3),
+                          border: Border.all(
+                            color: AppColors.primary,
+                            width: 3,
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: AppColors.primary.withValues(alpha: 0.4),
@@ -153,7 +165,9 @@ class _AlarmRingingScreenState extends State<AlarmRingingScreen>
                     ),
                     const SizedBox(height: 36),
                     Text(
-                      widget.scheduledTime.isNotEmpty ? widget.scheduledTime : 'Scheduled Time',
+                      widget.scheduledTime.isNotEmpty
+                          ? widget.scheduledTime
+                          : 'Scheduled Time',
                       style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 22,
@@ -174,7 +188,10 @@ class _AlarmRingingScreenState extends State<AlarmRingingScreen>
                     ),
                     const SizedBox(height: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: categoryEnum.defaultColor.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(6),
@@ -198,15 +215,26 @@ class _AlarmRingingScreenState extends State<AlarmRingingScreen>
                       OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.primary,
-                          side: const BorderSide(color: AppColors.primary, width: 1.5),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          side: const BorderSide(
+                            color: AppColors.primary,
+                            width: 1.5,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           minimumSize: const Size.fromHeight(50),
                         ),
-                        icon: const Icon(Icons.fitness_center_rounded, size: 20),
+                        icon: const Icon(
+                          Icons.fitness_center_rounded,
+                          size: 20,
+                        ),
                         label: const Text(
                           'Open Today\'s Workout Session',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
                         ),
                         onPressed: () async {
                           await _stopAlarm();
@@ -233,12 +261,17 @@ class _AlarmRingingScreenState extends State<AlarmRingingScreen>
                               side: const BorderSide(color: AppColors.border),
                               backgroundColor: AppColors.surfaceElevated,
                               padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
                             ),
                             icon: const Icon(Icons.snooze_rounded, size: 20),
                             label: Text(
                               'Snooze (${widget.snoozeMinutes}m)',
-                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                              ),
                             ),
                             onPressed: _snoozeAlarm,
                           ),
@@ -253,12 +286,21 @@ class _AlarmRingingScreenState extends State<AlarmRingingScreen>
                               foregroundColor: Colors.black,
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               elevation: 6,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
                             ),
-                            icon: const Icon(Icons.stop_circle_rounded, size: 22),
+                            icon: const Icon(
+                              Icons.stop_circle_rounded,
+                              size: 22,
+                            ),
                             label: const Text(
                               'STOP ALARM',
-                              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, letterSpacing: 0.5),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 15,
+                                letterSpacing: 0.5,
+                              ),
                             ),
                             onPressed: _stopAlarm,
                           ),

@@ -106,7 +106,11 @@ class _AlarmSettingsScreenState extends State<AlarmSettingsScreen> {
         backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.white,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -126,7 +130,9 @@ class _AlarmSettingsScreenState extends State<AlarmSettingsScreen> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          ? const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            )
           : ListView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               children: [
@@ -141,7 +147,9 @@ class _AlarmSettingsScreenState extends State<AlarmSettingsScreen> {
                       ],
                     ),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.5)),
+                    border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.5),
+                    ),
                   ),
                   child: Row(
                     children: [
@@ -151,7 +159,11 @@ class _AlarmSettingsScreenState extends State<AlarmSettingsScreen> {
                           color: AppColors.primary,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.alarm_on_rounded, color: Colors.black, size: 24),
+                        child: const Icon(
+                          Icons.alarm_on_rounded,
+                          color: Colors.black,
+                          size: 24,
+                        ),
                       ),
                       const SizedBox(width: 14),
                       Expanded(
@@ -169,7 +181,10 @@ class _AlarmSettingsScreenState extends State<AlarmSettingsScreen> {
                             const SizedBox(height: 2),
                             const Text(
                               'Wakes screen, rings audio alarm stream, and vibrates.',
-                              style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                              style: TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 11,
+                              ),
                             ),
                           ],
                         ),
@@ -178,11 +193,19 @@ class _AlarmSettingsScreenState extends State<AlarmSettingsScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 8,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                         onPressed: _triggerTestAlarm,
-                        child: const Text('Test', style: TextStyle(fontWeight: FontWeight.bold)),
+                        child: const Text(
+                          'Test',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ],
                   ),
@@ -204,7 +227,8 @@ class _AlarmSettingsScreenState extends State<AlarmSettingsScreen> {
                       _buildChecklistRow(
                         title: 'Exact Alarm Scheduling',
                         subtitle: 'Allows triggering at exact minute without Android Doze delay',
-                        isGranted: _permissionStatus?.canScheduleExactAlarms ?? true,
+                        isGranted:
+                            _permissionStatus?.canScheduleExactAlarms ?? true,
                         onFix: () async {
                           await _alarmService.requestExactAlarmPermission();
                           await _loadData();
@@ -214,16 +238,20 @@ class _AlarmSettingsScreenState extends State<AlarmSettingsScreen> {
                       _buildChecklistRow(
                         title: 'Notification Permission',
                         subtitle: 'Displays high-priority full-screen banner and controls',
-                        isGranted: _permissionStatus?.notificationsEnabled ?? true,
+                        isGranted:
+                            _permissionStatus?.notificationsEnabled ?? true,
                         onFix: _loadData,
                       ),
                       const Divider(color: AppColors.border, height: 20),
                       _buildChecklistRow(
                         title: 'Battery Optimization Exemption',
                         subtitle: 'Prevents Android system from killing alarms during deep sleep',
-                        isGranted: _permissionStatus?.isBatteryOptimizationIgnored ?? false,
+                        isGranted:
+                            _permissionStatus?.isBatteryOptimizationIgnored ??
+                            false,
                         onFix: () async {
-                          await _alarmService.requestBatteryOptimizationExemption();
+                          await _alarmService
+                              .requestBatteryOptimizationExemption();
                           await _loadData();
                         },
                       ),
@@ -231,7 +259,8 @@ class _AlarmSettingsScreenState extends State<AlarmSettingsScreen> {
                       _buildChecklistRow(
                         title: 'Silent & Do Not Disturb (DND) Access',
                         subtitle: 'Alarms use Android USAGE_ALARM stream to bypass standard silent mode',
-                        isGranted: _permissionStatus?.isDndAccessGranted ?? false,
+                        isGranted:
+                            _permissionStatus?.isDndAccessGranted ?? false,
                         onFix: () async {
                           await _alarmService.openDndSettings();
                           await _loadData();
@@ -262,12 +291,19 @@ class _AlarmSettingsScreenState extends State<AlarmSettingsScreen> {
                             children: [
                               Text(
                                 'Master Alarm System',
-                                style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                               SizedBox(height: 2),
                               Text(
                                 'Enable audible alarms across all routines',
-                                style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                                style: TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 11,
+                                ),
                               ),
                             ],
                           ),
@@ -286,18 +322,28 @@ class _AlarmSettingsScreenState extends State<AlarmSettingsScreen> {
                         children: [
                           const Text(
                             'Default Alarm Sound',
-                            style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                           DropdownButton<String>(
                             value: _defaultSound,
                             dropdownColor: AppColors.surfaceElevated,
                             underline: const SizedBox(),
-                            style: const TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
                             items: _soundOptions.map((s) {
                               return DropdownMenuItem(value: s, child: Text(s));
                             }).toList(),
                             onChanged: (val) {
-                              if (val != null) setState(() => _defaultSound = val);
+                              if (val != null) {
+                                setState(() => _defaultSound = val);
+                              }
                             },
                           ),
                         ],
@@ -308,12 +354,17 @@ class _AlarmSettingsScreenState extends State<AlarmSettingsScreen> {
                         children: [
                           const Text(
                             'Vibration on Alarm',
-                            style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                           Switch(
                             value: _defaultVibration,
                             activeThumbColor: AppColors.primary,
-                            onChanged: (val) => setState(() => _defaultVibration = val),
+                            onChanged: (val) =>
+                                setState(() => _defaultVibration = val),
                           ),
                         ],
                       ),
@@ -323,21 +374,43 @@ class _AlarmSettingsScreenState extends State<AlarmSettingsScreen> {
                         children: [
                           const Text(
                             'Default Snooze Duration',
-                            style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                           DropdownButton<int>(
                             value: _defaultSnooze,
                             dropdownColor: AppColors.surfaceElevated,
                             underline: const SizedBox(),
-                            style: const TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
                             items: const [
-                              DropdownMenuItem(value: 5, child: Text('5 minutes')),
-                              DropdownMenuItem(value: 10, child: Text('10 minutes')),
-                              DropdownMenuItem(value: 15, child: Text('15 minutes')),
-                              DropdownMenuItem(value: 20, child: Text('20 minutes')),
+                              DropdownMenuItem(
+                                value: 5,
+                                child: Text('5 minutes'),
+                              ),
+                              DropdownMenuItem(
+                                value: 10,
+                                child: Text('10 minutes'),
+                              ),
+                              DropdownMenuItem(
+                                value: 15,
+                                child: Text('15 minutes'),
+                              ),
+                              DropdownMenuItem(
+                                value: 20,
+                                child: Text('20 minutes'),
+                              ),
                             ],
                             onChanged: (val) {
-                              if (val != null) setState(() => _defaultSnooze = val);
+                              if (val != null) {
+                                setState(() => _defaultSnooze = val);
+                              }
                             },
                           ),
                         ],
@@ -360,7 +433,8 @@ class _AlarmSettingsScreenState extends State<AlarmSettingsScreen> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: _routines.length,
-                    separatorBuilder: (_, __) => const Divider(color: AppColors.border, height: 1),
+                    separatorBuilder: (_, __) =>
+                        const Divider(color: AppColors.border, height: 1),
                     itemBuilder: (context, index) {
                       final routine = _routines[index];
                       final isAlarm = routine.isAudibleAlarm;
@@ -373,19 +447,27 @@ class _AlarmSettingsScreenState extends State<AlarmSettingsScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Icon(
-                            isAlarm ? Icons.alarm_rounded : Icons.notifications_none_rounded,
+                            isAlarm
+                                ? Icons.alarm_rounded
+                                : Icons.notifications_none_rounded,
                             color: isAlarm ? AppColors.primary : Colors.grey,
                             size: 20,
                           ),
                         ),
                         title: Text(
                           routine.title,
-                          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                         subtitle: Text(
                           '${routine.startTime} • ${isAlarm ? "Audible Alarm" : "Standard Notification"}',
                           style: TextStyle(
-                            color: isAlarm ? AppColors.primary : AppColors.textSecondary,
+                            color: isAlarm
+                                ? AppColors.primary
+                                : AppColors.textSecondary,
                             fontSize: 11,
                           ),
                         ),
@@ -440,12 +522,19 @@ class _AlarmSettingsScreenState extends State<AlarmSettingsScreen> {
             children: [
               Text(
                 title,
-                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               const SizedBox(height: 2),
               Text(
                 subtitle,
-                style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 11,
+                ),
               ),
             ],
           ),
@@ -453,7 +542,13 @@ class _AlarmSettingsScreenState extends State<AlarmSettingsScreen> {
         if (!isGranted)
           TextButton(
             onPressed: onFix,
-            child: const Text('Fix', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Fix',
+              style: TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
       ],
     );

@@ -142,8 +142,14 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
         child: Wrap(
           children: [
             ListTile(
-              leading: const Icon(Icons.videocam_rounded, color: AppColors.primary),
-              title: const Text('Record New Video', style: TextStyle(color: Colors.white)),
+              leading: const Icon(
+                Icons.videocam_rounded,
+                color: AppColors.primary,
+              ),
+              title: const Text(
+                'Record New Video',
+                style: TextStyle(color: Colors.white),
+              ),
               onTap: () async {
                 Navigator.pop(sheetCtx);
                 final newPath = await _mediaService.recordVideo();
@@ -153,8 +159,14 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.video_library_rounded, color: AppColors.primary),
-              title: const Text('Choose from Gallery', style: TextStyle(color: Colors.white)),
+              leading: const Icon(
+                Icons.video_library_rounded,
+                color: AppColors.primary,
+              ),
+              title: const Text(
+                'Choose from Gallery',
+                style: TextStyle(color: Colors.white),
+              ),
               onTap: () async {
                 Navigator.pop(sheetCtx);
                 final newPath = await _mediaService.pickVideoFromGallery();
@@ -198,14 +210,20 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surfaceElevated,
-        title: const Text('Delete Video?', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Delete Video?',
+          style: TextStyle(color: Colors.white),
+        ),
         content: const Text(
           'Are you sure you want to delete this workout video? This cannot be undone.',
           style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
-            child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
             onPressed: () => Navigator.pop(ctx, false),
           ),
           ElevatedButton(
@@ -300,14 +318,25 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
                   const SizedBox(height: 8),
                   Text(
                     _resolvedPath,
-                    style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                    style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 11,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton.icon(
                     icon: const Icon(Icons.sync_rounded, color: Colors.black),
-                    label: const Text('Replace Video', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                    label: const Text(
+                      'Replace Video',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                    ),
                     onPressed: _replaceVideo,
                   ),
                 ],
@@ -336,7 +365,10 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
                           child: Container(
                             color: Colors.transparent,
                             child: AnimatedOpacity(
-                              opacity: (_isEnded || !_controller!.value.isPlaying) ? 1.0 : 0.0,
+                              opacity:
+                                  (_isEnded || !_controller!.value.isPlaying)
+                                  ? 1.0
+                                  : 0.0,
                               duration: const Duration(milliseconds: 200),
                               child: Container(
                                 padding: const EdgeInsets.all(16),
@@ -348,8 +380,8 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
                                   _isEnded
                                       ? Icons.replay_rounded
                                       : (_controller!.value.isPlaying
-                                          ? Icons.pause
-                                          : Icons.play_arrow_rounded),
+                                            ? Icons.pause
+                                            : Icons.play_arrow_rounded),
                                   color: AppColors.primary,
                                   size: 48,
                                 ),
@@ -363,28 +395,38 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
 
                   // Progress Scrubber
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 4,
+                    ),
                     child: SliderTheme(
                       data: SliderTheme.of(context).copyWith(
-                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 6,
+                        ),
                         trackHeight: 3,
                         activeTrackColor: AppColors.primary,
                         inactiveTrackColor: AppColors.border,
                         thumbColor: AppColors.primary,
                       ),
                       child: Slider(
-                        value: _controller!.value.position.inMilliseconds.clamp(
-                          0,
-                          _controller!.value.duration.inMilliseconds > 0
-                              ? _controller!.value.duration.inMilliseconds
-                              : 1,
-                        ).toDouble(),
+                        value: _controller!.value.position.inMilliseconds
+                            .clamp(
+                              0,
+                              _controller!.value.duration.inMilliseconds > 0
+                                  ? _controller!.value.duration.inMilliseconds
+                                  : 1,
+                            )
+                            .toDouble(),
                         min: 0,
                         max: _controller!.value.duration.inMilliseconds > 0
-                            ? _controller!.value.duration.inMilliseconds.toDouble()
+                            ? _controller!.value.duration.inMilliseconds
+                                  .toDouble()
                             : 1.0,
                         onChanged: (val) {
-                          _controller!.seekTo(Duration(milliseconds: val.toInt()));
+                          _controller!.seekTo(
+                            Duration(milliseconds: val.toInt()),
+                          );
                         },
                       ),
                     ),
@@ -392,7 +434,10 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
 
                   // Timers
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 2,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -418,18 +463,38 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
                   // Actions row: Replace and Delete
                   const Divider(color: AppColors.border, height: 20),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 4,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         TextButton.icon(
-                          icon: const Icon(Icons.sync_rounded, color: AppColors.primary, size: 18),
-                          label: const Text('Replace', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                          icon: const Icon(
+                            Icons.sync_rounded,
+                            color: AppColors.primary,
+                            size: 18,
+                          ),
+                          label: const Text(
+                            'Replace',
+                            style: TextStyle(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           onPressed: _replaceVideo,
                         ),
                         TextButton.icon(
-                          icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 18),
-                          label: const Text('Delete', style: TextStyle(color: Colors.redAccent)),
+                          icon: const Icon(
+                            Icons.delete_outline_rounded,
+                            color: Colors.redAccent,
+                            size: 18,
+                          ),
+                          label: const Text(
+                            'Delete',
+                            style: TextStyle(color: Colors.redAccent),
+                          ),
                           onPressed: _deleteVideo,
                         ),
                       ],

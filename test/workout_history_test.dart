@@ -10,7 +10,9 @@ void main() {
     test('Week calculation bounds Monday as start and Sunday as end', () {
       // Pick a Wednesday: 2026-10-14
       final wednesday = DateTime(2026, 10, 14);
-      final monday = wednesday.subtract(Duration(days: wednesday.weekday - DateTime.monday));
+      final monday = wednesday.subtract(
+        Duration(days: wednesday.weekday - DateTime.monday),
+      );
       final sunday = monday.add(const Duration(days: 6));
 
       expect(monday.weekday, equals(DateTime.monday));
@@ -20,7 +22,9 @@ void main() {
 
       // Pick a Sunday: 2026-10-18
       final testSunday = DateTime(2026, 10, 18);
-      final sunMonday = testSunday.subtract(Duration(days: testSunday.weekday - DateTime.monday));
+      final sunMonday = testSunday.subtract(
+        Duration(days: testSunday.weekday - DateTime.monday),
+      );
       expect(DateFormat('yyyy-MM-dd').format(sunMonday), equals('2026-10-12'));
     });
 
@@ -56,9 +60,15 @@ void main() {
 
       expect(fullyCompletedSession.completedSetsCount, equals(2));
       expect(fullyCompletedSession.totalSetsCount, equals(2));
-      expect(fullyCompletedSession.totalVolumeKg, equals(1200.0)); // 60*10 + 60*10
+      expect(
+        fullyCompletedSession.totalVolumeKg,
+        equals(1200.0),
+      ); // 60*10 + 60*10
       expect(fullyCompletedSession.completionStatus, equals('Completed'));
-      expect(fullyCompletedSession.completedExerciseNames, contains('Barbell Bench Press'));
+      expect(
+        fullyCompletedSession.completedExerciseNames,
+        contains('Barbell Bench Press'),
+      );
 
       // Partially completed session with a skipped/unperformed set
       final partiallyCompletedSession = WorkoutSession(
@@ -91,7 +101,10 @@ void main() {
 
       expect(partiallyCompletedSession.completedSetsCount, equals(1));
       expect(partiallyCompletedSession.totalSetsCount, equals(2));
-      expect(partiallyCompletedSession.completionStatus, equals('Partially Completed'));
+      expect(
+        partiallyCompletedSession.completionStatus,
+        equals('Partially Completed'),
+      );
     });
 
     test('Rest days are never counted as completed workouts', () {
@@ -224,7 +237,10 @@ void main() {
 
       // Updated plan is reflected separately
       expect(updatedFuturePlan.primaryMuscleName, equals('Shoulders'));
-      expect(updatedFuturePlan.exercises.first.exerciseName, equals('Overhead Press'));
+      expect(
+        updatedFuturePlan.exercises.first.exerciseName,
+        equals('Overhead Press'),
+      );
     });
 
     test('Muscle training frequency aggregates primary, secondary, and categories properly', () {
@@ -267,14 +283,27 @@ void main() {
       };
 
       for (final s in sessions) {
-        final muscles = [s.primaryMuscle, if (s.secondaryMuscle != null) s.secondaryMuscle!];
+        final muscles = [
+          s.primaryMuscle,
+          if (s.secondaryMuscle != null) s.secondaryMuscle!,
+        ];
         for (final m in muscles) {
           final lower = m.toLowerCase();
-          if (lower.contains('chest')) counts['Chest'] = (counts['Chest'] ?? 0) + 1;
-          if (lower.contains('back')) counts['Back'] = (counts['Back'] ?? 0) + 1;
-          if (lower.contains('shoulder')) counts['Shoulders'] = (counts['Shoulders'] ?? 0) + 1;
-          if (lower.contains('bicep')) counts['Biceps'] = (counts['Biceps'] ?? 0) + 1;
-          if (lower.contains('tricep')) counts['Triceps'] = (counts['Triceps'] ?? 0) + 1;
+          if (lower.contains('chest')) {
+            counts['Chest'] = (counts['Chest'] ?? 0) + 1;
+          }
+          if (lower.contains('back')) {
+            counts['Back'] = (counts['Back'] ?? 0) + 1;
+          }
+          if (lower.contains('shoulder')) {
+            counts['Shoulders'] = (counts['Shoulders'] ?? 0) + 1;
+          }
+          if (lower.contains('bicep')) {
+            counts['Biceps'] = (counts['Biceps'] ?? 0) + 1;
+          }
+          if (lower.contains('tricep')) {
+            counts['Triceps'] = (counts['Triceps'] ?? 0) + 1;
+          }
           if (lower.contains('quad') ||
               lower.contains('calv') ||
               lower.contains('calf') ||

@@ -58,7 +58,9 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
   Future<void> _loadHistory() async {
     if (_currentRoutine.id == null) return;
     setState(() => _isLoadingHistory = true);
-    final history = await _routineService.getRoutineCompletionHistory(_currentRoutine.id!);
+    final history = await _routineService.getRoutineCompletionHistory(
+      _currentRoutine.id!,
+    );
     if (mounted) {
       setState(() {
         _history = history;
@@ -72,7 +74,8 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
     final now = DateTime.now();
 
     // If already in this status, unmark it
-    if (widget.todayItem?.completion?.status.toLowerCase() == status.toLowerCase()) {
+    if (widget.todayItem?.completion?.status.toLowerCase() ==
+        status.toLowerCase()) {
       await _routineService.removeRoutineCompletion(
         routineId: _currentRoutine.id!,
         date: now,
@@ -102,7 +105,9 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
     if (result == true) {
       widget.onDataChanged();
       if (_currentRoutine.id != null) {
-        final updated = await _routineService.getRoutineById(_currentRoutine.id!);
+        final updated = await _routineService.getRoutineById(
+          _currentRoutine.id!,
+        );
         if (updated != null && mounted) {
           setState(() => _currentRoutine = updated);
           await _loadHistory();
@@ -162,10 +167,16 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
 
     if (pickedEnd == null || !mounted || _currentRoutine.id == null) return;
 
-    final newStart = '${pickedStart.hour.toString().padLeft(2, '0')}:${pickedStart.minute.toString().padLeft(2, '0')}';
-    final newEnd = '${pickedEnd.hour.toString().padLeft(2, '0')}:${pickedEnd.minute.toString().padLeft(2, '0')}';
+    final newStart =
+        '${pickedStart.hour.toString().padLeft(2, '0')}:${pickedStart.minute.toString().padLeft(2, '0')}';
+    final newEnd =
+        '${pickedEnd.hour.toString().padLeft(2, '0')}:${pickedEnd.minute.toString().padLeft(2, '0')}';
 
-    await _routineService.updateRoutineTime(_currentRoutine.id!, newStart, newEnd);
+    await _routineService.updateRoutineTime(
+      _currentRoutine.id!,
+      newStart,
+      newEnd,
+    );
     final updated = await _routineService.getRoutineById(_currentRoutine.id!);
     if (updated != null && mounted) {
       setState(() => _currentRoutine = updated);
@@ -205,7 +216,10 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
               ),
               title: const Text(
                 'Change Repeat Days',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               content: SizedBox(
                 width: double.maxFinite,
@@ -224,13 +238,17 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
                           checkmarkColor: Colors.black,
                           labelStyle: TextStyle(
                             color: isSelected ? Colors.black : Colors.white,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
                           ),
                           backgroundColor: AppColors.cardSurface,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                             side: BorderSide(
-                              color: isSelected ? AppColors.primary : AppColors.border,
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : AppColors.border,
                             ),
                           ),
                           onSelected: (selected) {
@@ -254,7 +272,10 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: AppColors.textSecondary),
+                  ),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -272,7 +293,10 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
     );
 
     if (result != null && _currentRoutine.id != null && mounted) {
-      await _routineService.updateRoutineRepeatDays(_currentRoutine.id!, result);
+      await _routineService.updateRoutineRepeatDays(
+        _currentRoutine.id!,
+        result,
+      );
       final updated = await _routineService.getRoutineById(_currentRoutine.id!);
       if (updated != null && mounted) {
         setState(() => _currentRoutine = updated);
@@ -301,7 +325,10 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
           borderRadius: BorderRadius.circular(16),
           side: const BorderSide(color: AppColors.border),
         ),
-        title: const Text('Delete Routine?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Delete Routine?',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         content: Text(
           'Are you sure you want to permanently delete "${_currentRoutine.title}"? This will also remove its logged completions.',
           style: const TextStyle(color: AppColors.textSecondary),
@@ -309,7 +336,10 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -350,9 +380,7 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
       decoration: const BoxDecoration(
         color: AppColors.cardSurface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        border: Border(
-          top: BorderSide(color: AppColors.border, width: 1.5),
-        ),
+        border: Border(top: BorderSide(color: AppColors.border, width: 1.5)),
       ),
       child: Column(
         children: [
@@ -379,7 +407,9 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
                   decoration: BoxDecoration(
                     color: categoryColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: categoryColor.withValues(alpha: 0.4)),
+                    border: Border.all(
+                      color: categoryColor.withValues(alpha: 0.4),
+                    ),
                   ),
                   child: Icon(
                     _currentRoutine.icon,
@@ -395,7 +425,10 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: categoryColor.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(6),
@@ -413,7 +446,10 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
                           const SizedBox(width: 8),
                           if (!_currentRoutine.isEnabled)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.grey.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(4),
@@ -442,7 +478,10 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close_rounded, color: AppColors.textSecondary),
+                  icon: const Icon(
+                    Icons.close_rounded,
+                    color: AppColors.textSecondary,
+                  ),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],
@@ -480,7 +519,9 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
                                 letterSpacing: 1.0,
                               ),
                             ),
-                            _buildStatusBadge(todayStatus ?? RoutineCompletionStatus.upcoming),
+                            _buildStatusBadge(
+                              todayStatus ?? RoutineCompletionStatus.upcoming,
+                            ),
                           ],
                         ),
                         const SizedBox(height: 12),
@@ -489,24 +530,34 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
                             Expanded(
                               child: ElevatedButton.icon(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: todayStatus == RoutineCompletionStatus.completed
+                                  backgroundColor:
+                                      todayStatus ==
+                                          RoutineCompletionStatus.completed
                                       ? Colors.grey.shade800
                                       : const Color(0xFF00B894),
                                   foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 10,
+                                  ),
                                 ),
                                 icon: Icon(
-                                  todayStatus == RoutineCompletionStatus.completed
+                                  todayStatus ==
+                                          RoutineCompletionStatus.completed
                                       ? Icons.undo_rounded
                                       : Icons.check_circle_rounded,
                                   size: 18,
                                 ),
                                 label: Text(
-                                  todayStatus == RoutineCompletionStatus.completed ? 'Unmark' : 'Mark Done',
-                                  style: const TextStyle(fontWeight: FontWeight.w600),
+                                  todayStatus ==
+                                          RoutineCompletionStatus.completed
+                                      ? 'Unmark'
+                                      : 'Mark Done',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                                 onPressed: () => _toggleCompletion('completed'),
                               ),
@@ -515,18 +566,26 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
                             Expanded(
                               child: OutlinedButton.icon(
                                 style: OutlinedButton.styleFrom(
-                                  foregroundColor: todayStatus == RoutineCompletionStatus.skipped
+                                  foregroundColor:
+                                      todayStatus ==
+                                          RoutineCompletionStatus.skipped
                                       ? Colors.white
                                       : Colors.amberAccent,
                                   side: BorderSide(
-                                    color: todayStatus == RoutineCompletionStatus.skipped
+                                    color:
+                                        todayStatus ==
+                                            RoutineCompletionStatus.skipped
                                         ? Colors.white38
-                                        : Colors.amberAccent.withValues(alpha: 0.6),
+                                        : Colors.amberAccent.withValues(
+                                            alpha: 0.6,
+                                          ),
                                   ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 10,
+                                  ),
                                 ),
                                 icon: Icon(
                                   todayStatus == RoutineCompletionStatus.skipped
@@ -535,8 +594,12 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
                                   size: 18,
                                 ),
                                 label: Text(
-                                  todayStatus == RoutineCompletionStatus.skipped ? 'Unskip' : 'Skip Today',
-                                  style: const TextStyle(fontWeight: FontWeight.w600),
+                                  todayStatus == RoutineCompletionStatus.skipped
+                                      ? 'Unskip'
+                                      : 'Skip Today',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                                 onPressed: () => _toggleCompletion('skipped'),
                               ),
@@ -564,7 +627,10 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
                         label: 'Time Range',
                         value: _currentRoutine.formattedTimeRange,
                         extraWidget: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.primary.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(6),
@@ -582,11 +648,18 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
                       if (_currentRoutine.isOvernight) ...[
                         const SizedBox(height: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF6C5CE7).withValues(alpha: 0.15),
+                            color: const Color(0xFF6C5CE7)
+                                .withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: const Color(0xFF6C5CE7).withValues(alpha: 0.3)),
+                            border: Border.all(
+                              color: const Color(0xFF6C5CE7)
+                                  .withValues(alpha: 0.3),
+                            ),
                           ),
                           child: const Row(
                             children: [
@@ -620,7 +693,8 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
                             ? '${_currentRoutine.reminderMinutesBefore} minutes before'
                             : 'Disabled',
                       ),
-                      if (_currentRoutine.notes != null && _currentRoutine.notes!.isNotEmpty) ...[
+                      if (_currentRoutine.notes != null &&
+                          _currentRoutine.notes!.isNotEmpty) ...[
                         const Divider(color: AppColors.border, height: 20),
                         _buildDetailRow(
                           icon: Icons.notes_rounded,
@@ -640,43 +714,80 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
                   runSpacing: 8,
                   children: [
                     ActionChip(
-                      avatar: const Icon(Icons.edit_rounded, size: 16, color: AppColors.primary),
-                      label: const Text('Edit Routine', style: TextStyle(color: Colors.white, fontSize: 12)),
+                      avatar: const Icon(
+                        Icons.edit_rounded,
+                        size: 16,
+                        color: AppColors.primary,
+                      ),
+                      label: const Text(
+                        'Edit Routine',
+                        style: TextStyle(color: Colors.white, fontSize: 12),
+                      ),
                       backgroundColor: AppColors.surfaceElevated,
                       side: const BorderSide(color: AppColors.border),
                       onPressed: _editRoutine,
                     ),
                     ActionChip(
-                      avatar: const Icon(Icons.schedule_rounded, size: 16, color: Colors.cyanAccent),
-                      label: const Text('Change Time', style: TextStyle(color: Colors.white, fontSize: 12)),
+                      avatar: const Icon(
+                        Icons.schedule_rounded,
+                        size: 16,
+                        color: Colors.cyanAccent,
+                      ),
+                      label: const Text(
+                        'Change Time',
+                        style: TextStyle(color: Colors.white, fontSize: 12),
+                      ),
                       backgroundColor: AppColors.surfaceElevated,
                       side: const BorderSide(color: AppColors.border),
                       onPressed: _changeTimeDialog,
                     ),
                     ActionChip(
-                      avatar: const Icon(Icons.calendar_month_rounded, size: 16, color: Colors.amberAccent),
-                      label: const Text('Change Repeat Days', style: TextStyle(color: Colors.white, fontSize: 12)),
+                      avatar: const Icon(
+                        Icons.calendar_month_rounded,
+                        size: 16,
+                        color: Colors.amberAccent,
+                      ),
+                      label: const Text(
+                        'Change Repeat Days',
+                        style: TextStyle(color: Colors.white, fontSize: 12),
+                      ),
                       backgroundColor: AppColors.surfaceElevated,
                       side: const BorderSide(color: AppColors.border),
                       onPressed: _changeRepeatDaysDialog,
                     ),
                     ActionChip(
                       avatar: Icon(
-                        _currentRoutine.isEnabled ? Icons.pause_circle_outline_rounded : Icons.play_circle_outline_rounded,
+                        _currentRoutine.isEnabled
+                            ? Icons.pause_circle_outline_rounded
+                            : Icons.play_circle_outline_rounded,
                         size: 16,
-                        color: _currentRoutine.isEnabled ? Colors.orangeAccent : const Color(0xFF00B894),
+                        color: _currentRoutine.isEnabled
+                            ? Colors.orangeAccent
+                            : const Color(0xFF00B894),
                       ),
                       label: Text(
-                        _currentRoutine.isEnabled ? 'Disable Routine' : 'Enable Routine',
-                        style: const TextStyle(color: Colors.white, fontSize: 12),
+                        _currentRoutine.isEnabled
+                            ? 'Disable Routine'
+                            : 'Enable Routine',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
                       ),
                       backgroundColor: AppColors.surfaceElevated,
                       side: const BorderSide(color: AppColors.border),
                       onPressed: _toggleEnabled,
                     ),
                     ActionChip(
-                      avatar: const Icon(Icons.delete_outline_rounded, size: 16, color: Colors.redAccent),
-                      label: const Text('Delete Routine', style: TextStyle(color: Colors.redAccent, fontSize: 12)),
+                      avatar: const Icon(
+                        Icons.delete_outline_rounded,
+                        size: 16,
+                        color: Colors.redAccent,
+                      ),
+                      label: const Text(
+                        'Delete Routine',
+                        style: TextStyle(color: Colors.redAccent, fontSize: 12),
+                      ),
                       backgroundColor: AppColors.surfaceElevated,
                       side: const BorderSide(color: Colors.redAccent),
                       onPressed: _deleteRoutine,
@@ -702,7 +813,10 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
                   const Center(
                     child: Padding(
                       padding: EdgeInsets.all(20),
-                      child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 2),
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                        strokeWidth: 2,
+                      ),
                     ),
                   )
                 else if (_history.isEmpty)
@@ -717,7 +831,10 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
                       child: Text(
                         'No completion history recorded yet.\nMark this routine done as you complete it!',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                   )
@@ -732,7 +849,8 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: _history.length,
-                      separatorBuilder: (_, __) => const Divider(color: AppColors.border, height: 1),
+                      separatorBuilder: (_, __) =>
+                          const Divider(color: AppColors.border, height: 1),
                       itemBuilder: (context, index) {
                         final comp = _history[index];
                         final isDone = comp.isCompleted;
@@ -747,8 +865,12 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
                         return ListTile(
                           dense: true,
                           leading: Icon(
-                            isDone ? Icons.check_circle_rounded : Icons.fast_forward_rounded,
-                            color: isDone ? const Color(0xFF00B894) : Colors.amberAccent,
+                            isDone
+                                ? Icons.check_circle_rounded
+                                : Icons.fast_forward_rounded,
+                            color: isDone
+                                ? const Color(0xFF00B894)
+                                : Colors.amberAccent,
                             size: 20,
                           ),
                           title: Text(
@@ -760,16 +882,24 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
                             ),
                           ),
                           trailing: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
                             decoration: BoxDecoration(
-                              color: (isDone ? const Color(0xFF00B894) : Colors.amberAccent)
-                                  .withValues(alpha: 0.15),
+                              color:
+                                  (isDone
+                                          ? const Color(0xFF00B894)
+                                          : Colors.amberAccent)
+                                      .withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
                               isDone ? 'Completed' : 'Skipped',
                               style: TextStyle(
-                                color: isDone ? const Color(0xFF00B894) : Colors.amberAccent,
+                                color: isDone
+                                    ? const Color(0xFF00B894)
+                                    : Colors.amberAccent,
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -806,7 +936,10 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
             children: [
               Text(
                 label,
-                style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 11,
+                ),
               ),
               const SizedBox(height: 2),
               Text(
@@ -862,11 +995,7 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
       ),
       child: Text(
         text,
-        style: TextStyle(
-          color: fg,
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-        ),
+        style: TextStyle(color: fg, fontSize: 11, fontWeight: FontWeight.bold),
       ),
     );
   }

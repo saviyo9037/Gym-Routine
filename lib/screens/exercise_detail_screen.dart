@@ -4,8 +4,10 @@ import 'package:intl/intl.dart';
 import '../core/theme.dart';
 import '../models/exercise.dart';
 import '../models/exercise_demonstration.dart';
+import '../models/exercise_terminology.dart';
 import '../services/database_service.dart';
 import '../services/exercise_media_service.dart';
+import '../services/exercise_terminology_service.dart';
 import '../widgets/exercise_demonstration_player.dart';
 import '../widgets/media_attachment_section.dart';
 import 'active_workout_screen.dart';
@@ -72,7 +74,9 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
     if (mounted) {
       ExerciseDemonstration? demo;
       if (_exercise.id != null && _exercise.id! > 0) {
-        demo = ExerciseMediaService.instance.getDemonstrationById(_exercise.id!);
+        demo = ExerciseMediaService.instance.getDemonstrationById(
+          _exercise.id!,
+        );
       }
       demo ??= ExerciseMediaService.instance.getDemonstration(_exercise.name);
       setState(() {
@@ -543,8 +547,6 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
     }
   }
 
-
-
   Future<void> _savePersonalNotes() async {
     final updated = _exercise.copyWith(
       personalNotes: _notesController.text.trim(),
@@ -565,6 +567,16 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final term = ExerciseTerminologyService.instance.getTerminology(
+      id: _exercise.id,
+      name: _exercise.name,
+    );
+    final displayName = term?.recommendedDisplayName.isNotEmpty == true
+        ? term!.recommendedDisplayName
+        : _exercise.name;
+    final friendlyMuscle = ExerciseTerminologyService.instance
+        .getFriendlyMuscleName(_exercise.muscleGroupName);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
@@ -575,7 +587,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
             backgroundColor: AppColors.background,
             elevation: 0,
             title: Text(
-              _exercise.name,
+              displayName,
               style: const TextStyle(
                 color: AppColors.textMain,
                 fontSize: 18,
@@ -681,7 +693,9 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                 children: [
                   // Prominent Exercise Demonstration Player
                   ExerciseDemonstrationPlayer(
-                    key: ValueKey('demo_player_${_exercise.id}_${_exercise.name}'),
+                    key: ValueKey(
+                      'demo_player_${_exercise.id}_${_exercise.name}',
+                    ),
                     exerciseId: _exercise.id,
                     exerciseName: _exercise.name,
                     fallbackImagePath: _exercise.imagePath,
@@ -697,7 +711,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                     children: [
                       _buildPill(
                         icon: Icons.fitness_center_rounded,
-                        label: _exercise.muscleGroupName.toUpperCase(),
+                        label: friendlyMuscle.toUpperCase(),
                         color: AppColors.primary,
                       ),
                       if (_exercise.secondaryMuscles.isNotEmpty)
@@ -735,9 +749,9 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                   ),
                   const SizedBox(height: 14),
 
-                  // Exercise Name
+                  // Exercise Primary Name
                   Text(
-                    _exercise.name,
+                    displayName,
                     style: const TextStyle(
                       color: AppColors.textMain,
                       fontSize: 25,
@@ -745,6 +759,18 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                       letterSpacing: -0.5,
                     ),
                   ),
+                  if (displayName.toLowerCase() !=
+                      _exercise.name.toLowerCase()) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      'Technical / Catalogue: ${_exercise.name}',
+                      style: const TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 12.5,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 6),
 
                   // Description
@@ -885,7 +911,10 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Container(
-                                    margin: const EdgeInsets.only(top: 5, right: 10),
+                                    margin: const EdgeInsets.only(
+                                      top: 5,
+                                      right: 10,
+                                    ),
                                     width: 6,
                                     height: 6,
                                     decoration: const BoxDecoration(
@@ -946,6 +975,9 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                       ),
                     ),
                   ],
+
+                  // Gym Terminology & Kerala Aliases Card
+                  _buildTerminologyCard(term, displayName),
 
                   // Suggested Plan Card with Edit affordance
                   Row(
@@ -1222,6 +1254,181 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
         fontWeight: FontWeight.w800,
         letterSpacing: 1.2,
       ),
+    );
+  }
+
+  Widget _buildTerminologyCard(ExerciseTerminology? term, String displayName) {
+    if (term == null) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader('GYM TERMINOLOGY & LOCAL ALIASES'),
+        Container(
+          margin: const EdgeInsets.only(top: 8, bottom: 20),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.cardSurface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: AppColors.primary.withValues(alpha: 0.35),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.translate_rounded,
+                      color: AppColors.primary,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          displayName,
+                          style: const TextStyle(
+                            color: AppColors.textMain,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        if (term.formalName.isNotEmpty &&
+                            term.formalName.toLowerCase() !=
+                                displayName.toLowerCase()) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            'Formal Movement: ${term.formalName}',
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 12,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  if (term.malayalamScript.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceElevated,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Text(
+                        term.malayalamScript,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              if (term.aliases.isNotEmpty) ...[
+                const SizedBox(height: 14),
+                const Text(
+                  'Recognized Search Terms & Slang:',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: term.aliases.map((alias) {
+                    final isDisplay =
+                        alias.toLowerCase() == displayName.toLowerCase();
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4.5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isDisplay
+                            ? AppColors.primary.withValues(alpha: 0.15)
+                            : AppColors.surfaceElevated,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: isDisplay
+                              ? AppColors.primary.withValues(alpha: 0.4)
+                              : AppColors.border,
+                        ),
+                      ),
+                      child: Text(
+                        alias,
+                        style: TextStyle(
+                          color: isDisplay
+                              ? AppColors.primary
+                              : AppColors.textMain,
+                          fontSize: 11.5,
+                          fontWeight: isDisplay
+                              ? FontWeight.bold
+                              : FontWeight.w500,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
+              if (term.keralaGymNotes.isNotEmpty) ...[
+                const SizedBox(height: 14),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceElevated,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(
+                        Icons.sports_rounded,
+                        color: AppColors.primary,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          term.keralaGymNotes,
+                          style: const TextStyle(
+                            color: AppColors.textMain,
+                            fontSize: 12,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
     );
   }
 

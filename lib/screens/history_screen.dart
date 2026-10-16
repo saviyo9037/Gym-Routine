@@ -526,7 +526,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       MediaAttachmentSection(
                         entityType: 'session',
                         entityId: session.id ?? 0,
-                        entityTitle: 'Session: ${session.date} (${session.primaryMuscle})',
+                        entityTitle:
+                            'Session: ${session.date} (${session.primaryMuscle})',
                         sectionTitle: 'SESSION MEDIA ATTACHMENTS',
                         onChanged: () {
                           _loadAllData();
@@ -566,8 +567,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
       },
     );
   }
-
-
 
   void _confirmDeleteSession(WorkoutSession session) {
     showDialog(

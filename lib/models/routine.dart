@@ -31,15 +31,18 @@ class Routine {
   final String title;
   final String category;
   final String startTime; // 'HH:mm' 24-hr format (e.g. '07:30')
-  final String endTime;   // 'HH:mm' 24-hr format (e.g. '08:30' or '06:30' for overnight)
+  final String
+  endTime; // 'HH:mm' 24-hr format (e.g. '08:30' or '06:30' for overnight)
   final List<int> repeatDays; // 1 = Monday, 2 = Tuesday, ... 7 = Sunday
   final String? notes;
   final String? foodDetails; // Optional food details for meals: rice, lentils, eggs, banana, etc.
   final bool isReminderEnabled;
   final int reminderMinutesBefore;
-  final String alarmType; // 'alarm' (audible ringing screen) | 'notification' | 'none'
+  final String
+  alarmType; // 'alarm' (audible ringing screen) | 'notification' | 'none'
   final bool isAlarmEnabled;
-  final String soundName; // e.g. 'Digital Beep', 'Energetic Pulse', 'Sunrise Bell'
+  final String
+  soundName; // e.g. 'Digital Beep', 'Energetic Pulse', 'Sunrise Bell'
   final bool isVibrationEnabled;
   final int snoozeMinutes; // default 10 minutes
   final bool isEnabled;
@@ -67,8 +70,8 @@ class Routine {
     this.colorHex,
     String? createdAt,
     String? updatedAt,
-  })  : createdAt = createdAt ?? DateTime.now().toIso8601String(),
-        updatedAt = updatedAt ?? DateTime.now().toIso8601String();
+  }) : createdAt = createdAt ?? DateTime.now().toIso8601String(),
+       updatedAt = updatedAt ?? DateTime.now().toIso8601String();
 
   RoutineCategory get categoryEnum => RoutineCategory.fromString(category);
 
@@ -79,7 +82,8 @@ class Routine {
   bool get isSleepCategory => categoryEnum == RoutineCategory.sleep;
 
   bool get isAudibleAlarm => alarmType == 'alarm' && isAlarmEnabled;
-  bool get isNotificationOnly => alarmType == 'notification' && isReminderEnabled;
+  bool get isNotificationOnly =>
+      alarmType == 'notification' && isReminderEnabled;
 
   Color get color {
     if (colorHex != null && colorHex!.isNotEmpty) {
@@ -154,7 +158,10 @@ class Routine {
       6: 'Sat',
       7: 'Sun',
     };
-    return sorted.map((d) => dayNames[d] ?? '').where((s) => s.isNotEmpty).join(', ');
+    return sorted
+        .map((d) => dayNames[d] ?? '')
+        .where((s) => s.isNotEmpty)
+        .join(', ');
   }
 
   /// Checks if this routine is scheduled to run on a given DateTime
@@ -170,9 +177,13 @@ class Routine {
     if (commonDays.isEmpty) return false;
 
     final startA = _parseMinutes(startTime);
-    final endA = isOvernight ? startA + durationMinutes : _parseMinutes(endTime);
+    final endA = isOvernight
+        ? startA + durationMinutes
+        : _parseMinutes(endTime);
     final startB = _parseMinutes(other.startTime);
-    final endB = other.isOvernight ? startB + other.durationMinutes : _parseMinutes(other.endTime);
+    final endB = other.isOvernight
+        ? startB + other.durationMinutes
+        : _parseMinutes(other.endTime);
 
     return (startA < endB) && (startB < endA);
   }
@@ -220,7 +231,8 @@ class Routine {
       notes: notes ?? this.notes,
       foodDetails: foodDetails ?? this.foodDetails,
       isReminderEnabled: isReminderEnabled ?? this.isReminderEnabled,
-      reminderMinutesBefore: reminderMinutesBefore ?? this.reminderMinutesBefore,
+      reminderMinutesBefore:
+          reminderMinutesBefore ?? this.reminderMinutesBefore,
       alarmType: alarmType ?? this.alarmType,
       isAlarmEnabled: isAlarmEnabled ?? this.isAlarmEnabled,
       soundName: soundName ?? this.soundName,

@@ -41,7 +41,9 @@ class ExerciseMediaService {
     if (_isInitialized) return;
 
     try {
-      final jsonStr = await rootBundle.loadString('assets/exercise_demonstrations.json');
+      final jsonStr = await rootBundle.loadString(
+        'assets/exercise_demonstrations.json',
+      );
       final Map<String, dynamic> rawMap = json.decode(jsonStr);
 
       _registryByName.clear();
@@ -57,6 +59,45 @@ class ExerciseMediaService {
           _registryById[demo.exerciseId] = demo;
         }
       }
+
+      // Also ingest aliases from exercise_terminology.json
+      try {
+        final termStr = await rootBundle.loadString(
+          'assets/exercise_terminology.json',
+        );
+        final Map<String, dynamic> termMap = json.decode(termStr);
+        for (final item in termMap.values) {
+          if (item is Map) {
+            final exId = item['exercise_id'] as int?;
+            final demo = exId != null ? _registryById[exId] : null;
+            if (demo != null) {
+              final recName = item['recommended_display_name'] as String?;
+              if (recName != null && recName.isNotEmpty) {
+                _registryByName.putIfAbsent(recName, () => demo);
+                _registryByName.putIfAbsent(_normalize(recName), () => demo);
+              }
+              final aliases = item['aliases'] as List<dynamic>?;
+              if (aliases != null) {
+                for (final a in aliases) {
+                  final aStr = a.toString();
+                  if (aStr.isNotEmpty) {
+                    _registryByName.putIfAbsent(aStr, () => demo);
+                    _registryByName.putIfAbsent(_normalize(aStr), () => demo);
+                  }
+                }
+              }
+            }
+          }
+        }
+      } catch (_) {}
+
+      // Common universal shortcuts
+      final benchDemo = _registryById[1];
+      if (benchDemo != null) {
+        _registryByName.putIfAbsent('Bench Press', () => benchDemo);
+        _registryByName.putIfAbsent('benchpress', () => benchDemo);
+      }
+
       _isInitialized = true;
     } catch (e) {
       // Graceful fallback if asset cannot be parsed during early tests
@@ -81,10 +122,12 @@ class ExerciseMediaService {
 
   bool hasDemonstration(String name, {int? exerciseId}) {
     ExerciseDemonstration? demo;
-    if (exerciseId != null && exerciseId > 0) {
+    if (name.isNotEmpty) {
+      demo = getDemonstration(name);
+    }
+    if (demo == null && exerciseId != null && exerciseId > 0) {
       demo = getDemonstrationById(exerciseId);
     }
-    demo ??= getDemonstration(name);
     return demo != null && demo.hasVideo;
   }
 
@@ -102,17 +145,19 @@ class ExerciseMediaService {
     int? exerciseId,
   }) async {
     final dir = await _getDemonstrationsDirectory();
-    final prefix = exerciseId != null && exerciseId > 0 ? 'ex_${exerciseId}_' : '';
+    final prefix = exerciseId != null && exerciseId > 0
+        ? 'ex_${exerciseId}_'
+        : '';
     final slug = _normalize(exerciseName);
     return File(p.join(dir.path, '$prefix$slug.mp4'));
   }
 
-  Future<bool> isDownloaded(
-    String exerciseName, {
-    int? exerciseId,
-  }) async {
+  Future<bool> isDownloaded(String exerciseName, {int? exerciseId}) async {
     try {
-      final file = await _getCachedFileForExercise(exerciseName, exerciseId: exerciseId);
+      final file = await _getCachedFileForExercise(
+        exerciseName,
+        exerciseId: exerciseId,
+      );
       return await file.exists() && (await file.length()) > 0;
     } catch (_) {
       return false;
@@ -124,7 +169,10 @@ class ExerciseMediaService {
     int? exerciseId,
   }) async {
     try {
-      final file = await _getCachedFileForExercise(exerciseName, exerciseId: exerciseId);
+      final file = await _getCachedFileForExercise(
+        exerciseName,
+        exerciseId: exerciseId,
+      );
       if (await file.exists() && (await file.length()) > 0) {
         return file.path;
       }
@@ -139,10 +187,12 @@ class ExerciseMediaService {
   }) async {
     await initialize();
     ExerciseDemonstration? demo;
-    if (exerciseId != null && exerciseId > 0) {
+    if (exerciseName.isNotEmpty) {
+      demo = getDemonstration(exerciseName);
+    }
+    if (demo == null && exerciseId != null && exerciseId > 0) {
       demo = getDemonstrationById(exerciseId);
     }
-    demo ??= getDemonstration(exerciseName);
 
     if (demo == null || !demo.hasVideo) {
       return DemonstrationMediaSource(
@@ -162,7 +212,10 @@ class ExerciseMediaService {
     }
 
     // 2. Check if downloaded in app-private storage
-    final localPath = await getLocalCachedVideoPath(exerciseName, exerciseId: exerciseId);
+    final localPath = await getLocalCachedVideoPath(
+      exerciseName,
+      exerciseId: exerciseId,
+    );
     if (localPath != null) {
       return DemonstrationMediaSource(
         type: DemonstrationSourceType.downloadedFile,
@@ -196,15 +249,20 @@ class ExerciseMediaService {
   }) async {
     await initialize();
     ExerciseDemonstration? demo;
-    if (exerciseId != null && exerciseId > 0) {
+    if (exerciseName.isNotEmpty) {
+      demo = getDemonstration(exerciseName);
+    }
+    if (demo == null && exerciseId != null && exerciseId > 0) {
       demo = getDemonstrationById(exerciseId);
     }
-    demo ??= getDemonstration(exerciseName);
     if (demo == null || demo.videoUrl == null || demo.videoUrl!.isEmpty) {
       return null;
     }
 
-    final targetFile = await _getCachedFileForExercise(exerciseName, exerciseId: exerciseId);
+    final targetFile = await _getCachedFileForExercise(
+      exerciseName,
+      exerciseId: exerciseId,
+    );
     final tempFile = File('${targetFile.path}.tmp');
 
     try {
@@ -255,7 +313,10 @@ class ExerciseMediaService {
     int? exerciseId,
   }) async {
     try {
-      final file = await _getCachedFileForExercise(exerciseName, exerciseId: exerciseId);
+      final file = await _getCachedFileForExercise(
+        exerciseName,
+        exerciseId: exerciseId,
+      );
       if (await file.exists()) {
         await file.delete();
         return true;

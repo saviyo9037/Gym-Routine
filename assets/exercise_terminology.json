@@ -1,0 +1,3665 @@
+{
+  "Barbell Bench Press": {
+    "exercise_id": 1,
+    "current_name": "Barbell Bench Press",
+    "recommended_display_name": "Barbell Bench Press",
+    "formal_name": "Flat Barbell Bench Press",
+    "aliases": [
+      "Bench Press",
+      "Flat Bench",
+      "Flat Barbell Press",
+      "Chest Press",
+      "Barbell Press",
+      "Flat BB Press"
+    ],
+    "kerala_gym_notes": "Classic gym staple in Kerala, often just called 'Bench Press'. Keep shoulder blades pinched and feet firmly planted.",
+    "malayalam_script": "ബാർബെൽ ബെഞ്ച് പ്രസ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Standard universal English gym term.",
+    "muscle_group": "Chest",
+    "equipment": "Barbell"
+  },
+  "Incline Barbell Bench Press": {
+    "exercise_id": 2,
+    "current_name": "Incline Barbell Bench Press",
+    "recommended_display_name": "Incline Barbell Bench Press",
+    "formal_name": "Incline Barbell Press",
+    "aliases": [
+      "Incline Bench",
+      "Incline Barbell Press",
+      "Upper Chest Barbell Press",
+      "Incline BB Press"
+    ],
+    "kerala_gym_notes": "Widely referred to as 'Incline Bench'. Targets the upper chest clavicular fibers. Angle bench at 30-45 degrees.",
+    "malayalam_script": "ഇൻക്ലൈൻ ബാർബെൽ ബെഞ്ച് പ്രസ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Standard gym terminology.",
+    "muscle_group": "Chest",
+    "equipment": "Barbell"
+  },
+  "Decline Barbell Bench Press": {
+    "exercise_id": 3,
+    "current_name": "Decline Barbell Bench Press",
+    "recommended_display_name": "Decline Barbell Bench Press",
+    "formal_name": "Decline Barbell Press",
+    "aliases": [
+      "Decline Bench",
+      "Decline Barbell Press",
+      "Lower Chest Barbell Press",
+      "Decline BB Press"
+    ],
+    "kerala_gym_notes": "Commonly called 'Decline Bench'. Focuses on the lower chest sternal head.",
+    "malayalam_script": "ഡിക്ലൈൻ ബാർബെൽ ബെഞ്ച് പ്രസ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Standard gym terminology.",
+    "muscle_group": "Chest",
+    "equipment": "Barbell"
+  },
+  "Flat Dumbbell Press": {
+    "exercise_id": 4,
+    "current_name": "Flat Dumbbell Press",
+    "recommended_display_name": "Flat Dumbbell Bench Press",
+    "formal_name": "Dumbbell Horizontal Bench Press",
+    "aliases": [
+      "Dumbbell Bench Press",
+      "DB Bench",
+      "DB Press",
+      "Flat DB Press",
+      "Dumbbell Chest Press"
+    ],
+    "kerala_gym_notes": "Most lifters in Kerala refer to this as 'Dumbbell Bench Press' or 'DB Press'. Provides deeper stretch than a barbell.",
+    "malayalam_script": "ഡംബെൽ ബെഞ്ച് പ്രസ്സ്",
+    "status": "RENAME",
+    "reason": "Added familiar 'Dumbbell Bench Press' and 'DB Bench' aliases.",
+    "muscle_group": "Chest",
+    "equipment": "Dumbbells"
+  },
+  "Incline Dumbbell Press": {
+    "exercise_id": 5,
+    "current_name": "Incline Dumbbell Press",
+    "recommended_display_name": "Incline Dumbbell Press",
+    "formal_name": "Incline Dumbbell Bench Press",
+    "aliases": [
+      "Incline DB Press",
+      "Incline Dumbbell Bench Press",
+      "Upper Chest DB Press",
+      "Incline DB"
+    ],
+    "kerala_gym_notes": "Universally called 'Incline DB Press'. Keep elbows tucked at 45 degrees, avoid flaring out to protect shoulders.",
+    "malayalam_script": "ഇൻക്ലൈൻ ഡംബെൽ പ്രസ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Standard gym terminology with search aliases.",
+    "muscle_group": "Chest",
+    "equipment": "Dumbbells"
+  },
+  "Decline Dumbbell Press": {
+    "exercise_id": 6,
+    "current_name": "Decline Dumbbell Press",
+    "recommended_display_name": "Decline Dumbbell Press",
+    "formal_name": "Decline Dumbbell Bench Press",
+    "aliases": [
+      "Decline DB Press",
+      "Decline Dumbbell Bench Press",
+      "Lower Chest DB Press",
+      "Decline DB"
+    ],
+    "kerala_gym_notes": "Referred to as 'Decline DB Press'. Isolates the lower pectorals with free range of motion.",
+    "malayalam_script": "ഡിക്ലൈൻ ഡംബെൽ പ്രസ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Standard gym terminology.",
+    "muscle_group": "Chest",
+    "equipment": "Dumbbells"
+  },
+  "Dumbbell Fly": {
+    "exercise_id": 7,
+    "current_name": "Dumbbell Fly",
+    "recommended_display_name": "Dumbbell Chest Fly",
+    "formal_name": "Flat Dumbbell Fly",
+    "aliases": [
+      "Dumbbell Flyes",
+      "DB Fly",
+      "Flat Dumbbell Fly",
+      "Chest Fly",
+      "Flat DB Flyes"
+    ],
+    "kerala_gym_notes": "Commonly called 'Dumbbell Flyes' or 'DB Fly'. Imagine hugging a wide barrel at the top to contract chest.",
+    "malayalam_script": "ഡംബെൽ ഫ്ലൈ",
+    "status": "RENAME",
+    "reason": "Added 'Dumbbell Flyes' and 'DB Fly' aliases.",
+    "muscle_group": "Chest",
+    "equipment": "Dumbbells"
+  },
+  "Incline Dumbbell Fly": {
+    "exercise_id": 8,
+    "current_name": "Incline Dumbbell Fly",
+    "recommended_display_name": "Incline Dumbbell Fly",
+    "formal_name": "Incline Dumbbell Chest Fly",
+    "aliases": [
+      "Incline DB Fly",
+      "Incline Flyes",
+      "Upper Chest Fly",
+      "Incline Chest Fly"
+    ],
+    "kerala_gym_notes": "Commonly called 'Incline Flyes'. Excellent for stretching and building the upper chest.",
+    "malayalam_script": "ഇൻക്ലൈൻ ഡംബെൽ ഫ്ലൈ",
+    "status": "ADD ALIAS",
+    "reason": "Standard gym terminology.",
+    "muscle_group": "Chest",
+    "equipment": "Dumbbells"
+  },
+  "Pec Deck Fly": {
+    "exercise_id": 9,
+    "current_name": "Pec Deck Fly",
+    "recommended_display_name": "Pec Deck Machine Fly",
+    "formal_name": "Seated Machine Chest Fly",
+    "aliases": [
+      "Pec Deck",
+      "Butterfly",
+      "Butterfly Machine",
+      "Machine Chest Fly",
+      "Seated Pec Fly",
+      "Pec Fly Machine"
+    ],
+    "kerala_gym_notes": "Universally known in Kerala gyms as 'Pec Deck' or 'Butterfly Machine'. Great finisher for chest pump.",
+    "malayalam_script": "പെക് ഡെക്ക് (ബട്ടർഫ്ലൈ)",
+    "status": "RENAME",
+    "reason": "Added iconic local gym nickname 'Butterfly' and 'Pec Deck' aliases.",
+    "muscle_group": "Chest",
+    "equipment": "Machine"
+  },
+  "Cable Chest Fly": {
+    "exercise_id": 10,
+    "current_name": "Cable Chest Fly",
+    "recommended_display_name": "Standing Cable Chest Fly",
+    "formal_name": "Bilateral Cable Horizontal Adduction",
+    "aliases": [
+      "Cable Fly",
+      "Cable Crossover",
+      "Standing Cable Fly",
+      "Mid Cable Fly",
+      "Cable Chest Press"
+    ],
+    "kerala_gym_notes": "Usually called 'Cable Fly' or 'Cable Crossover'. Provides continuous tension throughout the entire squeeze.",
+    "malayalam_script": "കേബിൾ ചെസ്റ്റ് ഫ്ലൈ",
+    "status": "RENAME",
+    "reason": "Added 'Cable Fly' and 'Cable Crossover' aliases.",
+    "muscle_group": "Chest",
+    "equipment": "Cable"
+  },
+  "High-to-Low Cable Crossover": {
+    "exercise_id": 11,
+    "current_name": "High-to-Low Cable Crossover",
+    "recommended_display_name": "High-to-Low Cable Crossover",
+    "formal_name": "High Cable Decline Fly",
+    "aliases": [
+      "High Cable Crossover",
+      "Cable Cross",
+      "High Pulley Crossover",
+      "Lower Chest Cable Fly"
+    ],
+    "kerala_gym_notes": "Often called 'Cable Cross' or 'High Cable Fly'. Press downward and across to target the lower chest.",
+    "malayalam_script": "ഹൈ കേബിൾ ക്രോസ്ഓവർ",
+    "status": "ADD ALIAS",
+    "reason": "Accurate and familiar.",
+    "muscle_group": "Chest",
+    "equipment": "Cable"
+  },
+  "Low-to-High Cable Crossover": {
+    "exercise_id": 12,
+    "current_name": "Low-to-High Cable Crossover",
+    "recommended_display_name": "Low-to-High Cable Crossover",
+    "formal_name": "Low Pulley Incline Cable Fly",
+    "aliases": [
+      "Low Cable Crossover",
+      "Low Cable Fly",
+      "Upper Chest Cable Fly",
+      "Low Pulley Cross"
+    ],
+    "kerala_gym_notes": "Commonly called 'Low Cable Fly'. Scoop upward to collarbone level to target the upper chest.",
+    "malayalam_script": "ലോ കേബിൾ ക്രോസ്ഓവർ",
+    "status": "ADD ALIAS",
+    "reason": "Accurate and familiar.",
+    "muscle_group": "Chest",
+    "equipment": "Cable"
+  },
+  "Chest Press Machine": {
+    "exercise_id": 13,
+    "current_name": "Chest Press Machine",
+    "recommended_display_name": "Machine Chest Press",
+    "formal_name": "Seated Guided Chest Press",
+    "aliases": [
+      "Machine Chest Press",
+      "Seated Chest Press",
+      "Chest Machine",
+      "Lever Chest Press"
+    ],
+    "kerala_gym_notes": "Commonly known as 'Seated Chest Press' or 'Chest Press Machine'. Excellent for safely training to failure.",
+    "malayalam_script": "മെഷീൻ ചെസ്റ്റ് പ്രസ്സ്",
+    "status": "RENAME",
+    "reason": "Clear and widely recognized.",
+    "muscle_group": "Chest",
+    "equipment": "Machine"
+  },
+  "Smith Machine Bench Press": {
+    "exercise_id": 14,
+    "current_name": "Smith Machine Bench Press",
+    "recommended_display_name": "Smith Machine Bench Press",
+    "formal_name": "Guided Barbell Bench Press",
+    "aliases": [
+      "Smith Bench",
+      "Smith Machine Press",
+      "Smith Flat Press",
+      "Guided Bench Press"
+    ],
+    "kerala_gym_notes": "Called 'Smith Bench'. Uses a fixed track, making it easy to focus solely on chest contraction without balancing.",
+    "malayalam_script": "സ്മിത്ത് മെഷീൻ ബെഞ്ച് പ്രസ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Standard equipment term.",
+    "muscle_group": "Chest",
+    "equipment": "Machine"
+  },
+  "Push-Up": {
+    "exercise_id": 15,
+    "current_name": "Push-Up",
+    "recommended_display_name": "Standard Push-Up",
+    "formal_name": "Prone Bodyweight Press",
+    "aliases": [
+      "Pushups",
+      "Push-Ups",
+      "Floor Push-Ups",
+      "Standard Pushup",
+      "Normal Pushups"
+    ],
+    "kerala_gym_notes": "The foundational bodyweight exercise. Keep core tight in a straight plank line from head to heels.",
+    "malayalam_script": "പുഷ്-അപ്സ്",
+    "status": "RENAME",
+    "reason": "Universal exercise term.",
+    "muscle_group": "Chest",
+    "equipment": "Bodyweight"
+  },
+  "Incline Push-Up": {
+    "exercise_id": 16,
+    "current_name": "Incline Push-Up",
+    "recommended_display_name": "Incline Push-Up",
+    "formal_name": "Hands-Elevated Push-Up",
+    "aliases": [
+      "Incline Pushups",
+      "Bench Pushups",
+      "Hands Elevated Pushup",
+      "Easy Pushup"
+    ],
+    "kerala_gym_notes": "Push-ups with hands placed on a bench. Recommended for beginners building upper-body strength.",
+    "malayalam_script": "ഇൻക്ലൈൻ പുഷ്-അപ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Chest",
+    "equipment": "Bodyweight"
+  },
+  "Decline Push-Up": {
+    "exercise_id": 17,
+    "current_name": "Decline Push-Up",
+    "recommended_display_name": "Decline Push-Up",
+    "formal_name": "Feet-Elevated Push-Up",
+    "aliases": [
+      "Decline Pushups",
+      "Feet Elevated Pushup",
+      "Upper Chest Pushup"
+    ],
+    "kerala_gym_notes": "Push-ups with feet elevated on a bench or box. Increases resistance and shifts focus to the upper chest.",
+    "malayalam_script": "ഡിക്ലൈൻ പുഷ്-അപ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Chest",
+    "equipment": "Bodyweight"
+  },
+  "Weighted Push-Up": {
+    "exercise_id": 18,
+    "current_name": "Weighted Push-Up",
+    "recommended_display_name": "Weighted Push-Up",
+    "formal_name": "Loaded Bodyweight Press",
+    "aliases": [
+      "Weighted Pushups",
+      "Plate Pushup",
+      "Weighted Chest Pushup"
+    ],
+    "kerala_gym_notes": "Push-ups performed with a weight plate on the upper back for progressive overload.",
+    "malayalam_script": "വെയ്റ്റഡ് പുഷ്-അപ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Chest",
+    "equipment": "Bodyweight"
+  },
+  "Assisted Dip": {
+    "exercise_id": 19,
+    "current_name": "Assisted Dip",
+    "recommended_display_name": "Machine-Assisted Dip",
+    "formal_name": "Counterbalanced Chest Dip",
+    "aliases": [
+      "Assisted Dips",
+      "Machine Assisted Dip",
+      "Assisted Chest Dip",
+      "Counterweight Dips"
+    ],
+    "kerala_gym_notes": "Uses a counterweight knee pad to assist parallel bar dips. Great for building baseline dipping strength.",
+    "malayalam_script": "അസിസ്റ്റഡ് ഡിപ്സ്",
+    "status": "RENAME",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Chest",
+    "equipment": "Machine"
+  },
+  "Chest-Focused Dip": {
+    "exercise_id": 20,
+    "current_name": "Chest-Focused Dip",
+    "recommended_display_name": "Chest Parallel Bar Dip",
+    "formal_name": "Forward-Leaning Parallel Bar Dip",
+    "aliases": [
+      "Chest Dips",
+      "Parallel Bar Dips",
+      "Bodyweight Dips",
+      "Dips"
+    ],
+    "kerala_gym_notes": "In Kerala gyms, simply called 'Dips' or 'Chest Dips'. Lean forward with elbows flared slightly to hit chest.",
+    "malayalam_script": "ചെസ്റ്റ് ഡിപ്സ്",
+    "status": "RENAME",
+    "reason": "Added 'Chest Dips' and 'Dips' aliases.",
+    "muscle_group": "Chest",
+    "equipment": "Bodyweight"
+  },
+  "Dumbbell Pullover": {
+    "exercise_id": 21,
+    "current_name": "Dumbbell Pullover",
+    "recommended_display_name": "Dumbbell Pullover",
+    "formal_name": "Transverse Bench Dumbbell Pullover",
+    "aliases": [
+      "DB Pullover",
+      "Chest Pullover",
+      "Ribcage Pullover",
+      "Dumbbell Pull Over"
+    ],
+    "kerala_gym_notes": "Referred to as 'DB Pullover'. Expands the ribcage and stretches both the pectorals and serratus anterior.",
+    "malayalam_script": "ഡംബെൽ പുൾഓവർ",
+    "status": "ADD ALIAS",
+    "reason": "Standard English gym term.",
+    "muscle_group": "Chest",
+    "equipment": "Dumbbells"
+  },
+  "Landmine Chest Press": {
+    "exercise_id": 22,
+    "current_name": "Landmine Chest Press",
+    "recommended_display_name": "Landmine Chest Press",
+    "formal_name": "Angled Landmine Press",
+    "aliases": [
+      "Landmine Press",
+      "Corner Barbell Press",
+      "Angled Chest Press",
+      "Standing Landmine Press"
+    ],
+    "kerala_gym_notes": "Known as 'Landmine Press'. Very joint-friendly on the rotator cuff while providing intense inner chest squeeze.",
+    "malayalam_script": "ലാൻഡ്‌മൈൻ ചെസ്റ്റ് പ്രസ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Accurate modern gym term.",
+    "muscle_group": "Chest",
+    "equipment": "Barbell"
+  },
+  "Pull-Up": {
+    "exercise_id": 23,
+    "current_name": "Pull-Up",
+    "recommended_display_name": "Wide-Grip Pull-Up",
+    "formal_name": "Overhand Pronated Pull-Up",
+    "aliases": [
+      "Pullups",
+      "Pull-Ups",
+      "Wide Grip Pullup",
+      "Overhand Pullup",
+      "Wings Pullup"
+    ],
+    "kerala_gym_notes": "Commonly called 'Pull-Ups' or 'Wings Pullup'. Palms facing away. Primary exercise for wide V-taper lats.",
+    "malayalam_script": "പുൾ-അപ്സ്",
+    "status": "RENAME",
+    "reason": "Universal gym term.",
+    "muscle_group": "Lats",
+    "equipment": "Bodyweight"
+  },
+  "Assisted Pull-Up": {
+    "exercise_id": 24,
+    "current_name": "Assisted Pull-Up",
+    "recommended_display_name": "Machine-Assisted Pull-Up",
+    "formal_name": "Counterbalanced Pull-Up",
+    "aliases": [
+      "Assisted Pullups",
+      "Machine Pull-Up",
+      "Counterweight Pullup",
+      "Machine Pullups"
+    ],
+    "kerala_gym_notes": "Known as 'Assisted Pullups'. Allows lifters of any level to practice full-range pull-up mechanics.",
+    "malayalam_script": "അസിസ്റ്റഡ് പുൾ-അപ്സ്",
+    "status": "RENAME",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Lats",
+    "equipment": "Machine"
+  },
+  "Chin-Up": {
+    "exercise_id": 25,
+    "current_name": "Chin-Up",
+    "recommended_display_name": "Underhand Chin-Up",
+    "formal_name": "Supinated Grip Chin-Up",
+    "aliases": [
+      "Chinups",
+      "Chin-Ups",
+      "Underhand Pullup",
+      "Reverse Grip Pullup",
+      "Biceps Chinup"
+    ],
+    "kerala_gym_notes": "Palms facing towards you. Hits both the lats and the biceps with strong mechanical leverage.",
+    "malayalam_script": "ചിൻ-അപ്സ്",
+    "status": "RENAME",
+    "reason": "Universal gym term.",
+    "muscle_group": "Lats",
+    "equipment": "Bodyweight"
+  },
+  "Lat Pulldown": {
+    "exercise_id": 26,
+    "current_name": "Lat Pulldown",
+    "recommended_display_name": "Wide-Grip Lat Pulldown",
+    "formal_name": "Cable Front Lat Pulldown",
+    "aliases": [
+      "Lat Pull",
+      "Cable Lat Pulldown",
+      "Pulldown",
+      "Front Lat Pulldown",
+      "Wings Machine",
+      "Lat Pull Down"
+    ],
+    "kerala_gym_notes": "The most popular back exercise in Kerala gyms, called 'Lat Pull' or 'Pulldown'. Pull bar down to upper collarbone.",
+    "malayalam_script": "ലാറ്റ് പുൾഡൗൺ",
+    "status": "RENAME",
+    "reason": "Added 'Lat Pull', 'Pulldown', and 'Wings Machine' search aliases.",
+    "muscle_group": "Lats",
+    "equipment": "Cable"
+  },
+  "Close-Grip Lat Pulldown": {
+    "exercise_id": 27,
+    "current_name": "Close-Grip Lat Pulldown",
+    "recommended_display_name": "Close-Grip Lat Pulldown",
+    "formal_name": "V-Bar Cable Lat Pulldown",
+    "aliases": [
+      "Close Grip Pulldown",
+      "V-Bar Lat Pulldown",
+      "V-Bar Pulldown",
+      "Narrow Lat Pull",
+      "V Handle Pulldown"
+    ],
+    "kerala_gym_notes": "Known as 'V-Bar Pulldown'. The neutral narrow grip maximizes the lat stretch and elbow drive.",
+    "malayalam_script": "ക്ലോസ്-ഗ്രിപ്പ് ലാറ്റ് പുൾഡൗൺ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'V-Bar Pulldown' and 'Close Grip Pulldown' aliases.",
+    "muscle_group": "Lats",
+    "equipment": "Cable"
+  },
+  "Wide-Grip Lat Pulldown": {
+    "exercise_id": 28,
+    "current_name": "Wide-Grip Lat Pulldown",
+    "recommended_display_name": "Wide-Grip Lat Pulldown",
+    "formal_name": "Overhand Wide Cable Pulldown",
+    "aliases": [
+      "Wide Grip Pulldown",
+      "Wide Lat Pull",
+      "Wide Front Pulldown",
+      "Wide Cable Pulldown"
+    ],
+    "kerala_gym_notes": "Bar gripped wider than shoulders. Emphasizes upper lat fibers to build width.",
+    "malayalam_script": "വൈഡ്-ഗ്രിപ്പ് ലാറ്റ് പുൾഡൗൺ",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Lats",
+    "equipment": "Cable"
+  },
+  "Neutral-Grip Lat Pulldown": {
+    "exercise_id": 29,
+    "current_name": "Neutral-Grip Lat Pulldown",
+    "recommended_display_name": "Neutral-Grip Lat Pulldown",
+    "formal_name": "Parallel-Grip Cable Lat Pulldown",
+    "aliases": [
+      "Parallel Grip Lat Pulldown",
+      "Neutral Lat Pull",
+      "Dual Handle Pulldown"
+    ],
+    "kerala_gym_notes": "Palms facing each other. Very comfortable on wrists and shoulders.",
+    "malayalam_script": "ന്യൂട്രൽ-ഗ്രിപ്പ് ലാറ്റ് പുൾഡൗൺ",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Lats",
+    "equipment": "Cable"
+  },
+  "Straight-Arm Cable Pulldown": {
+    "exercise_id": 30,
+    "current_name": "Straight-Arm Cable Pulldown",
+    "recommended_display_name": "Straight-Arm Cable Pulldown",
+    "formal_name": "Standing Cable Lat Sweep",
+    "aliases": [
+      "Straight Arm Pulldown",
+      "Cable Lat Pushdown",
+      "Standing Cable Pullover",
+      "Lats Pushdown"
+    ],
+    "kerala_gym_notes": "Called 'Straight-Arm Pulldown' or 'Lats Pushdown'. Completely isolates lats without fatiguing biceps.",
+    "malayalam_script": "സ്ട്രെയിറ്റ്-ആം കേബിൾ പുൾഡൗൺ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Straight Arm Pulldown' and 'Lats Pushdown' aliases.",
+    "muscle_group": "Lats",
+    "equipment": "Cable"
+  },
+  "Cable Pullover": {
+    "exercise_id": 40,
+    "current_name": "Cable Pullover",
+    "recommended_display_name": "Cable Lat Pullover",
+    "formal_name": "Bench Cable Pullover",
+    "aliases": [
+      "Cable Lat Pullover",
+      "Bench Cable Pullover",
+      "Lying Cable Pullover"
+    ],
+    "kerala_gym_notes": "Lying on bench using low cable. Provides constant tension at peak lat stretch.",
+    "malayalam_script": "കേബിൾ പുൾഓവർ",
+    "status": "RENAME",
+    "reason": "Accurate and familiar.",
+    "muscle_group": "Lats",
+    "equipment": "Cable"
+  },
+  "Barbell Bent-Over Row": {
+    "exercise_id": 31,
+    "current_name": "Barbell Bent-Over Row",
+    "recommended_display_name": "Bent-Over Barbell Row",
+    "formal_name": "Overhand Barbell Row",
+    "aliases": [
+      "Barbell Row",
+      "Bent Over Row",
+      "BB Row",
+      "Overhand Barbell Row",
+      "Back Rowing Barbell"
+    ],
+    "kerala_gym_notes": "In Kerala gyms: 'Barbell Row' or 'Bent-Over Row'. Hinge hips to 45 degrees and row bar to belly button.",
+    "malayalam_script": "ബാർബെൽ റോ (ബെന്റ്-ഓവർ)",
+    "status": "RENAME",
+    "reason": "Added 'Barbell Row' and 'BB Row' aliases.",
+    "muscle_group": "Back",
+    "equipment": "Barbell"
+  },
+  "Pendlay Row": {
+    "exercise_id": 32,
+    "current_name": "Pendlay Row",
+    "recommended_display_name": "Pendlay Row (Strict Dead-Stop)",
+    "formal_name": "Floor Barbell Row",
+    "aliases": [
+      "Pendlay Row",
+      "Dead-Stop Barbell Row",
+      "Floor Barbell Row",
+      "Strict Barbell Row"
+    ],
+    "kerala_gym_notes": "A strict row resetting on floor each repetition. Builds explosive back and hip power.",
+    "malayalam_script": "പെൻഡ്ലെ റോ",
+    "status": "RENAME",
+    "reason": "Recognized strength term.",
+    "muscle_group": "Back",
+    "equipment": "Barbell"
+  },
+  "T-Bar Row": {
+    "exercise_id": 33,
+    "current_name": "T-Bar Row",
+    "recommended_display_name": "T-Bar Row",
+    "formal_name": "Lever T-Bar Back Row",
+    "aliases": [
+      "T-Bar",
+      "T Bar Row",
+      "T-Bar Rowing",
+      "Chest Supported T-Bar",
+      "T-Bar Machine"
+    ],
+    "kerala_gym_notes": "Extremely popular in Kerala gyms! Usually called 'T-Bar' or 'T-Bar Row'. Essential for mid-back thickness.",
+    "malayalam_script": "ടി-ബാർ റോ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'T-Bar' and 'T-Bar Rowing' aliases.",
+    "muscle_group": "Back",
+    "equipment": "Barbell"
+  },
+  "Chest-Supported Row": {
+    "exercise_id": 34,
+    "current_name": "Chest-Supported Row",
+    "recommended_display_name": "Incline Chest-Supported Row",
+    "formal_name": "Prone Incline Dumbbell Row",
+    "aliases": [
+      "Incline DB Row",
+      "Chest Supported DB Row",
+      "Incline Bench Row",
+      "Chest Supported Row"
+    ],
+    "kerala_gym_notes": "Lying chest-down on incline bench. Removes all lower back strain so you can isolate upper back.",
+    "malayalam_script": "ചെസ്റ്റ്-സപ്പോർട്ടഡ് റോ",
+    "status": "RENAME",
+    "reason": "Added 'Incline DB Row' alias.",
+    "muscle_group": "Back",
+    "equipment": "Dumbbells"
+  },
+  "Seated Cable Row": {
+    "exercise_id": 35,
+    "current_name": "Seated Cable Row",
+    "recommended_display_name": "Seated Cable Row",
+    "formal_name": "Horizontal Cable Pulley Row",
+    "aliases": [
+      "Seated Row",
+      "Cable Rowing",
+      "Low Cable Row",
+      "V-Bar Row",
+      "Seated Pulley Row",
+      "Cable Row"
+    ],
+    "kerala_gym_notes": "Universally called 'Seated Row' or 'Cable Rowing'. Keep chest tall and pull V-handle to lower abdomen.",
+    "malayalam_script": "സീറ്റഡ് കേബിൾ റോ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Seated Row' and 'Cable Rowing' aliases.",
+    "muscle_group": "Back",
+    "equipment": "Cable"
+  },
+  "Single-Arm Dumbbell Row": {
+    "exercise_id": 36,
+    "current_name": "Single-Arm Dumbbell Row",
+    "recommended_display_name": "Single-Arm Dumbbell Row",
+    "formal_name": "Unilateral Dumbbell Row",
+    "aliases": [
+      "One Arm Dumbbell Row",
+      "One Arm DB Row",
+      "Single Arm Row",
+      "Dumbbell Rowing",
+      "One Arm Row"
+    ],
+    "kerala_gym_notes": "Widely called 'One Arm DB Row'. Support one knee and hand on flat bench, row with full lat stretch.",
+    "malayalam_script": "സിംഗിൾ-ആം ഡംബെൽ റോ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'One Arm DB Row' and 'One Arm Row' aliases.",
+    "muscle_group": "Back",
+    "equipment": "Dumbbells"
+  },
+  "Machine Row": {
+    "exercise_id": 37,
+    "current_name": "Machine Row",
+    "recommended_display_name": "Seated Machine Row",
+    "formal_name": "Lever Back Rowing Machine",
+    "aliases": [
+      "Seated Machine Row",
+      "Back Rowing Machine",
+      "Lever Row",
+      "Machine Back Row"
+    ],
+    "kerala_gym_notes": "Called 'Machine Row' or 'Back Machine'. Great for safely loading heavy resistance without lower back fatigue.",
+    "malayalam_script": "മെഷീൻ റോ",
+    "status": "RENAME",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Back",
+    "equipment": "Machine"
+  },
+  "Inverted Row": {
+    "exercise_id": 38,
+    "current_name": "Inverted Row",
+    "recommended_display_name": "Inverted Bodyweight Row",
+    "formal_name": "Horizontal Barbell Row",
+    "aliases": [
+      "Bodyweight Row",
+      "Australian Pullup",
+      "Smith Inverted Row",
+      "Horizontal Row"
+    ],
+    "kerala_gym_notes": "Often called 'Bodyweight Row'. Hanging under a low bar pulling chest up. Great progression for pull-ups.",
+    "malayalam_script": "ഇൻവേർട്ടഡ് റോ",
+    "status": "RENAME",
+    "reason": "Added 'Bodyweight Row' alias.",
+    "muscle_group": "Back",
+    "equipment": "Bodyweight"
+  },
+  "Landmine Row": {
+    "exercise_id": 39,
+    "current_name": "Landmine Row",
+    "recommended_display_name": "Landmine Row",
+    "formal_name": "Corner Barbell Single-Arm Row",
+    "aliases": [
+      "Meadows Row",
+      "Corner Barbell Row",
+      "Landmine T-Bar Row",
+      "Landmine Back Row"
+    ],
+    "kerala_gym_notes": "Angled barbell row providing unique arc of motion that relieves lower back torque.",
+    "malayalam_script": "ലാൻഡ്‌മൈൻ റോ",
+    "status": "ADD ALIAS",
+    "reason": "Modern gym terminology.",
+    "muscle_group": "Back",
+    "equipment": "Barbell"
+  },
+  "Smith Machine Row": {
+    "exercise_id": 41,
+    "current_name": "Smith Machine Row",
+    "recommended_display_name": "Smith Machine Bent-Over Row",
+    "formal_name": "Guided Barbell Row",
+    "aliases": [
+      "Smith Barbell Row",
+      "Smith Bent-Over Row",
+      "Smith Machine Row"
+    ],
+    "kerala_gym_notes": "Bent-over row guided along the Smith track for strict mechanical isolation.",
+    "malayalam_script": "സ്മിത്ത് മെഷീൻ റോ",
+    "status": "RENAME",
+    "reason": "Standard equipment term.",
+    "muscle_group": "Back",
+    "equipment": "Machine"
+  },
+  "Dumbbell Shrug": {
+    "exercise_id": 42,
+    "current_name": "Dumbbell Shrug",
+    "recommended_display_name": "Dumbbell Shrug",
+    "formal_name": "Dumbbell Scapular Elevation",
+    "aliases": [
+      "Dumbbell Shrugs",
+      "DB Shrugs",
+      "Traps Shrug",
+      "Dumbbell Trap Raise",
+      "Shrugs"
+    ],
+    "kerala_gym_notes": "Universally known in Kerala gyms as 'Shrugs' or 'DB Shrugs'. Elevate shoulders straight up to ears without rolling.",
+    "malayalam_script": "ഡംബെൽ ഷ്രഗ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Shrugs' and 'DB Shrugs' aliases.",
+    "muscle_group": "Upper Back and Traps",
+    "equipment": "Dumbbells"
+  },
+  "Barbell Shrug": {
+    "exercise_id": 43,
+    "current_name": "Barbell Shrug",
+    "recommended_display_name": "Barbell Shrug",
+    "formal_name": "Barbell Scapular Elevation",
+    "aliases": [
+      "Barbell Shrugs",
+      "BB Shrugs",
+      "Front Barbell Shrug",
+      "Olympic Barbell Shrug"
+    ],
+    "kerala_gym_notes": "Called 'Barbell Shrugs'. Allows very heavy loading for building upper trapezius thickness.",
+    "malayalam_script": "ബാർബെൽ ഷ്രഗ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Barbell Shrugs' and 'BB Shrugs' aliases.",
+    "muscle_group": "Upper Back and Traps",
+    "equipment": "Barbell"
+  },
+  "Smith Machine Shrug": {
+    "exercise_id": 44,
+    "current_name": "Smith Machine Shrug",
+    "recommended_display_name": "Smith Machine Shrug",
+    "formal_name": "Guided Barbell Scapular Elevation",
+    "aliases": [
+      "Smith Shrugs",
+      "Smith Machine Shrugs",
+      "Smith Traps"
+    ],
+    "kerala_gym_notes": "Shrugs performed in the Smith machine for stable vertical bar path.",
+    "malayalam_script": "സ്മിത്ത് മെഷീൻ ഷ്രഗ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Upper Back and Traps",
+    "equipment": "Machine"
+  },
+  "Cable Shrug": {
+    "exercise_id": 45,
+    "current_name": "Cable Shrug",
+    "recommended_display_name": "Cable Shrug",
+    "formal_name": "Dual Low Cable Scapular Elevation",
+    "aliases": [
+      "Cable Shrugs",
+      "Low Pulley Shrug",
+      "Dual Cable Shrugs"
+    ],
+    "kerala_gym_notes": "Shrugs on low cable pulleys providing outward tension matching the natural trap fiber angle.",
+    "malayalam_script": "കേബിൾ ഷ്രഗ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Upper Back and Traps",
+    "equipment": "Cable"
+  },
+  "Face Pull": {
+    "exercise_id": 46,
+    "current_name": "Face Pull",
+    "recommended_display_name": "Cable Face Pull",
+    "formal_name": "High Cable External Rotation Row",
+    "aliases": [
+      "Face Pulls",
+      "Rope Face Pull",
+      "Cable Face Pull",
+      "Rear Delt Face Pull"
+    ],
+    "kerala_gym_notes": "Called 'Face Pulls'. The best posture and rear-delt exercise. Pull rope towards nose while flaring elbows out.",
+    "malayalam_script": "ഫേസ് പുൾ",
+    "status": "RENAME",
+    "reason": "Added 'Face Pulls' and 'Rope Face Pull' aliases.",
+    "muscle_group": "Upper Back and Traps",
+    "equipment": "Cable"
+  },
+  "Reverse Pec Deck": {
+    "exercise_id": 47,
+    "current_name": "Reverse Pec Deck",
+    "recommended_display_name": "Reverse Pec Deck (Rear Delt Fly)",
+    "formal_name": "Machine Horizontal Abduction",
+    "aliases": [
+      "Reverse Butterfly",
+      "Rear Delt Machine",
+      "Rear Delt Pec Deck",
+      "Reverse Machine Fly",
+      "Rear Delt Fly Machine"
+    ],
+    "kerala_gym_notes": "Every gym in Kerala calls this 'Reverse Butterfly' or 'Reverse Pec Deck'. Essential for 3D rounded shoulders.",
+    "malayalam_script": "റിവേഴ്സ് പെക് ഡെക്ക് (റിയർ ഡെൽറ്റ്)",
+    "status": "RENAME",
+    "reason": "Added iconic local term 'Reverse Butterfly' alias.",
+    "muscle_group": "Upper Back and Traps",
+    "equipment": "Machine"
+  },
+  "Chest-Supported Rear Delt Row": {
+    "exercise_id": 48,
+    "current_name": "Chest-Supported Rear Delt Row",
+    "recommended_display_name": "Chest-Supported Rear Delt Row",
+    "formal_name": "Prone Incline Rear Deltoid Row",
+    "aliases": [
+      "Incline Rear Delt Row",
+      "Prone Rear Delt Row",
+      "Wide Flared DB Row",
+      "Rear Delt DB Row"
+    ],
+    "kerala_gym_notes": "Incline bench row with elbows flared out at 90 degrees to isolate rear shoulders.",
+    "malayalam_script": "ചെസ്റ്റ്-സപ്പോർട്ടഡ് റിയർ ഡെൽറ്റ് റോ",
+    "status": "ADD ALIAS",
+    "reason": "Accurate and descriptive.",
+    "muscle_group": "Upper Back and Traps",
+    "equipment": "Dumbbells"
+  },
+  "Prone Y Raise": {
+    "exercise_id": 49,
+    "current_name": "Prone Y Raise",
+    "recommended_display_name": "Prone Y Raise",
+    "formal_name": "Prone Incline Lower Trap Raise",
+    "aliases": [
+      "Y Raise",
+      "Prone Trap Raise",
+      "Lower Trap Raise",
+      "Bench Y Raise"
+    ],
+    "kerala_gym_notes": "Lying on incline bench raising arms in Y formation for mid and lower trapezius strength.",
+    "malayalam_script": "പ്രോൺ Y റൈസ്",
+    "status": "ADD ALIAS",
+    "reason": "Recognized posture exercise.",
+    "muscle_group": "Upper Back and Traps",
+    "equipment": "Bodyweight"
+  },
+  "Back Extension": {
+    "exercise_id": 50,
+    "current_name": "Back Extension",
+    "recommended_display_name": "Hyperextension (Back Extension)",
+    "formal_name": "45-Degree Hyperextension",
+    "aliases": [
+      "Hyperextension",
+      "Hyper Extension",
+      "45 Degree Back Extension",
+      "Lower Back Bench",
+      "Lower Back Extension"
+    ],
+    "kerala_gym_notes": "In Kerala gyms: universally called 'Hyperextension' or 'Lower Back Bench'. Strengthens spinal erectors.",
+    "malayalam_script": "ഹൈപ്പർഎക്സ്റ്റൻഷൻ (ലോവർ ബാക്ക്)",
+    "status": "RENAME",
+    "reason": "Added 'Hyperextension' alias.",
+    "muscle_group": "Upper Back and Traps",
+    "equipment": "Bodyweight"
+  },
+  "Reverse Hyperextension": {
+    "exercise_id": 51,
+    "current_name": "Reverse Hyperextension",
+    "recommended_display_name": "Reverse Hyperextension",
+    "formal_name": "Reverse Hyper Leg Raise",
+    "aliases": [
+      "Reverse Hyper",
+      "Glute Lower Back Raise",
+      "Reverse Hyper Bench"
+    ],
+    "kerala_gym_notes": "Lifting legs upwards while torso is anchored. Decompresses the lumbar spine.",
+    "malayalam_script": "റിവേഴ്സ് ഹൈപ്പർഎക്സ്റ്റൻഷൻ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Reverse Hyper' alias.",
+    "muscle_group": "Upper Back and Traps",
+    "equipment": "Machine"
+  },
+  "Seated Dumbbell Shoulder Press": {
+    "exercise_id": 52,
+    "current_name": "Seated Dumbbell Shoulder Press",
+    "recommended_display_name": "Seated Dumbbell Shoulder Press",
+    "formal_name": "Seated Dumbbell Overhead Press",
+    "aliases": [
+      "Dumbbell Shoulder Press",
+      "Seated DB Press",
+      "Shoulder DB Press",
+      "DB Overhead Press",
+      "Shoulder Press"
+    ],
+    "kerala_gym_notes": "Commonly called 'Dumbbell Shoulder Press' or 'Seated DB Press'. Primary shoulder builder.",
+    "malayalam_script": "ഡംബെൽ ഷോൾഡർ പ്രസ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Dumbbell Shoulder Press' and 'Seated DB Press' aliases.",
+    "muscle_group": "Shoulders",
+    "equipment": "Dumbbells"
+  },
+  "Standing Dumbbell Shoulder Press": {
+    "exercise_id": 53,
+    "current_name": "Standing Dumbbell Shoulder Press",
+    "recommended_display_name": "Standing Dumbbell Shoulder Press",
+    "formal_name": "Standing Dumbbell Overhead Press",
+    "aliases": [
+      "Standing DB Press",
+      "Standing Dumbbell Press",
+      "Standing Shoulder Press"
+    ],
+    "kerala_gym_notes": "Overhead dumbbell press while standing, demanding greater abdominal and core stabilization.",
+    "malayalam_script": "സ്റ്റാൻഡിംഗ് ഡംബെൽ ഷോൾഡർ പ്രസ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Shoulders",
+    "equipment": "Dumbbells"
+  },
+  "Barbell Overhead Press": {
+    "exercise_id": 54,
+    "current_name": "Barbell Overhead Press",
+    "recommended_display_name": "Military Press (Overhead Press)",
+    "formal_name": "Standing Barbell Overhead Press",
+    "aliases": [
+      "Military Press",
+      "OHP",
+      "Overhead Press",
+      "Barbell Shoulder Press",
+      "Standing Barbell Press"
+    ],
+    "kerala_gym_notes": "Classic strength lift! In Kerala gyms: 'Military Press' or 'OHP'. Press bar straight up overhead.",
+    "malayalam_script": "മിലിട്ടറി പ്രസ്സ് (OHP)",
+    "status": "RENAME",
+    "reason": "Added 'Military Press' and 'OHP' aliases.",
+    "muscle_group": "Shoulders",
+    "equipment": "Barbell"
+  },
+  "Seated Barbell Press": {
+    "exercise_id": 55,
+    "current_name": "Seated Barbell Press",
+    "recommended_display_name": "Seated Barbell Shoulder Press",
+    "formal_name": "Seated Front Barbell Press",
+    "aliases": [
+      "Seated Overhead Press",
+      "Seated Military Press",
+      "Seated Barbell Shoulder Press"
+    ],
+    "kerala_gym_notes": "Seated barbell press inside power rack or shoulder station.",
+    "malayalam_script": "സീറ്റഡ് ബാർബെൽ ഷോൾഡർ പ്രസ്സ്",
+    "status": "RENAME",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Shoulders",
+    "equipment": "Barbell"
+  },
+  "Machine Shoulder Press": {
+    "exercise_id": 56,
+    "current_name": "Machine Shoulder Press",
+    "recommended_display_name": "Machine Shoulder Press",
+    "formal_name": "Seated Guided Shoulder Press",
+    "aliases": [
+      "Shoulder Press Machine",
+      "Seated Shoulder Machine",
+      "Machine Overhead Press"
+    ],
+    "kerala_gym_notes": "Called 'Shoulder Press Machine'. Provides guided vertical path for safe shoulder overload.",
+    "malayalam_script": "മെഷീൻ ഷോൾഡർ പ്രസ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Shoulders",
+    "equipment": "Machine"
+  },
+  "Arnold Press": {
+    "exercise_id": 57,
+    "current_name": "Arnold Press",
+    "recommended_display_name": "Arnold Press",
+    "formal_name": "Rotating Dumbbell Overhead Press",
+    "aliases": [
+      "Arnold Press",
+      "Rotating DB Press",
+      "Arnold Dumbbell Press",
+      "Arnold Shoulder Press"
+    ],
+    "kerala_gym_notes": "Named after Arnold Schwarzenegger. Start with palms facing you and rotate outward as you press up.",
+    "malayalam_script": "അർണോൾഡ് പ്രസ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Universal iconic gym name.",
+    "muscle_group": "Shoulders",
+    "equipment": "Dumbbells"
+  },
+  "Dumbbell Lateral Raise": {
+    "exercise_id": 58,
+    "current_name": "Dumbbell Lateral Raise",
+    "recommended_display_name": "Dumbbell Lateral Raise",
+    "formal_name": "Standing Dumbbell Abduction",
+    "aliases": [
+      "Side Lateral Raise",
+      "Lateral Raise",
+      "Side Raise",
+      "Dumbbell Side Raise",
+      "Side Delts",
+      "Side Lateral"
+    ],
+    "kerala_gym_notes": "The #1 shoulder workout in Kerala gyms! Universally called 'Side Lateral' or 'Side Raise'. Builds shoulder width.",
+    "malayalam_script": "ഡംബെൽ ലാറ്ററൽ റൈസ് (സൈഡ് റൈസ്)",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Side Lateral Raise' and 'Side Raise' aliases.",
+    "muscle_group": "Shoulders",
+    "equipment": "Dumbbells"
+  },
+  "Cable Lateral Raise": {
+    "exercise_id": 59,
+    "current_name": "Cable Lateral Raise",
+    "recommended_display_name": "Cable Lateral Raise",
+    "formal_name": "Low Pulley Shoulder Abduction",
+    "aliases": [
+      "Cable Side Raise",
+      "Cable Lateral",
+      "Low Cable Lateral Raise",
+      "Cable Side Delts"
+    ],
+    "kerala_gym_notes": "Called 'Cable Side Raise'. Keeps constant tension even at bottom of movement where dumbbells lose tension.",
+    "malayalam_script": "കേബിൾ ലാറ്ററൽ റൈസ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Cable Side Raise' alias.",
+    "muscle_group": "Shoulders",
+    "equipment": "Cable"
+  },
+  "Machine Lateral Raise": {
+    "exercise_id": 60,
+    "current_name": "Machine Lateral Raise",
+    "recommended_display_name": "Machine Lateral Raise",
+    "formal_name": "Lever Seated Lateral Raise",
+    "aliases": [
+      "Machine Side Raise",
+      "Lateral Raise Machine",
+      "Seated Side Delt Machine"
+    ],
+    "kerala_gym_notes": "Seated machine for side deltoid isolation.",
+    "malayalam_script": "മെഷീൻ ലാറ്ററൽ റൈസ്",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Shoulders",
+    "equipment": "Machine"
+  },
+  "Leaning Cable Lateral Raise": {
+    "exercise_id": 61,
+    "current_name": "Leaning Cable Lateral Raise",
+    "recommended_display_name": "Leaning Cable Lateral Raise",
+    "formal_name": "Leaning Low Pulley Side Raise",
+    "aliases": [
+      "Leaning Side Raise",
+      "Leaning Cable Lateral",
+      "Leaning Cable Delts"
+    ],
+    "kerala_gym_notes": "Leaning away from cable upright pillar for maximum side delt stretch.",
+    "malayalam_script": "ലീനിംഗ് കേബിൾ ലാറ്ററൽ റൈസ്",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Shoulders",
+    "equipment": "Cable"
+  },
+  "Front Dumbbell Raise": {
+    "exercise_id": 62,
+    "current_name": "Front Dumbbell Raise",
+    "recommended_display_name": "Dumbbell Front Raise",
+    "formal_name": "Standing Dumbbell Shoulder Flexion",
+    "aliases": [
+      "Front Raise",
+      "Dumbbell Front Raise",
+      "DB Front Raise",
+      "Front Deltoid Raise",
+      "Front Delts"
+    ],
+    "kerala_gym_notes": "Commonly called 'Front Raise' or 'DB Front Raise'. Raises dumbbells forward to eye level.",
+    "malayalam_script": "ഡംബെൽ ഫ്രണ്ട് റൈസ്",
+    "status": "RENAME",
+    "reason": "Added 'Front Raise' and 'DB Front Raise' aliases.",
+    "muscle_group": "Shoulders",
+    "equipment": "Dumbbells"
+  },
+  "Front Plate Raise": {
+    "exercise_id": 63,
+    "current_name": "Front Plate Raise",
+    "recommended_display_name": "Weight Plate Front Raise",
+    "formal_name": "Plate Steering Shoulder Raise",
+    "aliases": [
+      "Plate Raise",
+      "Weight Plate Front Raise",
+      "Steering Plate Raise",
+      "Plate Front Raise"
+    ],
+    "kerala_gym_notes": "Called 'Plate Raise'. Hold a 10kg or 20kg disc with both hands and raise forward. Great front delt burn.",
+    "malayalam_script": "പ്ലേറ്റ് ഫ്രണ്ട് റൈസ്",
+    "status": "RENAME",
+    "reason": "Added 'Plate Raise' alias.",
+    "muscle_group": "Shoulders",
+    "equipment": "Plate"
+  },
+  "Cable Front Raise": {
+    "exercise_id": 64,
+    "current_name": "Cable Front Raise",
+    "recommended_display_name": "Cable Front Raise",
+    "formal_name": "Low Cable Shoulder Flexion",
+    "aliases": [
+      "Low Cable Front Raise",
+      "Rope Front Raise",
+      "Straight Bar Front Raise"
+    ],
+    "kerala_gym_notes": "Low pulley cable front raise with rope or straight bar.",
+    "malayalam_script": "കേബിൾ ഫ്രണ്ട് റൈസ്",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Shoulders",
+    "equipment": "Cable"
+  },
+  "Bent-Over Rear Delt Raise": {
+    "exercise_id": 65,
+    "current_name": "Bent-Over Rear Delt Raise",
+    "recommended_display_name": "Bent-Over Dumbbell Rear Delt Fly",
+    "formal_name": "Bent-Over Horizontal Abduction",
+    "aliases": [
+      "Rear Delt Fly",
+      "Bent Over Lateral Raise",
+      "Rear Delts",
+      "Dumbbell Rear Delt Fly",
+      "Rear Delt DB"
+    ],
+    "kerala_gym_notes": "Universally called 'Rear Delt Fly' or 'Bent-Over Lateral'. Crucial for 3D shoulders and posture.",
+    "malayalam_script": "ബെന്റ്-ഓവർ റിയർ ഡെൽറ്റ് റൈസ്",
+    "status": "RENAME",
+    "reason": "Added 'Rear Delt Fly' alias.",
+    "muscle_group": "Shoulders",
+    "equipment": "Dumbbells"
+  },
+  "Seated Rear Delt Raise": {
+    "exercise_id": 66,
+    "current_name": "Seated Rear Delt Raise",
+    "recommended_display_name": "Seated Rear Delt Fly",
+    "formal_name": "Seated Bent-Over Dumbbell Fly",
+    "aliases": [
+      "Seated Rear Delt Fly",
+      "Seated Bent Over Fly",
+      "Seated Rear Delts"
+    ],
+    "kerala_gym_notes": "Seated on end of bench leaning chest over knees. Prevents momentum from legs.",
+    "malayalam_script": "സീറ്റഡ് റിയർ ഡെൽറ്റ് റൈസ്",
+    "status": "RENAME",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Shoulders",
+    "equipment": "Dumbbells"
+  },
+  "Landmine Shoulder Press": {
+    "exercise_id": 67,
+    "current_name": "Landmine Shoulder Press",
+    "recommended_display_name": "Landmine Shoulder Press",
+    "formal_name": "Angled Landmine Overhead Press",
+    "aliases": [
+      "Landmine Press",
+      "One Arm Landmine Shoulder Press",
+      "Corner Barbell Shoulder Press"
+    ],
+    "kerala_gym_notes": "Single-arm natural pressing path friendly on sensitive shoulders.",
+    "malayalam_script": "ലാൻഡ്‌മൈൻ ഷോൾഡർ പ്രസ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Shoulders",
+    "equipment": "Barbell"
+  },
+  "Pike Push-Up": {
+    "exercise_id": 68,
+    "current_name": "Pike Push-Up",
+    "recommended_display_name": "Pike Push-Up",
+    "formal_name": "Inverted V-Push-Up",
+    "aliases": [
+      "Pike Pushups",
+      "V Push-Up",
+      "Shoulder Pushup",
+      "Handstand Progression"
+    ],
+    "kerala_gym_notes": "Bodyweight shoulder builder in an inverted V stance.",
+    "malayalam_script": "പൈക്ക് പുഷ്-അപ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Shoulders",
+    "equipment": "Bodyweight"
+  },
+  "Standing Dumbbell Curl": {
+    "exercise_id": 69,
+    "current_name": "Standing Dumbbell Curl",
+    "recommended_display_name": "Dumbbell Curl",
+    "formal_name": "Standing Supinating Dumbbell Curl",
+    "aliases": [
+      "Dumbbell Curl",
+      "Bicep Curl",
+      "DB Curl",
+      "Standing Bicep Curl",
+      "Dumbbell Biceps Curl"
+    ],
+    "kerala_gym_notes": "The king of arm workouts in Kerala gyms! Called 'Dumbbell Curl' or 'Bicep Curl'. Supinate wrists at top for peak contraction.",
+    "malayalam_script": "ഡംബെൽ ബൈസെപ്സ് കേൾ",
+    "status": "RENAME",
+    "reason": "Added 'Dumbbell Curl' and 'Bicep Curl' aliases.",
+    "muscle_group": "Biceps",
+    "equipment": "Dumbbells"
+  },
+  "Alternating Dumbbell Curl": {
+    "exercise_id": 70,
+    "current_name": "Alternating Dumbbell Curl",
+    "recommended_display_name": "Alternating Dumbbell Curl",
+    "formal_name": "Alternate Arm Bicep Curl",
+    "aliases": [
+      "Alternate DB Curl",
+      "Alternating Curl",
+      "Alternate Bicep Curl",
+      "One Arm Alternate Curl"
+    ],
+    "kerala_gym_notes": "Curling one arm at a time. Allows 100% focus and heavier weights with strict form.",
+    "malayalam_script": "ആൾട്ടർനേറ്റിംഗ് ഡംബെൽ കേൾ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Alternate DB Curl' alias.",
+    "muscle_group": "Biceps",
+    "equipment": "Dumbbells"
+  },
+  "Seated Dumbbell Curl": {
+    "exercise_id": 71,
+    "current_name": "Seated Dumbbell Curl",
+    "recommended_display_name": "Seated Dumbbell Curl",
+    "formal_name": "Strict Seated Bicep Curl",
+    "aliases": [
+      "Seated Bicep Curl",
+      "Seated DB Curl",
+      "Strict Dumbbell Curl"
+    ],
+    "kerala_gym_notes": "Curls done seated on flat bench to eliminate hip swinging and body momentum.",
+    "malayalam_script": "സീറ്റഡ് ഡംബെൽ കേൾ",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Biceps",
+    "equipment": "Dumbbells"
+  },
+  "Incline Dumbbell Curl": {
+    "exercise_id": 72,
+    "current_name": "Incline Dumbbell Curl",
+    "recommended_display_name": "Incline Dumbbell Curl",
+    "formal_name": "Incline Bench Bicep Curl",
+    "aliases": [
+      "Incline Bicep Curl",
+      "Incline DB Curl",
+      "Incline Curl",
+      "Stretched Bicep Curl"
+    ],
+    "kerala_gym_notes": "Very popular in Kerala gyms! Called 'Incline Curl'. Stretches the long head of the biceps for peak height.",
+    "malayalam_script": "ഇൻക്ലൈൻ ഡംബെൽ കേൾ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Incline Bicep Curl' alias.",
+    "muscle_group": "Biceps",
+    "equipment": "Dumbbells"
+  },
+  "Hammer Curl": {
+    "exercise_id": 73,
+    "current_name": "Hammer Curl",
+    "recommended_display_name": "Hammer Curl",
+    "formal_name": "Neutral-Grip Dumbbell Curl",
+    "aliases": [
+      "Hammer Curl",
+      "Hammer Curls",
+      "DB Hammer Curl",
+      "Neutral Grip Curl",
+      "Hammer Grip Bicep Curl"
+    ],
+    "kerala_gym_notes": "Universally known as 'Hammer Curl'. Palms face each other throughout. Builds forearm density and arm thickness.",
+    "malayalam_script": "ഹാമർ കേൾ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Hammer Curls' and 'DB Hammer Curl' aliases.",
+    "muscle_group": "Biceps",
+    "equipment": "Dumbbells"
+  },
+  "Cross-Body Hammer Curl": {
+    "exercise_id": 74,
+    "current_name": "Cross-Body Hammer Curl",
+    "recommended_display_name": "Cross-Body Hammer Curl",
+    "formal_name": "Pinwheel Bicep Curl",
+    "aliases": [
+      "Cross Body Hammer",
+      "Pinwheel Curl",
+      "Cross Chest Curl",
+      "Diagonal Hammer Curl"
+    ],
+    "kerala_gym_notes": "Curling dumbbell diagonally across torso towards opposite chest. Maximizes brachialis activation.",
+    "malayalam_script": "ക്രോസ്-ബോഡി ഹാമർ കേൾ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Pinwheel Curl' alias.",
+    "muscle_group": "Biceps",
+    "equipment": "Dumbbells"
+  },
+  "Concentration Curl": {
+    "exercise_id": 75,
+    "current_name": "Concentration Curl",
+    "recommended_display_name": "Concentration Curl",
+    "formal_name": "Seated Inner Thigh Bicep Curl",
+    "aliases": [
+      "Concentration Curl",
+      "Single Arm Concentration Curl",
+      "Arnold Concentration Curl"
+    ],
+    "kerala_gym_notes": "Classic Arnold peak exercise! Elbow locked against inner thigh. No other muscles can assist.",
+    "malayalam_script": "കോൺസെൻട്രേഷൻ കേൾ",
+    "status": "ADD ALIAS",
+    "reason": "Universal iconic gym name.",
+    "muscle_group": "Biceps",
+    "equipment": "Dumbbells"
+  },
+  "Preacher Curl": {
+    "exercise_id": 76,
+    "current_name": "Preacher Curl",
+    "recommended_display_name": "Preacher Curl",
+    "formal_name": "Scott Bench Barbell Curl",
+    "aliases": [
+      "Preacher Curl",
+      "Scott Curl",
+      "Preacher Bench Curl",
+      "Barbell Preacher Curl",
+      "Preacher"
+    ],
+    "kerala_gym_notes": "Universally called 'Preacher Curl' or 'Scott Curl'. Eliminates all cheating and forces pure bicep recruitment.",
+    "malayalam_script": "പ്രീച്ചർ കേൾ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Scott Curl' and 'Preacher' aliases.",
+    "muscle_group": "Biceps",
+    "equipment": "Barbell"
+  },
+  "EZ-Bar Preacher Curl": {
+    "exercise_id": 77,
+    "current_name": "EZ-Bar Preacher Curl",
+    "recommended_display_name": "EZ-Bar Preacher Curl",
+    "formal_name": "Angled Bar Preacher Curl",
+    "aliases": [
+      "EZ Bar Preacher",
+      "Zigzag Preacher Curl",
+      "EZ Preacher Curl",
+      "Curved Bar Preacher"
+    ],
+    "kerala_gym_notes": "Preacher curl with EZ zigzag bar. Highly recommended to relieve wrist and forearm tendon strain.",
+    "malayalam_script": "EZ-ബാർ പ്രീച്ചർ കേൾ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Zigzag Preacher Curl' alias.",
+    "muscle_group": "Biceps",
+    "equipment": "Barbell"
+  },
+  "Standing EZ-Bar Curl": {
+    "exercise_id": 78,
+    "current_name": "Standing EZ-Bar Curl",
+    "recommended_display_name": "Standing EZ-Bar Curl",
+    "formal_name": "Standing Cambered Bar Curl",
+    "aliases": [
+      "EZ Bar Curl",
+      "Zigzag Bar Curl",
+      "EZ Bicep Curl",
+      "Curved Bar Curl"
+    ],
+    "kerala_gym_notes": "Commonly called 'EZ Bar Curl' or 'Zigzag Bar Curl'. Much friendlier on wrists than straight barbell.",
+    "malayalam_script": "EZ-ബാർ കേൾ (സിഗ്സാഗ് ബാർ)",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Zigzag Bar Curl' alias.",
+    "muscle_group": "Biceps",
+    "equipment": "Barbell"
+  },
+  "Straight-Bar Curl": {
+    "exercise_id": 79,
+    "current_name": "Straight-Bar Curl",
+    "recommended_display_name": "Barbell Curl",
+    "formal_name": "Standing Olympic Barbell Curl",
+    "aliases": [
+      "Barbell Curl",
+      "BB Curl",
+      "Olympic Barbell Curl",
+      "Straight Bar Curl",
+      "Standing Barbell Curl"
+    ],
+    "kerala_gym_notes": "Every gym lifter calls this 'Barbell Curl' or 'BB Curl'. Heavy builder for overall bicep mass.",
+    "malayalam_script": "ബാർബെൽ കേൾ",
+    "status": "RENAME",
+    "reason": "Added 'Barbell Curl' and 'BB Curl' aliases.",
+    "muscle_group": "Biceps",
+    "equipment": "Barbell"
+  },
+  "Close-Grip Barbell Curl": {
+    "exercise_id": 80,
+    "current_name": "Close-Grip Barbell Curl",
+    "recommended_display_name": "Close-Grip Barbell Curl",
+    "formal_name": "Narrow Grip Barbell Curl",
+    "aliases": [
+      "Narrow Grip Barbell Curl",
+      "Inner Head Curl",
+      "Close Grip Bicep Curl"
+    ],
+    "kerala_gym_notes": "Hands spaced narrow inside shoulder width. Shifts focus to the outer (long) head for bicep peak.",
+    "malayalam_script": "ക്ലോസ്-ഗ്രിപ്പ് ബാർബെൽ കേൾ",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Biceps",
+    "equipment": "Barbell"
+  },
+  "Wide-Grip Barbell Curl": {
+    "exercise_id": 81,
+    "current_name": "Wide-Grip Barbell Curl",
+    "recommended_display_name": "Wide-Grip Barbell Curl",
+    "formal_name": "Wide Grip Barbell Curl",
+    "aliases": [
+      "Wide Grip Bicep Curl",
+      "Outer Head Curl",
+      "Wide Stance Barbell Curl"
+    ],
+    "kerala_gym_notes": "Hands spaced wide outside shoulders. Focuses on the inner (short) head of the biceps.",
+    "malayalam_script": "വൈഡ്-ഗ്രിപ്പ് ബാർബെൽ കേൾ",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Biceps",
+    "equipment": "Barbell"
+  },
+  "Cable Biceps Curl": {
+    "exercise_id": 82,
+    "current_name": "Cable Biceps Curl",
+    "recommended_display_name": "Cable Curl",
+    "formal_name": "Low Pulley Cable Curl",
+    "aliases": [
+      "Cable Curl",
+      "Low Pulley Curl",
+      "Cable Bicep Curl",
+      "Standing Cable Bicep Curl"
+    ],
+    "kerala_gym_notes": "Called 'Cable Curl'. Constant tension throughout entire arc of elbow flexion.",
+    "malayalam_script": "കേബിൾ ബൈസെപ്സ് കേൾ",
+    "status": "RENAME",
+    "reason": "Added 'Cable Curl' alias.",
+    "muscle_group": "Biceps",
+    "equipment": "Cable"
+  },
+  "Low Cable Curl": {
+    "exercise_id": 83,
+    "current_name": "Low Cable Curl",
+    "recommended_display_name": "Single-Arm Low Cable Curl",
+    "formal_name": "Unilateral Low Cable Curl",
+    "aliases": [
+      "Low Cable Bicep Curl",
+      "Pulley Curl",
+      "One Arm Cable Curl"
+    ],
+    "kerala_gym_notes": "Single arm low pulley curl for balancing arm symmetry.",
+    "malayalam_script": "ലോ കേബിൾ കേൾ",
+    "status": "RENAME",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Biceps",
+    "equipment": "Cable"
+  },
+  "High Cable Curl": {
+    "exercise_id": 84,
+    "current_name": "High Cable Curl",
+    "recommended_display_name": "High Cable Curl (Hercules Curl)",
+    "formal_name": "Dual Overhead Cable Bicep Curl",
+    "aliases": [
+      "Hercules Curl",
+      "Double Cable Bicep Curl",
+      "High Pulley Curl",
+      "Front Double Bicep Curl"
+    ],
+    "kerala_gym_notes": "Known as 'Hercules Curl'. Stand in middle of cable crossover and curl handles to ears in double bicep pose.",
+    "malayalam_script": "ഹൈ കേബിൾ കേൾ (ഹെർക്കുലീസ് കേൾ)",
+    "status": "RENAME",
+    "reason": "Added iconic name 'Hercules Curl' alias.",
+    "muscle_group": "Biceps",
+    "equipment": "Cable"
+  },
+  "Bayesian Cable Curl": {
+    "exercise_id": 85,
+    "current_name": "Bayesian Cable Curl",
+    "recommended_display_name": "Behind-the-Body Cable Curl",
+    "formal_name": "Facing-Away Low Cable Curl",
+    "aliases": [
+      "Behind the Back Cable Curl",
+      "Facing Away Cable Curl",
+      "Stretched Cable Curl",
+      "Bayesian Curl"
+    ],
+    "kerala_gym_notes": "Facing away from low pulley with arm behind torso. Keeps extreme stretch on the bicep long head.",
+    "malayalam_script": "ബിഹൈൻഡ്-ദി-ബോഡി കേബിൾ കേൾ",
+    "status": "RENAME",
+    "reason": "Added descriptive English aliases.",
+    "muscle_group": "Biceps",
+    "equipment": "Cable"
+  },
+  "Rope Hammer Curl": {
+    "exercise_id": 86,
+    "current_name": "Rope Hammer Curl",
+    "recommended_display_name": "Cable Rope Hammer Curl",
+    "formal_name": "Low Cable Rope Hammer Curl",
+    "aliases": [
+      "Cable Rope Hammer",
+      "Rope Bicep Curl",
+      "Cable Hammer Curl",
+      "Rope Curls"
+    ],
+    "kerala_gym_notes": "Low cable curl using rope attachment. Spreads arms out at top for intense brachialis pump.",
+    "malayalam_script": "റോപ്പ് ഹാമർ കേൾ",
+    "status": "RENAME",
+    "reason": "Added 'Cable Rope Hammer' alias.",
+    "muscle_group": "Biceps",
+    "equipment": "Cable"
+  },
+  "Machine Biceps Curl": {
+    "exercise_id": 87,
+    "current_name": "Machine Biceps Curl",
+    "recommended_display_name": "Machine Curl",
+    "formal_name": "Lever Seated Bicep Machine",
+    "aliases": [
+      "Machine Curl",
+      "Bicep Machine",
+      "Machine Preacher Curl",
+      "Lever Bicep Curl",
+      "Seated Arm Curl Machine"
+    ],
+    "kerala_gym_notes": "Called 'Bicep Machine'. Great for beginners to learn strict elbow flexion without joint stress.",
+    "malayalam_script": "മെഷീൻ ബൈസെപ്സ് കേൾ",
+    "status": "RENAME",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Biceps",
+    "equipment": "Machine"
+  },
+  "Spider Curl": {
+    "exercise_id": 88,
+    "current_name": "Spider Curl",
+    "recommended_display_name": "Spider Curl",
+    "formal_name": "Vertical Preacher Bench Curl",
+    "aliases": [
+      "Spider Curl",
+      "Prone Preacher Curl",
+      "Spider Bicep Curl"
+    ],
+    "kerala_gym_notes": "Chest resting on vertical side of preacher bench with arms hanging down. Eliminates shoulder involvement.",
+    "malayalam_script": "സ്പൈഡർ കേൾ",
+    "status": "ADD ALIAS",
+    "reason": "Universal gym term.",
+    "muscle_group": "Biceps",
+    "equipment": "Barbell"
+  },
+  "Reverse Curl": {
+    "exercise_id": 89,
+    "current_name": "Reverse Curl",
+    "recommended_display_name": "Reverse Barbell Curl",
+    "formal_name": "Pronated Grip Forearm Curl",
+    "aliases": [
+      "Reverse Barbell Curl",
+      "Overhand Curl",
+      "Pronated Curl",
+      "Forearm Bicep Curl"
+    ],
+    "kerala_gym_notes": "Overhand grip curl. Trains brachioradialis forearm muscle and grip simultaneously.",
+    "malayalam_script": "റിവേഴ്സ് ബാർബെൽ കേൾ",
+    "status": "RENAME",
+    "reason": "Added 'Reverse Barbell Curl' and 'Overhand Curl' aliases.",
+    "muscle_group": "Biceps",
+    "equipment": "Barbell"
+  },
+  "Drag Curl": {
+    "exercise_id": 90,
+    "current_name": "Drag Curl",
+    "recommended_display_name": "Barbell Drag Curl",
+    "formal_name": "Elbow-Retracted Barbell Curl",
+    "aliases": [
+      "Barbell Drag Curl",
+      "Body Drag Curl",
+      "Strict Drag Curl"
+    ],
+    "kerala_gym_notes": "Pull elbows straight back so bar drags up touching your shirt. Zero front shoulder assistance.",
+    "malayalam_script": "ഡ്രാഗ് കേൾ",
+    "status": "RENAME",
+    "reason": "Universal gym term.",
+    "muscle_group": "Biceps",
+    "equipment": "Barbell"
+  },
+  "Cable Triceps Pushdown": {
+    "exercise_id": 91,
+    "current_name": "Cable Triceps Pushdown",
+    "recommended_display_name": "Triceps Pushdown",
+    "formal_name": "Standing Cable Triceps Extension",
+    "aliases": [
+      "Triceps Pushdown",
+      "Pushdown",
+      "Cable Pushdown",
+      "Straight Bar Pushdown",
+      "Tricep Pressdown"
+    ],
+    "kerala_gym_notes": "The #1 tricep exercise in every Kerala gym! Simply called 'Pushdown' or 'Triceps Pushdown'. Lock elbows at sides.",
+    "malayalam_script": "ട്രൈസെപ്സ് പുഷ്ഡൗൺ",
+    "status": "RENAME",
+    "reason": "Added 'Pushdown' and 'Triceps Pushdown' aliases.",
+    "muscle_group": "Triceps",
+    "equipment": "Cable"
+  },
+  "Rope Triceps Pushdown": {
+    "exercise_id": 92,
+    "current_name": "Rope Triceps Pushdown",
+    "recommended_display_name": "Rope Triceps Pushdown",
+    "formal_name": "Cable Rope Triceps Extension",
+    "aliases": [
+      "Rope Pushdown",
+      "Tricep Rope",
+      "Cable Rope Pushdown",
+      "Rope Pressdown",
+      "Rope Push Down"
+    ],
+    "kerala_gym_notes": "Commonly called 'Rope Pushdown' or 'Tricep Rope'. Flare the ends of the rope outwards at the bottom.",
+    "malayalam_script": "റോപ്പ് ട്രൈസെപ്സ് പുഷ്ഡൗൺ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Rope Pushdown' and 'Tricep Rope' aliases.",
+    "muscle_group": "Triceps",
+    "equipment": "Cable"
+  },
+  "Straight-Bar Pushdown": {
+    "exercise_id": 93,
+    "current_name": "Straight-Bar Pushdown",
+    "recommended_display_name": "Straight-Bar Pushdown",
+    "formal_name": "Rigid Bar Triceps Pushdown",
+    "aliases": [
+      "Bar Pushdown",
+      "Short Bar Triceps Pushdown",
+      "Straight Bar Pressdown"
+    ],
+    "kerala_gym_notes": "Pushdown with short straight bar. Allows heavier pressing load on lateral tricep head.",
+    "malayalam_script": "സ്ട്രെയിറ്റ്-ബാർ പുഷ്ഡൗൺ",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Triceps",
+    "equipment": "Cable"
+  },
+  "Reverse-Grip Pushdown": {
+    "exercise_id": 94,
+    "current_name": "Reverse-Grip Pushdown",
+    "recommended_display_name": "Reverse-Grip Pushdown",
+    "formal_name": "Underhand Cable Triceps Pushdown",
+    "aliases": [
+      "Reverse Pushdown",
+      "Underhand Triceps Pushdown",
+      "Underhand Pushdown"
+    ],
+    "kerala_gym_notes": "Underhand palms-up grip. Targets the medial head of the triceps near the elbow.",
+    "malayalam_script": "റിവേഴ്സ്-ഗ്രിപ്പ് പുഷ്ഡൗൺ",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Triceps",
+    "equipment": "Cable"
+  },
+  "Overhead Cable Triceps Extension": {
+    "exercise_id": 95,
+    "current_name": "Overhead Cable Triceps Extension",
+    "recommended_display_name": "Overhead Cable Triceps Extension",
+    "formal_name": "High Cable Triceps Extension",
+    "aliases": [
+      "Overhead Cable Extension",
+      "Cable Overhead Extension",
+      "Cable French Press",
+      "Cable Overhead Triceps"
+    ],
+    "kerala_gym_notes": "Facing away from high pulley extending cable forward and overhead. Targets the long head.",
+    "malayalam_script": "ഓവർഹെഡ് കേബിൾ ട്രൈസെപ്സ് എക്സ്റ്റൻഷൻ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Cable French Press' alias.",
+    "muscle_group": "Triceps",
+    "equipment": "Cable"
+  },
+  "Rope Overhead Extension": {
+    "exercise_id": 96,
+    "current_name": "Rope Overhead Extension",
+    "recommended_display_name": "Rope Overhead Extension",
+    "formal_name": "High Cable Rope Overhead Extension",
+    "aliases": [
+      "Rope Overhead Extension",
+      "Overhead Rope Triceps",
+      "Cable Rope Overhead",
+      "Rope Overhead Tricep"
+    ],
+    "kerala_gym_notes": "Overhead extension using rope attachment. Spreads rope apart at full lockout.",
+    "malayalam_script": "റോപ്പ് ഓവർഹെഡ് എക്സ്റ്റൻഷൻ",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Triceps",
+    "equipment": "Cable"
+  },
+  "Single-Arm Cable Extension": {
+    "exercise_id": 97,
+    "current_name": "Single-Arm Cable Extension",
+    "recommended_display_name": "Single-Arm Cable Extension",
+    "formal_name": "Unilateral Cable Pushdown",
+    "aliases": [
+      "One Arm Cable Extension",
+      "Single Arm Pushdown",
+      "One Arm Tricep Cable"
+    ],
+    "kerala_gym_notes": "Single arm cable extension with D-handle for evening out tricep strength discrepancies.",
+    "malayalam_script": "സിംഗിൾ-ആം കേബിൾ എക്സ്റ്റൻഷൻ",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Triceps",
+    "equipment": "Cable"
+  },
+  "Dumbbell Overhead Triceps Extension": {
+    "exercise_id": 98,
+    "current_name": "Dumbbell Overhead Triceps Extension",
+    "recommended_display_name": "Dumbbell Overhead Triceps Extension",
+    "formal_name": "Two-Arm Overhead Dumbbell Extension",
+    "aliases": [
+      "Overhead DB Extension",
+      "Dumbbell French Press",
+      "Seated DB Overhead Extension",
+      "DB Overhead Triceps"
+    ],
+    "kerala_gym_notes": "Commonly called 'Overhead DB Extension' or 'Dumbbell French Press'. Hold dumbbell vertically behind head.",
+    "malayalam_script": "ഡംബെൽ ഓവർഹെഡ് ട്രൈസെപ്സ് എക്സ്റ്റൻഷൻ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Overhead DB Extension' and 'French Press' aliases.",
+    "muscle_group": "Triceps",
+    "equipment": "Dumbbells"
+  },
+  "Seated Dumbbell Triceps Extension": {
+    "exercise_id": 99,
+    "current_name": "Seated Dumbbell Triceps Extension",
+    "recommended_display_name": "Seated Dumbbell Triceps Extension",
+    "formal_name": "Seated Single-Arm DB Extension",
+    "aliases": [
+      "Seated Overhead DB Extension",
+      "One Arm Overhead Triceps",
+      "Single Arm DB Overhead"
+    ],
+    "kerala_gym_notes": "Seated overhead extension holding one dumbbell per arm or two-handed on upright bench.",
+    "malayalam_script": "സീറ്റഡ് ഡംബെൽ ട്രൈസെപ്സ് എക്സ്റ്റൻഷൻ",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Triceps",
+    "equipment": "Dumbbells"
+  },
+  "Lying EZ-Bar Triceps Extension": {
+    "exercise_id": 100,
+    "current_name": "Lying EZ-Bar Triceps Extension",
+    "recommended_display_name": "Lying EZ-Bar Triceps Extension",
+    "formal_name": "Supine EZ-Bar Triceps Extension",
+    "aliases": [
+      "Skull Crusher",
+      "Lying Triceps Extension",
+      "EZ Bar French Press",
+      "Lying Skullcrusher",
+      "French Press Lying"
+    ],
+    "kerala_gym_notes": "Often called 'Lying Triceps Extension' or 'French Press'. Keep elbows tucked and lower bar towards forehead.",
+    "malayalam_script": "ലൈയിംഗ് EZ-ബാർ ട്രൈസെപ്സ് എക്സ്റ്റൻഷൻ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Lying Triceps Extension' alias.",
+    "muscle_group": "Triceps",
+    "equipment": "Barbell"
+  },
+  "Skull Crusher": {
+    "exercise_id": 101,
+    "current_name": "Skull Crusher",
+    "recommended_display_name": "Skull Crusher",
+    "formal_name": "Lying Barbell Triceps Extension to Forehead",
+    "aliases": [
+      "Skullcrusher",
+      "Skull Crushers",
+      "EZ Bar Skull Crusher",
+      "Lying Barbell Triceps Extension",
+      "Skull Crush"
+    ],
+    "kerala_gym_notes": "The legendary mass builder! Universally known as 'Skull Crusher' in every gym across Kerala.",
+    "malayalam_script": "സ്കൾ ക്രഷർ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Skullcrusher' alias.",
+    "muscle_group": "Triceps",
+    "equipment": "Barbell"
+  },
+  "Close-Grip Bench Press": {
+    "exercise_id": 102,
+    "current_name": "Close-Grip Bench Press",
+    "recommended_display_name": "Close-Grip Bench Press",
+    "formal_name": "Narrow-Grip Barbell Bench Press",
+    "aliases": [
+      "Close Grip Bench",
+      "CGBP",
+      "Narrow Bench Press",
+      "Triceps Bench Press",
+      "Close Grip BB Press"
+    ],
+    "kerala_gym_notes": "Bench press with hands placed shoulder-width apart. Massive compound exercise for triceps power.",
+    "malayalam_script": "ക്ലോസ്-ഗ്രിപ്പ് ബെഞ്ച് പ്രസ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Close Grip Bench' and 'CGBP' aliases.",
+    "muscle_group": "Triceps",
+    "equipment": "Barbell"
+  },
+  "Assisted Triceps Dip": {
+    "exercise_id": 103,
+    "current_name": "Assisted Triceps Dip",
+    "recommended_display_name": "Assisted Triceps Dip",
+    "formal_name": "Counterbalanced Triceps Dip",
+    "aliases": [
+      "Machine Assisted Tricep Dip",
+      "Assisted Parallel Dip",
+      "Assisted Dips Tricep"
+    ],
+    "kerala_gym_notes": "Parallel dips with counterweight assistance, keeping torso completely upright to target triceps.",
+    "malayalam_script": "അസിസ്റ്റഡ് ട്രൈസെപ്സ് ഡിപ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Triceps",
+    "equipment": "Machine"
+  },
+  "Bench Dip": {
+    "exercise_id": 104,
+    "current_name": "Bench Dip",
+    "recommended_display_name": "Bench Dip",
+    "formal_name": "Bodyweight Bench Triceps Dip",
+    "aliases": [
+      "Bench Dips",
+      "Tricep Bench Dip",
+      "Chair Dip",
+      "Bench Dips Bodyweight"
+    ],
+    "kerala_gym_notes": "Commonly called 'Bench Dips'. Hands on edge of bench behind back. Easy to perform anywhere in the gym.",
+    "malayalam_script": "ബെഞ്ച് ഡിപ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Bench Dips' alias.",
+    "muscle_group": "Triceps",
+    "equipment": "Bodyweight"
+  },
+  "Dumbbell Kickback": {
+    "exercise_id": 105,
+    "current_name": "Dumbbell Kickback",
+    "recommended_display_name": "Dumbbell Triceps Kickback",
+    "formal_name": "Bent-Over Dumbbell Triceps Extension",
+    "aliases": [
+      "Tricep Kickback",
+      "DB Kickback",
+      "Kickbacks",
+      "Dumbbell Triceps Kickback",
+      "DB Kickbacks"
+    ],
+    "kerala_gym_notes": "Called 'Tricep Kickback' or 'DB Kickback'. Keep upper arm parallel to floor and extend forearm backward.",
+    "malayalam_script": "ഡംബെൽ കിക്ക്ബാക്ക്",
+    "status": "RENAME",
+    "reason": "Added 'Tricep Kickback' and 'DB Kickback' aliases.",
+    "muscle_group": "Triceps",
+    "equipment": "Dumbbells"
+  },
+  "Cable Kickback": {
+    "exercise_id": 106,
+    "current_name": "Cable Kickback",
+    "recommended_display_name": "Cable Triceps Kickback",
+    "formal_name": "Low Cable Bent-Over Kickback",
+    "aliases": [
+      "Cable Triceps Kickback",
+      "Low Pulley Kickback",
+      "Cable Kickbacks"
+    ],
+    "kerala_gym_notes": "Tricep kickback using cable for constant tension throughout the peak squeeze.",
+    "malayalam_script": "കേബിൾ കിക്ക്ബാക്ക്",
+    "status": "RENAME",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Triceps",
+    "equipment": "Cable"
+  },
+  "Cross-Body Cable Triceps Extension": {
+    "exercise_id": 107,
+    "current_name": "Cross-Body Cable Triceps Extension",
+    "recommended_display_name": "Cross-Body Cable Triceps Extension",
+    "formal_name": "Dual High Cable Cross Extension",
+    "aliases": [
+      "Cross Cable Triceps",
+      "Dual Cable Kickback",
+      "Crossbody Tricep Extension"
+    ],
+    "kerala_gym_notes": "Cables crossed in front of body. Flawless alignment with the long and lateral heads.",
+    "malayalam_script": "ക്രോസ്-ബോഡി കേബിൾ ട്രൈസെപ്സ് എക്സ്റ്റൻഷൻ",
+    "status": "ADD ALIAS",
+    "reason": "Modern gym terminology.",
+    "muscle_group": "Triceps",
+    "equipment": "Cable"
+  },
+  "Machine Triceps Extension": {
+    "exercise_id": 108,
+    "current_name": "Machine Triceps Extension",
+    "recommended_display_name": "Machine Triceps Extension",
+    "formal_name": "Seated Lever Triceps Machine",
+    "aliases": [
+      "Tricep Machine",
+      "Seated Dip Machine",
+      "Lever Triceps Extension",
+      "Machine Tricep Pushdown"
+    ],
+    "kerala_gym_notes": "Called 'Tricep Machine' or 'Seated Dip Machine'. Great for isolating triceps without wrist strain.",
+    "malayalam_script": "മെഷീൻ ട്രൈസെപ്സ് എക്സ്റ്റൻഷൻ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Tricep Machine' alias.",
+    "muscle_group": "Triceps",
+    "equipment": "Machine"
+  },
+  "Diamond Push-Up": {
+    "exercise_id": 109,
+    "current_name": "Diamond Push-Up",
+    "recommended_display_name": "Diamond Push-Up",
+    "formal_name": "Triangle Hand Push-Up",
+    "aliases": [
+      "Diamond Pushups",
+      "Diamond Push-Ups",
+      "Triangle Pushup",
+      "Close Hand Pushup"
+    ],
+    "kerala_gym_notes": "Push-up with thumbs and index fingers touching in diamond shape. Intense bodyweight tricep challenge.",
+    "malayalam_script": "ഡയമണ്ട് പുഷ്-അപ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Diamond Pushups' alias.",
+    "muscle_group": "Triceps",
+    "equipment": "Bodyweight"
+  },
+  "Wrist Curl": {
+    "exercise_id": 110,
+    "current_name": "Wrist Curl",
+    "recommended_display_name": "Barbell Wrist Curl",
+    "formal_name": "Seated Barbell Wrist Flexion",
+    "aliases": [
+      "Wrist Curls",
+      "Palms Up Wrist Curl",
+      "Barbell Forearm Curl",
+      "Forearm Wrist Curl"
+    ],
+    "kerala_gym_notes": "Universally called 'Wrist Curls'. Forearms rested flat on bench, curling wrists upward to build inner forearm.",
+    "malayalam_script": "റിസ്റ്റ് കേൾ",
+    "status": "RENAME",
+    "reason": "Added 'Wrist Curls' and 'Barbell Forearm Curl' aliases.",
+    "muscle_group": "Forearms",
+    "equipment": "Barbell"
+  },
+  "Reverse Wrist Curl": {
+    "exercise_id": 111,
+    "current_name": "Reverse Wrist Curl",
+    "recommended_display_name": "Reverse Wrist Curl",
+    "formal_name": "Seated Barbell Wrist Extension",
+    "aliases": [
+      "Reverse Wrist Curls",
+      "Overhand Wrist Curl",
+      "Extensor Wrist Curl",
+      "Palms Down Wrist Curl"
+    ],
+    "kerala_gym_notes": "Palms facing downward, curling wrists upward to build outer forearm extensors.",
+    "malayalam_script": "റിവേഴ്സ് റിസ്റ്റ് കേൾ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Reverse Wrist Curls' alias.",
+    "muscle_group": "Forearms",
+    "equipment": "Barbell"
+  },
+  "Barbell Wrist Curl": {
+    "exercise_id": 112,
+    "current_name": "Barbell Wrist Curl",
+    "recommended_display_name": "Behind-the-Back Barbell Wrist Curl",
+    "formal_name": "Standing Behind-the-Back Wrist Curl",
+    "aliases": [
+      "Behind the Back Wrist Curl",
+      "Barbell Forearm Curl",
+      "Standing Wrist Curl"
+    ],
+    "kerala_gym_notes": "Barbell held behind back while standing, curling wrists up. Excellent for heavy forearm overload.",
+    "malayalam_script": "ബാർബെൽ റിസ്റ്റ് കേൾ",
+    "status": "RENAME",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Forearms",
+    "equipment": "Barbell"
+  },
+  "Dumbbell Wrist Curl": {
+    "exercise_id": 113,
+    "current_name": "Dumbbell Wrist Curl",
+    "recommended_display_name": "Dumbbell Wrist Curl",
+    "formal_name": "Seated Dumbbell Wrist Flexion",
+    "aliases": [
+      "DB Wrist Curl",
+      "Dumbbell Forearm Curl",
+      "Single Arm Wrist Curl"
+    ],
+    "kerala_gym_notes": "Called 'DB Wrist Curl'. Allows each wrist to flex independently through full range.",
+    "malayalam_script": "ഡംബെൽ റിസ്റ്റ് കേൾ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'DB Wrist Curl' alias.",
+    "muscle_group": "Forearms",
+    "equipment": "Dumbbells"
+  },
+  "Farmer's Carry": {
+    "exercise_id": 114,
+    "current_name": "Farmer's Carry",
+    "recommended_display_name": "Farmer's Walk",
+    "formal_name": "Loaded Heavy Dumbbell Carry",
+    "aliases": [
+      "Farmer's Walk",
+      "Farmers Walk",
+      "Heavy Dumbbell Walk",
+      "Grip Carry",
+      "Farmers Carry"
+    ],
+    "kerala_gym_notes": "Widely called 'Farmer's Walk'. Pick up heavy dumbbells and walk with upright posture. Incredible grip builder.",
+    "malayalam_script": "ഫാർമേഴ്സ് വാക്ക്",
+    "status": "RENAME",
+    "reason": "Added 'Farmer's Walk' alias.",
+    "muscle_group": "Forearms",
+    "equipment": "Dumbbells"
+  },
+  "Dead Hang": {
+    "exercise_id": 115,
+    "current_name": "Dead Hang",
+    "recommended_display_name": "Dead Hang",
+    "formal_name": "Passive Pull-Up Bar Hang",
+    "aliases": [
+      "Dead Hang",
+      "Bar Hang",
+      "Pullup Bar Hang",
+      "Grip Hang",
+      "Spine Decompression Hang"
+    ],
+    "kerala_gym_notes": "Hanging passively from pull-up bar. Builds crushing grip endurance and decompresses spine.",
+    "malayalam_script": "ഡെഡ് ഹാംഗ്",
+    "status": "ADD ALIAS",
+    "reason": "Universal gym term.",
+    "muscle_group": "Forearms",
+    "equipment": "Bodyweight"
+  },
+  "Plate Pinch Hold": {
+    "exercise_id": 116,
+    "current_name": "Plate Pinch Hold",
+    "recommended_display_name": "Plate Pinch Hold",
+    "formal_name": "Weight Plate Pinch Grip",
+    "aliases": [
+      "Plate Pinch",
+      "Pinch Grip Hold",
+      "Weight Plate Pinch",
+      "Finger Pinch Hold"
+    ],
+    "kerala_gym_notes": "Pinching two smooth weight plates together between thumb and fingers. Tremendous thumb and finger power.",
+    "malayalam_script": "പ്ലേറ്റ് പിഞ്ച് ഹോൾഡ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Plate Pinch' alias.",
+    "muscle_group": "Forearms",
+    "equipment": "Plate"
+  },
+  "Wrist Roller": {
+    "exercise_id": 117,
+    "current_name": "Wrist Roller",
+    "recommended_display_name": "Wrist Roller",
+    "formal_name": "Forearm Roller Device",
+    "aliases": [
+      "Wrist Roller",
+      "Forearm Roller",
+      "Rope Wrist Roller",
+      "Wrist Roll"
+    ],
+    "kerala_gym_notes": "Rolling a weight plate up and down using a rope on a stick. Unmatched forearm pump.",
+    "malayalam_script": "റിസ്റ്റ് റോളർ",
+    "status": "ADD ALIAS",
+    "reason": "Universal gym device term.",
+    "muscle_group": "Forearms",
+    "equipment": "Specialty"
+  },
+  "Cable Wrist Curl": {
+    "exercise_id": 118,
+    "current_name": "Cable Wrist Curl",
+    "recommended_display_name": "Cable Wrist Curl",
+    "formal_name": "Low Pulley Forearm Flexion",
+    "aliases": [
+      "Cable Forearm Curl",
+      "Low Cable Wrist Curl",
+      "Cable Wrist Curls"
+    ],
+    "kerala_gym_notes": "Wrist curls using low cable pulley for constant tension at the stretch.",
+    "malayalam_script": "കേബിൾ റിസ്റ്റ് കേൾ",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Forearms",
+    "equipment": "Cable"
+  },
+  "Barbell Back Squat": {
+    "exercise_id": 119,
+    "current_name": "Barbell Back Squat",
+    "recommended_display_name": "Barbell Back Squat",
+    "formal_name": "Back Squat",
+    "aliases": [
+      "Squats",
+      "Back Squat",
+      "Barbell Squat",
+      "BB Squat",
+      "Full Squat",
+      "Thighs Workout",
+      "Normal Squat"
+    ],
+    "kerala_gym_notes": "The king of leg exercises! In Kerala gyms: 'Squats' or 'Barbell Squat'. Keep chest up and squat below parallel.",
+    "malayalam_script": "ബാർബെൽ ബാക്ക് സ്ക്വാറ്റ് (സ്ക്വാറ്റ്സ്)",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Squats', 'Barbell Squat', and 'BB Squat' aliases.",
+    "muscle_group": "Quadriceps",
+    "equipment": "Barbell"
+  },
+  "Front Squat": {
+    "exercise_id": 120,
+    "current_name": "Front Squat",
+    "recommended_display_name": "Front Squat",
+    "formal_name": "Barbell Anterior Squat",
+    "aliases": [
+      "Front Squat",
+      "Barbell Front Squat",
+      "Olympic Front Squat",
+      "Front Squats"
+    ],
+    "kerala_gym_notes": "Barbell rested across front shoulders. Forces upright posture and targets front quads intensely.",
+    "malayalam_script": "ഫ്രണ്ട് സ്ക്വാറ്റ്",
+    "status": "ADD ALIAS",
+    "reason": "Universal strength term.",
+    "muscle_group": "Quadriceps",
+    "equipment": "Barbell"
+  },
+  "Goblet Squat": {
+    "exercise_id": 121,
+    "current_name": "Goblet Squat",
+    "recommended_display_name": "Goblet Squat",
+    "formal_name": "Kettlebell/Dumbbell Goblet Squat",
+    "aliases": [
+      "Goblet Squat",
+      "DB Goblet Squat",
+      "Kettlebell Goblet Squat",
+      "Dumbbell Squat Chest"
+    ],
+    "kerala_gym_notes": "Holding a dumbbell vertically at chest. The best squat variation for beginners to master deep squat depth.",
+    "malayalam_script": "ഗോബ്ലറ്റ് സ്ക്വാറ്റ്",
+    "status": "ADD ALIAS",
+    "reason": "Universal gym term.",
+    "muscle_group": "Quadriceps",
+    "equipment": "Dumbbells"
+  },
+  "Smith Machine Squat": {
+    "exercise_id": 122,
+    "current_name": "Smith Machine Squat",
+    "recommended_display_name": "Smith Machine Squat",
+    "formal_name": "Guided Barbell Squat",
+    "aliases": [
+      "Smith Squat",
+      "Smith Machine Squats",
+      "Guided Squat"
+    ],
+    "kerala_gym_notes": "Called 'Smith Squat'. Feet can be placed slightly forward to shift 100% of the load into quads.",
+    "malayalam_script": "സ്മിത്ത് മെഷീൻ സ്ക്വാറ്റ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Smith Squat' alias.",
+    "muscle_group": "Quadriceps",
+    "equipment": "Machine"
+  },
+  "Hack Squat": {
+    "exercise_id": 123,
+    "current_name": "Hack Squat",
+    "recommended_display_name": "Hack Squat Machine",
+    "formal_name": "45-Degree Incline Hack Squat",
+    "aliases": [
+      "Hack Squat",
+      "Hack Machine",
+      "Sled Hack Squat",
+      "Hack Squats"
+    ],
+    "kerala_gym_notes": "Universally called 'Hack Squat'. Fixed back support allows deep knee flexion without lower back strain.",
+    "malayalam_script": "ഹാക്ക് സ്ക്വാറ്റ്",
+    "status": "RENAME",
+    "reason": "Universal gym term.",
+    "muscle_group": "Quadriceps",
+    "equipment": "Machine"
+  },
+  "Leg Press": {
+    "exercise_id": 124,
+    "current_name": "Leg Press",
+    "recommended_display_name": "Leg Press (45-Degree)",
+    "formal_name": "Sled Incline Leg Press",
+    "aliases": [
+      "Leg Press",
+      "45 Degree Leg Press",
+      "Incline Leg Press",
+      "Foot Press Machine",
+      "Leg Press Machine"
+    ],
+    "kerala_gym_notes": "A staple machine in every Kerala gym! 'Leg Press'. Never lock knees out completely at top of movement.",
+    "malayalam_script": "ലെഗ് പ്രസ്സ്",
+    "status": "RENAME",
+    "reason": "Added '45 Degree Leg Press' alias.",
+    "muscle_group": "Quadriceps",
+    "equipment": "Machine"
+  },
+  "Bulgarian Split Squat": {
+    "exercise_id": 125,
+    "current_name": "Bulgarian Split Squat",
+    "recommended_display_name": "Bulgarian Split Squat",
+    "formal_name": "Rear-Foot-Elevated Split Squat",
+    "aliases": [
+      "Bulgarian Split Squat",
+      "Bulgarian Squat",
+      "Rear Foot Elevated Split Squat",
+      "BSS",
+      "Single Leg Squat"
+    ],
+    "kerala_gym_notes": "Commonly called 'Bulgarian Squat' or 'BSS'. Elevate back foot on bench. Supreme unilateral quad builder.",
+    "malayalam_script": "ബൾഗേറിയൻ സ്പ്ലിറ്റ് സ്ക്വാറ്റ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Bulgarian Squat' and 'BSS' aliases.",
+    "muscle_group": "Quadriceps",
+    "equipment": "Dumbbells"
+  },
+  "Walking Lunge": {
+    "exercise_id": 126,
+    "current_name": "Walking Lunge",
+    "recommended_display_name": "Walking Dumbbell Lunge",
+    "formal_name": "Locomotive Dumbbell Lunge",
+    "aliases": [
+      "Walking Lunges",
+      "DB Walking Lunges",
+      "Dumbbell Lunges",
+      "Walking Lunge"
+    ],
+    "kerala_gym_notes": "Commonly called 'Walking Lunges'. Step forward smoothly, keeping front knee tracking over middle toes.",
+    "malayalam_script": "വാക്കിംഗ് ലഞ്ചസ്",
+    "status": "RENAME",
+    "reason": "Added 'Walking Lunges' alias.",
+    "muscle_group": "Quadriceps",
+    "equipment": "Dumbbells"
+  },
+  "Reverse Lunge": {
+    "exercise_id": 127,
+    "current_name": "Reverse Lunge",
+    "recommended_display_name": "Reverse Lunge",
+    "formal_name": "Backward Stepping Lunge",
+    "aliases": [
+      "Reverse Lunges",
+      "Backward Lunges",
+      "Step Back Lunge"
+    ],
+    "kerala_gym_notes": "Stepping backward into lunge. Much friendlier on knees than forward lunges.",
+    "malayalam_script": "റിവേഴ്സ് ലഞ്ചസ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Reverse Lunges' alias.",
+    "muscle_group": "Quadriceps",
+    "equipment": "Dumbbells"
+  },
+  "Forward Lunge": {
+    "exercise_id": 128,
+    "current_name": "Forward Lunge",
+    "recommended_display_name": "Forward Lunge",
+    "formal_name": "Front Stepping Lunge",
+    "aliases": [
+      "Forward Lunges",
+      "Front Lunges",
+      "Static Lunges"
+    ],
+    "kerala_gym_notes": "Stepping forward and pushing back. Classic quad and glute test.",
+    "malayalam_script": "ഫോർവേഡ് ലഞ്ചസ്",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Quadriceps",
+    "equipment": "Dumbbells"
+  },
+  "Step-Up": {
+    "exercise_id": 129,
+    "current_name": "Step-Up",
+    "recommended_display_name": "Dumbbell Step-Up",
+    "formal_name": "Box / Bench Step-Up",
+    "aliases": [
+      "Bench Step-Ups",
+      "Box Step-Ups",
+      "DB Step-Up",
+      "Step Ups",
+      "Step Up"
+    ],
+    "kerala_gym_notes": "Step up onto a knee-height wooden box or flat bench using pure front leg drive.",
+    "malayalam_script": "സ്റ്റെപ്പ്-അപ്പ്",
+    "status": "RENAME",
+    "reason": "Added 'Bench Step-Ups' alias.",
+    "muscle_group": "Quadriceps",
+    "equipment": "Dumbbells"
+  },
+  "Leg Extension": {
+    "exercise_id": 130,
+    "current_name": "Leg Extension",
+    "recommended_display_name": "Leg Extension Machine",
+    "formal_name": "Seated Knee Extension Machine",
+    "aliases": [
+      "Leg Extension",
+      "Leg Extension Machine",
+      "Quad Extension",
+      "Seated Leg Extension",
+      "Knee Extension Machine"
+    ],
+    "kerala_gym_notes": "Found in every gym in Kerala! 'Leg Extension'. Isolates quads to carve out the teardrop (vastus medialis).",
+    "malayalam_script": "ലെഗ് എക്സ്റ്റൻഷൻ",
+    "status": "RENAME",
+    "reason": "Added 'Leg Extension Machine' and 'Quad Extension' aliases.",
+    "muscle_group": "Quadriceps",
+    "equipment": "Machine"
+  },
+  "Sissy Squat": {
+    "exercise_id": 131,
+    "current_name": "Sissy Squat",
+    "recommended_display_name": "Sissy Squat",
+    "formal_name": "Bodyweight / Weighted Sissy Squat",
+    "aliases": [
+      "Sissy Squat",
+      "Sissy Squat Bench",
+      "Leaning Sissy Squat"
+    ],
+    "kerala_gym_notes": "Leaning backward while bending knees forward. Delivers extreme stretch on the rectus femoris.",
+    "malayalam_script": "സിസ്സി സ്ക്വാറ്റ്",
+    "status": "ADD ALIAS",
+    "reason": "Universal gym term.",
+    "muscle_group": "Quadriceps",
+    "equipment": "Bodyweight"
+  },
+  "Split Squat": {
+    "exercise_id": 132,
+    "current_name": "Split Squat",
+    "recommended_display_name": "Static Split Squat",
+    "formal_name": "Stationary Split Squat",
+    "aliases": [
+      "Static Lunge",
+      "Stationary Split Squat",
+      "Split Squat"
+    ],
+    "kerala_gym_notes": "Stationary lunging in place without stepping back and forth. Great for beginners.",
+    "malayalam_script": "സ്പ്ലിറ്റ് സ്ക്വാറ്റ്",
+    "status": "RENAME",
+    "reason": "Added 'Static Lunge' alias.",
+    "muscle_group": "Quadriceps",
+    "equipment": "Dumbbells"
+  },
+  "Belt Squat": {
+    "exercise_id": 133,
+    "current_name": "Belt Squat",
+    "recommended_display_name": "Belt Squat",
+    "formal_name": "Hip-Loaded Squat",
+    "aliases": [
+      "Belt Squat Machine",
+      "Hip Belt Squat",
+      "Belt Squat"
+    ],
+    "kerala_gym_notes": "Weight hangs directly from a hip belt, eliminating all spinal compression.",
+    "malayalam_script": "ബെൽറ്റ് സ്ക്വാറ്റ്",
+    "status": "ADD ALIAS",
+    "reason": "Modern gym terminology.",
+    "muscle_group": "Quadriceps",
+    "equipment": "Machine"
+  },
+  "Bodyweight Squat": {
+    "exercise_id": 188,
+    "current_name": "Bodyweight Squat",
+    "recommended_display_name": "Air Squat (Free Squat)",
+    "formal_name": "Bodyweight Squat",
+    "aliases": [
+      "Free Squats",
+      "Air Squats",
+      "Bodyweight Squats",
+      "Normal Squat",
+      "Free Squat"
+    ],
+    "kerala_gym_notes": "Called 'Free Squats' or 'Air Squats'. Perfect warm-up before loading heavy barbell squats.",
+    "malayalam_script": "ഫ്രീ സ്ക്വാറ്റ്സ് (എയർ സ്ക്വാറ്റ്)",
+    "status": "RENAME",
+    "reason": "Added 'Free Squats' and 'Air Squats' aliases.",
+    "muscle_group": "Quadriceps",
+    "equipment": "Bodyweight"
+  },
+  "Romanian Deadlift": {
+    "exercise_id": 134,
+    "current_name": "Romanian Deadlift",
+    "recommended_display_name": "Romanian Deadlift (RDL)",
+    "formal_name": "Barbell Hip-Hinge Deadlift",
+    "aliases": [
+      "RDL",
+      "Romanian Deadlift",
+      "Stiff-Leg Deadlift",
+      "Hamstring Deadlift",
+      "BB RDL",
+      "Barbell RDL"
+    ],
+    "kerala_gym_notes": "The #1 hamstring exercise in Kerala gyms, universally called 'RDL'. Push hips back with slight knee bend until deep hamstring stretch.",
+    "malayalam_script": "റോമാനിയൻ ഡെഡ്‌ലിഫ്റ്റ് (RDL)",
+    "status": "RENAME",
+    "reason": "Added iconic acronym 'RDL' and 'Hamstring Deadlift' aliases.",
+    "muscle_group": "Hamstrings",
+    "equipment": "Barbell"
+  },
+  "Conventional Deadlift": {
+    "exercise_id": 135,
+    "current_name": "Conventional Deadlift",
+    "recommended_display_name": "Barbell Deadlift (Conventional)",
+    "formal_name": "Floor Pull Deadlift",
+    "aliases": [
+      "Deadlift",
+      "Barbell Deadlift",
+      "Conventional Deadlift",
+      "Floor Deadlift",
+      "Heavy Deadlift"
+    ],
+    "kerala_gym_notes": "Simply called 'Deadlift'. The ultimate full-body test of pulling power from the floor.",
+    "malayalam_script": "ഡെഡ്‌ലിഫ്റ്റ്",
+    "status": "RENAME",
+    "reason": "Added 'Deadlift' and 'Barbell Deadlift' aliases.",
+    "muscle_group": "Hamstrings",
+    "equipment": "Barbell"
+  },
+  "Stiff-Leg Deadlift": {
+    "exercise_id": 136,
+    "current_name": "Stiff-Leg Deadlift",
+    "recommended_display_name": "Stiff-Legged Deadlift",
+    "formal_name": "Knees-Locked Barbell Deadlift",
+    "aliases": [
+      "Stiff Leg Deadlift",
+      "SLDL",
+      "Straight Leg Deadlift",
+      "Stiff Deadlift"
+    ],
+    "kerala_gym_notes": "Called 'Stiff-Leg Deadlift' or 'SLDL'. Knees stay almost straight to place maximum tension on hamstrings.",
+    "malayalam_script": "സ്റ്റിഫ്-ലെഗ് ഡെഡ്‌ലിഫ്റ്റ്",
+    "status": "RENAME",
+    "reason": "Added 'SLDL' and 'Stiff Leg Deadlift' aliases.",
+    "muscle_group": "Hamstrings",
+    "equipment": "Barbell"
+  },
+  "Seated Leg Curl": {
+    "exercise_id": 137,
+    "current_name": "Seated Leg Curl",
+    "recommended_display_name": "Seated Leg Curl Machine",
+    "formal_name": "Seated Knee Flexion Machine",
+    "aliases": [
+      "Seated Leg Curl",
+      "Leg Curl Machine",
+      "Seated Hamstring Curl",
+      "Seated Leg Curl Machine"
+    ],
+    "kerala_gym_notes": "Universally called 'Seated Leg Curl'. Pad holds thighs down while curling heel down under seat.",
+    "malayalam_script": "സീറ്റഡ് ലെഗ് കേൾ",
+    "status": "RENAME",
+    "reason": "Added 'Seated Leg Curl Machine' alias.",
+    "muscle_group": "Hamstrings",
+    "equipment": "Machine"
+  },
+  "Lying Leg Curl": {
+    "exercise_id": 138,
+    "current_name": "Lying Leg Curl",
+    "recommended_display_name": "Lying Leg Curl Machine",
+    "formal_name": "Prone Hamstring Curl Machine",
+    "aliases": [
+      "Lying Leg Curl",
+      "Prone Leg Curl",
+      "Hamstring Machine",
+      "Lying Hamstring Curl",
+      "Leg Curl Lying"
+    ],
+    "kerala_gym_notes": "The classic 'Lying Leg Curl'. Lie face down on bench and curl roller pad up towards glutes.",
+    "malayalam_script": "ലൈയിംഗ് ലെഗ് കേൾ",
+    "status": "RENAME",
+    "reason": "Added 'Hamstring Machine' and 'Lying Leg Curl' aliases.",
+    "muscle_group": "Hamstrings",
+    "equipment": "Machine"
+  },
+  "Standing Leg Curl": {
+    "exercise_id": 139,
+    "current_name": "Standing Leg Curl",
+    "recommended_display_name": "Standing Single-Leg Curl",
+    "formal_name": "Unilateral Standing Leg Curl",
+    "aliases": [
+      "Standing Leg Curl",
+      "Single Leg Hamstring Curl",
+      "Standing Hamstring Curl"
+    ],
+    "kerala_gym_notes": "Standing single-leg hamstring curl machine for isolating each leg.",
+    "malayalam_script": "സ്റ്റാൻഡിംഗ് ലെഗ് കേൾ",
+    "status": "RENAME",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Hamstrings",
+    "equipment": "Machine"
+  },
+  "Single-Leg Romanian Deadlift": {
+    "exercise_id": 140,
+    "current_name": "Single-Leg Romanian Deadlift",
+    "recommended_display_name": "Single-Leg Dumbbell RDL",
+    "formal_name": "Unilateral RDL",
+    "aliases": [
+      "Single Leg RDL",
+      "One Leg Deadlift",
+      "Dumbbell Single Leg Deadlift",
+      "1 Leg RDL"
+    ],
+    "kerala_gym_notes": "Called 'Single Leg RDL'. Balances on one foot while hinging back. Fantastic for athletic balance and hamstrings.",
+    "malayalam_script": "സിംഗിൾ-ലെഗ് RDL",
+    "status": "RENAME",
+    "reason": "Added 'Single Leg RDL' and 'One Leg Deadlift' aliases.",
+    "muscle_group": "Hamstrings",
+    "equipment": "Dumbbells"
+  },
+  "Good Morning": {
+    "exercise_id": 141,
+    "current_name": "Good Morning",
+    "recommended_display_name": "Barbell Good Morning",
+    "formal_name": "Barbell Standing Hip Hinge",
+    "aliases": [
+      "Good Mornings",
+      "Barbell Good Morning",
+      "Hip Hinge Barbell",
+      "Good Morning Exercise"
+    ],
+    "kerala_gym_notes": "Called 'Good Mornings'. Barbell on upper back, bowing forward from hips with flat spine.",
+    "malayalam_script": "ഗുഡ് മോർണിംഗ്സ്",
+    "status": "RENAME",
+    "reason": "Added 'Good Mornings' alias.",
+    "muscle_group": "Hamstrings",
+    "equipment": "Barbell"
+  },
+  "Nordic Hamstring Curl": {
+    "exercise_id": 142,
+    "current_name": "Nordic Hamstring Curl",
+    "recommended_display_name": "Nordic Hamstring Curl",
+    "formal_name": "Bodyweight Eccentric Knee Flexion",
+    "aliases": [
+      "Nordic Curl",
+      "Nordic Curls",
+      "Nordic Hamstring",
+      "Russian Leg Curl"
+    ],
+    "kerala_gym_notes": "Known as 'Nordic Curl'. Kneeling with ankles locked down, slowly lower torso to floor using pure hamstring braking power.",
+    "malayalam_script": "നോർഡിക് കേൾ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Nordic Curl' alias.",
+    "muscle_group": "Hamstrings",
+    "equipment": "Bodyweight"
+  },
+  "Cable Pull-Through": {
+    "exercise_id": 143,
+    "current_name": "Cable Pull-Through",
+    "recommended_display_name": "Cable Pull-Through",
+    "formal_name": "Low Cable Hip Hinge",
+    "aliases": [
+      "Cable Pull Through",
+      "Glute Pull Through",
+      "Rope Pull-Through",
+      "Cable Hip Hinge"
+    ],
+    "kerala_gym_notes": "Straddling low cable with rope, driving hips forward to lockout at the top.",
+    "malayalam_script": "കേബിൾ പുൾ-ത്രൂ",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Hamstrings",
+    "equipment": "Cable"
+  },
+  "Glute-Ham Raise": {
+    "exercise_id": 144,
+    "current_name": "Glute-Ham Raise",
+    "recommended_display_name": "Glute-Ham Raise (GHR)",
+    "formal_name": "GHD Hamstring Raise",
+    "aliases": [
+      "GHR",
+      "Glute Ham Raise",
+      "GHD Hamstring Raise",
+      "Glute Ham Developer"
+    ],
+    "kerala_gym_notes": "Performed on GHD machine. World-class hamstring and glute strength builder.",
+    "malayalam_script": "ഗ്ലൂട്ട്-ഹാം റൈസ് (GHR)",
+    "status": "RENAME",
+    "reason": "Added 'GHR' alias.",
+    "muscle_group": "Hamstrings",
+    "equipment": "Machine"
+  },
+  "Barbell Hip Thrust": {
+    "exercise_id": 145,
+    "current_name": "Barbell Hip Thrust",
+    "recommended_display_name": "Barbell Hip Thrust",
+    "formal_name": "Upper-Back Supported Barbell Hip Thrust",
+    "aliases": [
+      "Hip Thrust",
+      "Barbell Hip Thrust",
+      "Glute Thrust",
+      "Bench Hip Thrust",
+      "Hip Thrusts"
+    ],
+    "kerala_gym_notes": "The #1 glute exercise worldwide and in Kerala gyms! Universally known as 'Hip Thrust'. Squeeze glutes hard at top.",
+    "malayalam_script": "ഹിപ്പ് ത്രസ്റ്റ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Hip Thrust' alias.",
+    "muscle_group": "Glutes",
+    "equipment": "Barbell"
+  },
+  "Dumbbell Hip Thrust": {
+    "exercise_id": 146,
+    "current_name": "Dumbbell Hip Thrust",
+    "recommended_display_name": "Dumbbell Hip Thrust",
+    "formal_name": "Dumbbell Pelvic Thrust",
+    "aliases": [
+      "DB Hip Thrust",
+      "Dumbbell Hip Thrust",
+      "Hip Thrust DB"
+    ],
+    "kerala_gym_notes": "Hip thrust using dumbbell across pelvic crease. Great when barbells are occupied.",
+    "malayalam_script": "ഡംബെൽ ഹിപ്പ് ത്രസ്റ്റ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'DB Hip Thrust' alias.",
+    "muscle_group": "Glutes",
+    "equipment": "Dumbbells"
+  },
+  "Glute Bridge": {
+    "exercise_id": 147,
+    "current_name": "Glute Bridge",
+    "recommended_display_name": "Floor Glute Bridge",
+    "formal_name": "Supine Pelvic Bridge",
+    "aliases": [
+      "Glute Bridge",
+      "Floor Bridge",
+      "Hip Bridge",
+      "Bodyweight Bridge",
+      "Glute Bridges"
+    ],
+    "kerala_gym_notes": "Lying on floor with feet flat, driving hips up towards ceiling.",
+    "malayalam_script": "ഗ്ലൂട്ട് ബ്രിഡ്ജ്",
+    "status": "RENAME",
+    "reason": "Universal gym term.",
+    "muscle_group": "Glutes",
+    "equipment": "Bodyweight"
+  },
+  "Single-Leg Glute Bridge": {
+    "exercise_id": 148,
+    "current_name": "Single-Leg Glute Bridge",
+    "recommended_display_name": "Single-Leg Glute Bridge",
+    "formal_name": "Unilateral Floor Bridge",
+    "aliases": [
+      "One Leg Glute Bridge",
+      "Single Leg Bridge",
+      "Single Leg Hip Bridge"
+    ],
+    "kerala_gym_notes": "Floor glute bridge on one foot to fix glute firing imbalances.",
+    "malayalam_script": "സിംഗിൾ-ലെഗ് ഗ്ലൂട്ട് ബ്രിഡ്ജ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'One Leg Glute Bridge' alias.",
+    "muscle_group": "Glutes",
+    "equipment": "Bodyweight"
+  },
+  "Cable Glute Kickback": {
+    "exercise_id": 149,
+    "current_name": "Cable Glute Kickback",
+    "recommended_display_name": "Cable Glute Kickback",
+    "formal_name": "Low Cable Ankle Kickback",
+    "aliases": [
+      "Glute Kickback",
+      "Cable Kickback",
+      "Cable Donkey Kick",
+      "Ankle Cable Kickback",
+      "Cable Glute Kickbacks"
+    ],
+    "kerala_gym_notes": "Called 'Glute Kickback' or 'Cable Kickback'. Kick heel backward and upward with ankle strap.",
+    "malayalam_script": "കേബിൾ ഗ്ലൂട്ട് കിക്ക്ബാക്ക്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Glute Kickback' alias.",
+    "muscle_group": "Glutes",
+    "equipment": "Cable"
+  },
+  "Machine Glute Kickback": {
+    "exercise_id": 150,
+    "current_name": "Machine Glute Kickback",
+    "recommended_display_name": "Machine Glute Kickback",
+    "formal_name": "Lever Standing Glute Kick",
+    "aliases": [
+      "Glute Machine",
+      "Rear Kick Machine",
+      "Glute Kickback Machine",
+      "Machine Kickback"
+    ],
+    "kerala_gym_notes": "Called 'Glute Machine' or 'Kickback Machine'. Dedicated gym machine for standing rear kicks.",
+    "malayalam_script": "മെഷീൻ ഗ്ലൂട്ട് കിക്ക്ബാക്ക്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Glute Machine' alias.",
+    "muscle_group": "Glutes",
+    "equipment": "Machine"
+  },
+  "Sumo Squat": {
+    "exercise_id": 151,
+    "current_name": "Sumo Squat",
+    "recommended_display_name": "Sumo Squat",
+    "formal_name": "Wide-Stance Plie Squat",
+    "aliases": [
+      "Sumo Squats",
+      "Wide Stance Squat",
+      "Plie Squat",
+      "Sumo DB Squat"
+    ],
+    "kerala_gym_notes": "Wide feet stance with toes angled at 45 degrees. Shifts tension heavily to inner thighs and glutes.",
+    "malayalam_script": "സുമോ സ്ക്വാറ്റ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Sumo Squats' alias.",
+    "muscle_group": "Glutes",
+    "equipment": "Barbell"
+  },
+  "Hip Abduction Machine": {
+    "exercise_id": 152,
+    "current_name": "Hip Abduction Machine",
+    "recommended_display_name": "Seated Hip Abduction Machine",
+    "formal_name": "Seated Outer Thigh Machine",
+    "aliases": [
+      "Hip Abduction",
+      "Abductor Machine",
+      "Outer Thigh Machine",
+      "Seated Abductor",
+      "Abduction Machine"
+    ],
+    "kerala_gym_notes": "Very popular gym machine: 'Abductor Machine' or 'Outer Thigh Machine'. Push knees outward against resistance.",
+    "malayalam_script": "ഹിപ്പ് അബ്ഡക്ഷൻ (ഔട്ടർ തൈ മെഷീൻ)",
+    "status": "RENAME",
+    "reason": "Added 'Abductor Machine' and 'Outer Thigh Machine' aliases.",
+    "muscle_group": "Glutes",
+    "equipment": "Machine"
+  },
+  "Banded Lateral Walk": {
+    "exercise_id": 153,
+    "current_name": "Banded Lateral Walk",
+    "recommended_display_name": "Banded Monster Walk",
+    "formal_name": "Mini-Band Lateral Walk",
+    "aliases": [
+      "Monster Walk",
+      "Banded Walk",
+      "Crab Walk",
+      "Lateral Band Walk",
+      "Mini Band Walk"
+    ],
+    "kerala_gym_notes": "Commonly called 'Monster Walk' or 'Banded Walk'. Loop resistance band above knees and walk sideways.",
+    "malayalam_script": "ബാൻഡഡ് മോൺസ്റ്റർ വാക്ക്",
+    "status": "RENAME",
+    "reason": "Added 'Monster Walk' alias.",
+    "muscle_group": "Glutes",
+    "equipment": "Bands"
+  },
+  "Standing Calf Raise": {
+    "exercise_id": 154,
+    "current_name": "Standing Calf Raise",
+    "recommended_display_name": "Standing Machine Calf Raise",
+    "formal_name": "Standing Plantarflexion",
+    "aliases": [
+      "Calf Raise",
+      "Standing Calf Raise",
+      "Machine Standing Calf",
+      "Calves Raise",
+      "Standing Calves"
+    ],
+    "kerala_gym_notes": "The foundational calf workout, called 'Calf Raise'. Full stretch at bottom and high squeeze on tiptoes.",
+    "malayalam_script": "സ്റ്റാൻഡിംഗ് കാഫ് റൈസ്",
+    "status": "RENAME",
+    "reason": "Added 'Calf Raise' and 'Standing Calves' aliases.",
+    "muscle_group": "Calves",
+    "equipment": "Machine"
+  },
+  "Seated Calf Raise": {
+    "exercise_id": 155,
+    "current_name": "Seated Calf Raise",
+    "recommended_display_name": "Seated Calf Raise Machine",
+    "formal_name": "Seated Soleus Calf Raise",
+    "aliases": [
+      "Seated Calf Raise",
+      "Seated Calf Machine",
+      "Soleus Raise",
+      "Seated Calves"
+    ],
+    "kerala_gym_notes": "Found in every gym in Kerala! 'Seated Calf'. Knee bent at 90 degrees isolates the deep soleus muscle.",
+    "malayalam_script": "സീറ്റഡ് കാഫ് റൈസ്",
+    "status": "RENAME",
+    "reason": "Added 'Seated Calf Machine' alias.",
+    "muscle_group": "Calves",
+    "equipment": "Machine"
+  },
+  "Leg Press Calf Raise": {
+    "exercise_id": 156,
+    "current_name": "Leg Press Calf Raise",
+    "recommended_display_name": "Leg Press Calf Raise",
+    "formal_name": "Incline Sled Toe Press",
+    "aliases": [
+      "Leg Press Calf Press",
+      "Toe Press",
+      "45 Degree Calf Press",
+      "Leg Press Calves"
+    ],
+    "kerala_gym_notes": "Balls of feet placed on lower edge of leg press platform. Heavy calf loading with zero spine compression.",
+    "malayalam_script": "ലെഗ് പ്രസ്സ് കാഫ് റൈസ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Toe Press' and 'Leg Press Calves' aliases.",
+    "muscle_group": "Calves",
+    "equipment": "Machine"
+  },
+  "Smith Machine Calf Raise": {
+    "exercise_id": 157,
+    "current_name": "Smith Machine Calf Raise",
+    "recommended_display_name": "Smith Machine Calf Raise",
+    "formal_name": "Guided Barbell Calf Raise",
+    "aliases": [
+      "Smith Calf Raise",
+      "Smith Machine Calf",
+      "Smith Calves"
+    ],
+    "kerala_gym_notes": "Standing on a wooden block or plate under Smith machine bar.",
+    "malayalam_script": "സ്മിത്ത് മെഷീൻ കാഫ് റൈസ്",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Calves",
+    "equipment": "Machine"
+  },
+  "Single-Leg Calf Raise": {
+    "exercise_id": 158,
+    "current_name": "Single-Leg Calf Raise",
+    "recommended_display_name": "Single-Leg Calf Raise",
+    "formal_name": "Unilateral Bodyweight Calf Raise",
+    "aliases": [
+      "One Leg Calf Raise",
+      "Single Leg Calf Raise",
+      "One Leg Calves"
+    ],
+    "kerala_gym_notes": "Standing on one foot on a step edge. Doubles the bodyweight resistance per calf.",
+    "malayalam_script": "സിംഗിൾ-ലെഗ് കാഫ് റൈസ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'One Leg Calf Raise' alias.",
+    "muscle_group": "Calves",
+    "equipment": "Bodyweight"
+  },
+  "Donkey Calf Raise": {
+    "exercise_id": 159,
+    "current_name": "Donkey Calf Raise",
+    "recommended_display_name": "Donkey Calf Raise",
+    "formal_name": "Bent-Over Calf Raise",
+    "aliases": [
+      "Donkey Calf Raise",
+      "Donkey Raise",
+      "Bent Over Calf Raise",
+      "Donkey Calves"
+    ],
+    "kerala_gym_notes": "Bent forward at waist at 90 degrees. Extreme stretch on gastrocnemius muscles.",
+    "malayalam_script": "ഡോങ്കി കാഫ് റൈസ്",
+    "status": "ADD ALIAS",
+    "reason": "Universal iconic gym name.",
+    "muscle_group": "Calves",
+    "equipment": "Machine"
+  },
+  "Tibialis Raise": {
+    "exercise_id": 160,
+    "current_name": "Tibialis Raise",
+    "recommended_display_name": "Tibialis Anterior Raise",
+    "formal_name": "Wall / Floor Shin Raise",
+    "aliases": [
+      "Shin Raise",
+      "Tibialis Raise",
+      "Toe Raise",
+      "Anterior Tibialis Raise",
+      "Shins"
+    ],
+    "kerala_gym_notes": "Raising toes upward towards shins. Essential for knee protection, running speed, and preventing shin splints.",
+    "malayalam_script": "ടിബിയാലിസ് റൈസ് (ഷിൻ റൈസ്)",
+    "status": "RENAME",
+    "reason": "Added 'Shin Raise' alias.",
+    "muscle_group": "Calves",
+    "equipment": "Bodyweight"
+  },
+  "Crunch": {
+    "exercise_id": 161,
+    "current_name": "Crunch",
+    "recommended_display_name": "Floor Crunch",
+    "formal_name": "Supine Abdominal Crunch",
+    "aliases": [
+      "Crunches",
+      "Floor Crunches",
+      "Abs Crunches",
+      "Standard Crunch",
+      "Basic Crunch"
+    ],
+    "kerala_gym_notes": "The basic abdominal crunch. Curl ribcage toward pelvis without pulling on neck.",
+    "malayalam_script": "ക്രഞ്ചസ് (അബ്സ്)",
+    "status": "RENAME",
+    "reason": "Added 'Crunches' and 'Abs Crunches' aliases.",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight"
+  },
+  "Reverse Crunch": {
+    "exercise_id": 162,
+    "current_name": "Reverse Crunch",
+    "recommended_display_name": "Reverse Crunch",
+    "formal_name": "Supine Pelvic Curl",
+    "aliases": [
+      "Reverse Crunches",
+      "Lower Abs Crunch",
+      "Reverse Abs Crunch",
+      "Lower Abs Reverse Crunch"
+    ],
+    "kerala_gym_notes": "Commonly called 'Reverse Crunches' or 'Lower Abs'. Curl knees toward chest lifting pelvis off floor.",
+    "malayalam_script": "റിവേഴ്സ് ക്രഞ്ചസ് (ലോവർ അബ്സ്)",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Reverse Crunches' and 'Lower Abs' aliases.",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight"
+  },
+  "Bicycle Crunch": {
+    "exercise_id": 163,
+    "current_name": "Bicycle Crunch",
+    "recommended_display_name": "Bicycle Crunch",
+    "formal_name": "Alternating Elbow-to-Knee Crunch",
+    "aliases": [
+      "Bicycle Crunches",
+      "Air Bike",
+      "Bicycle Abs",
+      "Cross Body Crunch"
+    ],
+    "kerala_gym_notes": "Universally called 'Bicycle Crunches'. Ranked #1 by biomechanists for overall core and oblique stimulation.",
+    "malayalam_script": "ബൈസൈക്കിൾ ക്രഞ്ചസ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Bicycle Crunches' alias.",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight"
+  },
+  "Hanging Knee Raise": {
+    "exercise_id": 164,
+    "current_name": "Hanging Knee Raise",
+    "recommended_display_name": "Hanging Knee Raise",
+    "formal_name": "Pull-Up Bar Knee Raise",
+    "aliases": [
+      "Knee Raises",
+      "Hanging Knee Raise",
+      "Hanging Lower Abs",
+      "Bar Knee Raise",
+      "Hanging Knees"
+    ],
+    "kerala_gym_notes": "In Kerala gyms: 'Knee Raises' or 'Hanging Abs'. Hang from pull-up bar and pull knees up to chest level.",
+    "malayalam_script": "ഹാങ്ങിംഗ് നീ റൈസ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Knee Raises' alias.",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight"
+  },
+  "Hanging Leg Raise": {
+    "exercise_id": 165,
+    "current_name": "Hanging Leg Raise",
+    "recommended_display_name": "Hanging Straight-Leg Raise",
+    "formal_name": "Pull-Up Bar Straight Leg Raise",
+    "aliases": [
+      "Hanging Leg Raise",
+      "Straight Leg Raise",
+      "Toes to Bar",
+      "Hanging Abs",
+      "Leg Raises Hanging"
+    ],
+    "kerala_gym_notes": "Straight legs raised to 90 degrees or up to bar. High-level abdominal strength move.",
+    "malayalam_script": "ഹാങ്ങിംഗ് ലെഗ് റൈസ്",
+    "status": "RENAME",
+    "reason": "Added 'Toes to Bar' and 'Straight Leg Raise' aliases.",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight"
+  },
+  "Captain's Chair Knee Raise": {
+    "exercise_id": 166,
+    "current_name": "Captain's Chair Knee Raise",
+    "recommended_display_name": "Captain's Chair Knee Raise",
+    "formal_name": "Roman Chair Knee Raise",
+    "aliases": [
+      "Roman Chair Knee Raise",
+      "Captain's Chair",
+      "Tower Leg Raise",
+      "Parallel Bar Knee Raise"
+    ],
+    "kerala_gym_notes": "Called 'Roman Chair' or 'Captain's Chair'. Forearms supported on pads while raising knees.",
+    "malayalam_script": "ക്യാപ്റ്റൻസ് ചെയർ നീ റൈസ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Roman Chair' alias.",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight"
+  },
+  "Cable Crunch": {
+    "exercise_id": 167,
+    "current_name": "Cable Crunch",
+    "recommended_display_name": "Kneeling Cable Crunch",
+    "formal_name": "High Cable Abdominal Crunch",
+    "aliases": [
+      "Cable Crunch",
+      "Rope Cable Crunch",
+      "Kneeling Cable Crunch",
+      "Cable Abs Crunch",
+      "Cable Abs"
+    ],
+    "kerala_gym_notes": "Kneeling with rope behind neck, curling torso down like rolling a carpet.",
+    "malayalam_script": "കേബിൾ ക്രഞ്ച്",
+    "status": "RENAME",
+    "reason": "Added 'Cable Abs' alias.",
+    "muscle_group": "Abs and Core",
+    "equipment": "Cable"
+  },
+  "Kneeling Rope Crunch": {
+    "exercise_id": 168,
+    "current_name": "Kneeling Rope Crunch",
+    "recommended_display_name": "Kneeling Rope Crunch",
+    "formal_name": "Kneeling Pulley Crunch",
+    "aliases": [
+      "Rope Crunch",
+      "Kneeling Abs Crunch",
+      "Cable Rope Abs",
+      "Rope Cable Abs"
+    ],
+    "kerala_gym_notes": "Variation of cable crunch focusing on deep upper and mid abdominal flex.",
+    "malayalam_script": "നീലിംഗ് റോപ്പ് ക്രഞ്ച്",
+    "status": "ADD ALIAS",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Abs and Core",
+    "equipment": "Cable"
+  },
+  "Ab Wheel Rollout": {
+    "exercise_id": 169,
+    "current_name": "Ab Wheel Rollout",
+    "recommended_display_name": "Ab Wheel Rollout",
+    "formal_name": "Abdominal Roller Extension",
+    "aliases": [
+      "Ab Wheel",
+      "Wheel Rollout",
+      "Ab Roller",
+      "Abdominal Wheel Rollout",
+      "Roller Abs"
+    ],
+    "kerala_gym_notes": "Universally called 'Ab Wheel' or 'Ab Roller'. Roll wheel forward on knees and pull back with abs.",
+    "malayalam_script": "അബ് വീൽ റോളൗട്ട്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Ab Wheel' and 'Ab Roller' aliases.",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight"
+  },
+  "Plank": {
+    "exercise_id": 170,
+    "current_name": "Plank",
+    "recommended_display_name": "Forearm Plank",
+    "formal_name": "Prone Isometric Core Bridge",
+    "aliases": [
+      "Plank",
+      "Planks",
+      "Core Plank",
+      "Front Plank",
+      "Forearm Plank",
+      "30 Second Plank"
+    ],
+    "kerala_gym_notes": "The universal core endurance test! Simply 'Plank' or 'Planks'. Squeeze glutes and brace belly button.",
+    "malayalam_script": "പ്ലാങ്ക്",
+    "status": "RENAME",
+    "reason": "Added 'Planks' alias.",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight"
+  },
+  "Side Plank": {
+    "exercise_id": 171,
+    "current_name": "Side Plank",
+    "recommended_display_name": "Side Plank",
+    "formal_name": "Lateral Isometric Core Bridge",
+    "aliases": [
+      "Side Plank",
+      "Side Planks",
+      "Oblique Plank",
+      "Side Bridge"
+    ],
+    "kerala_gym_notes": "Called 'Side Plank'. Elevates hip off floor on one forearm to build strong obliques and pelvic stability.",
+    "malayalam_script": "സൈഡ് പ്ലാങ്ക്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Side Planks' alias.",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight"
+  },
+  "Dead Bug": {
+    "exercise_id": 172,
+    "current_name": "Dead Bug",
+    "recommended_display_name": "Dead Bug",
+    "formal_name": "Supine Contralateral Core Exercise",
+    "aliases": [
+      "Dead Bug",
+      "Dead Bugs",
+      "Core Dead Bug",
+      "Floor Dead Bug"
+    ],
+    "kerala_gym_notes": "Lying on back extending opposite arm and leg while keeping lower back glued to floor.",
+    "malayalam_script": "ഡെഡ് ബഗ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Dead Bugs' alias.",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight"
+  },
+  "Bird Dog": {
+    "exercise_id": 173,
+    "current_name": "Bird Dog",
+    "recommended_display_name": "Bird Dog",
+    "formal_name": "Quadruped Contralateral Extension",
+    "aliases": [
+      "Bird Dog",
+      "Quadruped Reach",
+      "Bird-Dog",
+      "Bird Dogs"
+    ],
+    "kerala_gym_notes": "On hands and knees, reaching opposite hand and heel out in line with torso. Essential for spine health.",
+    "malayalam_script": "ബേർഡ് ഡോഗ്",
+    "status": "ADD ALIAS",
+    "reason": "Universal physical therapy and gym term.",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight"
+  },
+  "Pallof Press": {
+    "exercise_id": 174,
+    "current_name": "Pallof Press",
+    "recommended_display_name": "Pallof Press",
+    "formal_name": "Standing Anti-Rotation Cable Press",
+    "aliases": [
+      "Pallof Press",
+      "Anti-Rotation Press",
+      "Cable Core Press",
+      "Standing Pallof"
+    ],
+    "kerala_gym_notes": "Pressing cable handle straight out in front of chest while resisting torso rotation.",
+    "malayalam_script": "പാലോഫ് പ്രസ്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Modern core training term.",
+    "muscle_group": "Abs and Core",
+    "equipment": "Cable"
+  },
+  "Russian Twist": {
+    "exercise_id": 175,
+    "current_name": "Russian Twist",
+    "recommended_display_name": "Russian Twist",
+    "formal_name": "Seated Torso Rotation",
+    "aliases": [
+      "Russian Twist",
+      "Russian Twists",
+      "Seated Twist",
+      "Oblique Russian Twist",
+      "Plate Russian Twist"
+    ],
+    "kerala_gym_notes": "Universally known as 'Russian Twist'. Seated with heels slightly elevated, rotating side to side.",
+    "malayalam_script": "റഷ്യൻ ട്വിസ്റ്റ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Russian Twists' alias.",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight"
+  },
+  "Mountain Climber": {
+    "exercise_id": 176,
+    "current_name": "Mountain Climber",
+    "recommended_display_name": "Mountain Climber",
+    "formal_name": "Prone Dynamic Knee Drive",
+    "aliases": [
+      "Mountain Climbers",
+      "Climbers",
+      "Floor Mountain Climber",
+      "Pushup Climber",
+      "Cardio Climber",
+      "HIIT Climber",
+      "Cardio"
+    ],
+    "kerala_gym_notes": "Called 'Mountain Climbers'. In high push-up stance driving knees rapidly to chest.",
+    "malayalam_script": "മൗണ്ടൻ ക്ലൈമ്പർ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Mountain Climbers' alias.",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight"
+  },
+  "Wood Chop": {
+    "exercise_id": 177,
+    "current_name": "Wood Chop",
+    "recommended_display_name": "Cable Woodchop",
+    "formal_name": "Diagonal Cable Core Chop",
+    "aliases": [
+      "Wood Chop",
+      "Cable Woodchopper",
+      "Woodchopper",
+      "Diagonal Cable Chop",
+      "Cable Wood Chop"
+    ],
+    "kerala_gym_notes": "Called 'Woodchopper' or 'Cable Wood Chop'. Diagonal high-to-low rotational power movement.",
+    "malayalam_script": "വുഡ് ചോപ്പ്",
+    "status": "RENAME",
+    "reason": "Added 'Woodchopper' alias.",
+    "muscle_group": "Abs and Core",
+    "equipment": "Cable"
+  },
+  "Decline Sit-Up": {
+    "exercise_id": 178,
+    "current_name": "Decline Sit-Up",
+    "recommended_display_name": "Decline Bench Sit-Up",
+    "formal_name": "Decline Abdominal Crunch",
+    "aliases": [
+      "Decline Sit-Ups",
+      "Decline Bench Situp",
+      "Decline Abs",
+      "Decline Situp"
+    ],
+    "kerala_gym_notes": "Called 'Decline Sit-Ups'. Anchored on decline bench coming up to vertical sitting position.",
+    "malayalam_script": "ഡിക്ലൈൻ സിറ്റ്-അപ്സ്",
+    "status": "RENAME",
+    "reason": "Added 'Decline Sit-Ups' alias.",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight"
+  },
+  "Stability Ball Crunch": {
+    "exercise_id": 179,
+    "current_name": "Stability Ball Crunch",
+    "recommended_display_name": "Swiss Ball Crunch",
+    "formal_name": "Exercise Ball Abdominal Crunch",
+    "aliases": [
+      "Swiss Ball Crunch",
+      "Gym Ball Crunches",
+      "Exercise Ball Crunch",
+      "Ball Crunches"
+    ],
+    "kerala_gym_notes": "Called 'Swiss Ball Crunch' or 'Gym Ball Crunch'. Curved ball allows greater abdominal extension.",
+    "malayalam_script": "സ്വിസ്സ് ബോൾ ക്രഞ്ച്",
+    "status": "RENAME",
+    "reason": "Added 'Swiss Ball Crunch' alias.",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight"
+  },
+  "Hollow Body Hold": {
+    "exercise_id": 180,
+    "current_name": "Hollow Body Hold",
+    "recommended_display_name": "Hollow Body Hold",
+    "formal_name": "Gymnastic Core Hollow",
+    "aliases": [
+      "Hollow Body Hold",
+      "Hollow Hold",
+      "Gymnastic Hollow",
+      "Banana Hold"
+    ],
+    "kerala_gym_notes": "Gymnastics staple. Pressing lower spine into floor while arms and legs float in concave dish shape.",
+    "malayalam_script": "ഹോളോ ബോഡി ഹോൾഡ്",
+    "status": "ADD ALIAS",
+    "reason": "Gymnastics conditioning term.",
+    "muscle_group": "Abs and Core",
+    "equipment": "Bodyweight"
+  },
+  "Trap Bar Deadlift": {
+    "exercise_id": 181,
+    "current_name": "Trap Bar Deadlift",
+    "recommended_display_name": "Trap Bar Deadlift (Hex Bar)",
+    "formal_name": "Hexagonal Barbell Deadlift",
+    "aliases": [
+      "Hex Bar Deadlift",
+      "Trap Bar Deadlift",
+      "Hex Deadlift",
+      "Trap Bar Pull"
+    ],
+    "kerala_gym_notes": "Known as 'Hex Bar Deadlift'. Neutral handles place weight in line with center of gravity, saving lower back.",
+    "malayalam_script": "ട്രാപ്പ് ബാർ ഡെഡ്‌ലിഫ്റ്റ് (ഹെക്സ് ബാർ)",
+    "status": "RENAME",
+    "reason": "Added 'Hex Bar Deadlift' alias.",
+    "muscle_group": "Full Body",
+    "equipment": "Barbell"
+  },
+  "Thruster": {
+    "exercise_id": 182,
+    "current_name": "Thruster",
+    "recommended_display_name": "Barbell Thruster",
+    "formal_name": "Front Squat to Overhead Press",
+    "aliases": [
+      "Thruster",
+      "Barbell Thruster",
+      "Squat to Overhead Press",
+      "Thrusters"
+    ],
+    "kerala_gym_notes": "Combines deep front squat with continuous explosive overhead press in one unified movement.",
+    "malayalam_script": "ത്രസ്റ്റർ",
+    "status": "RENAME",
+    "reason": "Universal CrossFit / gym term.",
+    "muscle_group": "Full Body",
+    "equipment": "Barbell"
+  },
+  "Kettlebell Swing": {
+    "exercise_id": 183,
+    "current_name": "Kettlebell Swing",
+    "recommended_display_name": "Kettlebell Swing",
+    "formal_name": "Russian Kettlebell Swing",
+    "aliases": [
+      "Kettlebell Swing",
+      "KB Swing",
+      "Russian Kettlebell Swing",
+      "Kettlebell Swings"
+    ],
+    "kerala_gym_notes": "Called 'KB Swing'. Pure hip hinge explosive snap pushing kettlebell forward to chest height.",
+    "malayalam_script": "കെറ്റിൽബെൽ സ്വിംഗ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'KB Swing' alias.",
+    "muscle_group": "Full Body",
+    "equipment": "Kettlebell"
+  },
+  "Turkish Get-Up": {
+    "exercise_id": 184,
+    "current_name": "Turkish Get-Up",
+    "recommended_display_name": "Turkish Get-Up (TGU)",
+    "formal_name": "Kettlebell Ground-to-Standing Complex",
+    "aliases": [
+      "Turkish Get-Up",
+      "TGU",
+      "Turkish Get Up",
+      "Kettlebell Get Up"
+    ],
+    "kerala_gym_notes": "Called 'TGU'. Full body mobility sequence moving from lying flat to standing tall with weight locked overhead.",
+    "malayalam_script": "ടർക്കിഷ് ഗെറ്റ്-അപ്പ് (TGU)",
+    "status": "RENAME",
+    "reason": "Added 'TGU' alias.",
+    "muscle_group": "Full Body",
+    "equipment": "Kettlebell"
+  },
+  "Sled Push": {
+    "exercise_id": 185,
+    "current_name": "Sled Push",
+    "recommended_display_name": "Weighted Sled Push (Prowler)",
+    "formal_name": "Turf Sled Push",
+    "aliases": [
+      "Sled Push",
+      "Prowler Push",
+      "Turf Push",
+      "Prowler Sled"
+    ],
+    "kerala_gym_notes": "Called 'Prowler Push' or 'Sled Push'. Pushing weighted sled across gym turf for leg and conditioning power.",
+    "malayalam_script": "സ്ലെഡ് പുഷ് (പ്രൗലർ പുഷ്)",
+    "status": "RENAME",
+    "reason": "Added 'Prowler Push' alias.",
+    "muscle_group": "Full Body",
+    "equipment": "Specialty"
+  },
+  "Sled Pull": {
+    "exercise_id": 186,
+    "current_name": "Sled Pull",
+    "recommended_display_name": "Weighted Sled Pull",
+    "formal_name": "Turf Rope Sled Pull",
+    "aliases": [
+      "Sled Pull",
+      "Prowler Pull",
+      "Rope Sled Pull",
+      "Backward Sled Drag"
+    ],
+    "kerala_gym_notes": "Pulling weighted sled backward with handles or rope to build quads and posterior chain.",
+    "malayalam_script": "സ്ലെഡ് പുൾ",
+    "status": "RENAME",
+    "reason": "Clear and familiar.",
+    "muscle_group": "Full Body",
+    "equipment": "Specialty"
+  },
+  "Battle Rope Exercise": {
+    "exercise_id": 187,
+    "current_name": "Battle Rope Exercise",
+    "recommended_display_name": "Battle Ropes",
+    "formal_name": "Alternating Battle Rope Waves",
+    "aliases": [
+      "Battle Ropes",
+      "Battle Rope Waves",
+      "Battling Ropes",
+      "Rope Slams",
+      "Battle Rope Slams"
+    ],
+    "kerala_gym_notes": "Universally called 'Battle Ropes' in Kerala gyms. Heavy ropes slammed in alternating or double waves.",
+    "malayalam_script": "ബാറ്റിൽ റോപ്സ്",
+    "status": "RENAME",
+    "reason": "Added 'Battle Ropes' alias.",
+    "muscle_group": "Full Body",
+    "equipment": "Specialty"
+  },
+  "Burpee": {
+    "exercise_id": 189,
+    "current_name": "Burpee",
+    "recommended_display_name": "Burpee",
+    "formal_name": "Bodyweight Squat Thrust with Jump",
+    "aliases": [
+      "Burpees",
+      "Burpee",
+      "Chest to Floor Burpee",
+      "Squat Thrust Jump",
+      "HIIT Burpee",
+      "Cardio Burpee",
+      "Cardio"
+    ],
+    "kerala_gym_notes": "Universally known as 'Burpees'. Drop to chest on floor, snap feet in and jump with hands overhead.",
+    "malayalam_script": "ബർപ്പീസ്",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Burpees' alias.",
+    "muscle_group": "Full Body",
+    "equipment": "Bodyweight"
+  },
+  "Bear Crawl": {
+    "exercise_id": 190,
+    "current_name": "Bear Crawl",
+    "recommended_display_name": "Bear Crawl",
+    "formal_name": "Quadruped Locomotion Crawl",
+    "aliases": [
+      "Bear Crawl",
+      "Bear Crawls",
+      "Quadruped Crawl",
+      "Low Bear Walk"
+    ],
+    "kerala_gym_notes": "Crawling forward on hands and toes with knees hovering 1 inch off floor.",
+    "malayalam_script": "ബെയർ ക്രോൾ",
+    "status": "ADD ALIAS",
+    "reason": "Added 'Bear Crawls' alias.",
+    "muscle_group": "Full Body",
+    "equipment": "Bodyweight"
+  },
+  "Treadmill Walking": {
+    "exercise_id": 191,
+    "current_name": "Treadmill Walking",
+    "recommended_display_name": "Treadmill Walking",
+    "formal_name": "Motorized Treadmill Walking",
+    "aliases": [
+      "Treadmill Walk",
+      "Incline Treadmill Walk",
+      "Incline Walk",
+      "Treadmill Cardio",
+      "Cardio Walk",
+      "Treadmill"
+    ],
+    "kerala_gym_notes": "Standard gym warmup and steady-state cardio staple. Set slight incline to protect knees and walk with natural arm cadence.",
+    "malayalam_script": "ട്രെഡ്മിൽ വാക്കിംഗ്",
+    "status": "ADD ALIAS",
+    "reason": "Universal gym cardio exercise.",
+    "muscle_group": "Cardio",
+    "equipment": "Treadmill"
+  },
+  "Treadmill Running": {
+    "exercise_id": 192,
+    "current_name": "Treadmill Running",
+    "recommended_display_name": "Treadmill Running",
+    "formal_name": "Motorized Treadmill Running",
+    "aliases": [
+      "Treadmill Run",
+      "Treadmill Jog",
+      "Treadmill Sprint",
+      "Cardio Running",
+      "Jogging"
+    ],
+    "kerala_gym_notes": "High-intensity cardiovascular stamina drill. Warm up with a light walk before dialing up belt velocity.",
+    "malayalam_script": "ട്രെഡ്മിൽ റണ്ണിംഗ്",
+    "status": "ADD ALIAS",
+    "reason": "Universal gym cardio exercise.",
+    "muscle_group": "Cardio",
+    "equipment": "Treadmill"
+  },
+  "Outdoor Walking": {
+    "exercise_id": 193,
+    "current_name": "Outdoor Walking",
+    "recommended_display_name": "Outdoor Walking",
+    "formal_name": "Brisk Outdoor Walking",
+    "aliases": [
+      "Morning Walk",
+      "Brisk Walk",
+      "Road Walk",
+      "Walking",
+      "Evening Walk",
+      "Outdoor Walk"
+    ],
+    "kerala_gym_notes": "Everyday Kerala fitness habit. Brisk walking along road tracks or turf for active recovery and low-impact fat burn.",
+    "malayalam_script": "ഔട്ട്ഡോർ വാക്കിംഗ്",
+    "status": "ADD ALIAS",
+    "reason": "Commonly practiced functional conditioning.",
+    "muscle_group": "Cardio",
+    "equipment": "None"
+  },
+  "Outdoor Running": {
+    "exercise_id": 194,
+    "current_name": "Outdoor Running",
+    "recommended_display_name": "Outdoor Running",
+    "formal_name": "Road & Cross-Country Running",
+    "aliases": [
+      "Running",
+      "Jogging",
+      "Road Run",
+      "Track Run",
+      "Outdoor Jog",
+      "Sprint"
+    ],
+    "kerala_gym_notes": "Cardiovascular road workout. Excellent for building natural leg drive, lung capacity, and mental endurance.",
+    "malayalam_script": "ഔട്ട്ഡോർ റണ്ണിംഗ്",
+    "status": "ADD ALIAS",
+    "reason": "Standard athletic running exercise.",
+    "muscle_group": "Cardio",
+    "equipment": "None"
+  },
+  "Stationary Cycling": {
+    "exercise_id": 195,
+    "current_name": "Stationary Cycling",
+    "recommended_display_name": "Stationary Cycling",
+    "formal_name": "Indoor Stationary Ergometer Cycling",
+    "aliases": [
+      "Exercise Bike",
+      "Spin Bike",
+      "Gym Cycling",
+      "Stationary Bike",
+      "Cycle",
+      "Spinning"
+    ],
+    "kerala_gym_notes": "Low-impact knee-friendly cardio favorite in Kerala gyms. Maintain high cadence with moderate magnetic resistance.",
+    "malayalam_script": "സ്റ്റേഷനറി സൈക്ലിംഗ്",
+    "status": "ADD ALIAS",
+    "reason": "Universal gym machine cardio name.",
+    "muscle_group": "Cardio",
+    "equipment": "Stationary Bike"
+  },
+  "Elliptical Trainer": {
+    "exercise_id": 196,
+    "current_name": "Elliptical Trainer",
+    "recommended_display_name": "Elliptical Trainer",
+    "formal_name": "Elliptical Cross-Trainer",
+    "aliases": [
+      "Cross Trainer",
+      "Elliptical Machine",
+      "Elliptical Cardio",
+      "Elliptical",
+      "Glider"
+    ],
+    "kerala_gym_notes": "Commonly known as 'Cross Trainer' in local gyms. Smooth zero-impact gliding movement engaging both arms and legs.",
+    "malayalam_script": "എലിപ്റ്റിക്കൽ ട്രെയിനർ",
+    "status": "ADD ALIAS",
+    "reason": "Standard gym equipment cross-trainer.",
+    "muscle_group": "Cardio",
+    "equipment": "Elliptical"
+  },
+  "Rowing Machine": {
+    "exercise_id": 197,
+    "current_name": "Rowing Machine",
+    "recommended_display_name": "Rowing Machine",
+    "formal_name": "Indoor Ergometer Rowing",
+    "aliases": [
+      "Rower",
+      "Ergometer",
+      "Rowing Erg",
+      "Concept 2",
+      "Indoor Rower",
+      "Rowing"
+    ],
+    "kerala_gym_notes": "Demanding full-body stamina exercise. Drive through the legs first, swing hip angle, then pull handle into lower sternum.",
+    "malayalam_script": "റോവിംഗ് മെഷീൻ",
+    "status": "ADD ALIAS",
+    "reason": "Universal gym rowing machine name.",
+    "muscle_group": "Cardio",
+    "equipment": "Rowing Machine"
+  },
+  "Stair Climber": {
+    "exercise_id": 198,
+    "current_name": "Stair Climber",
+    "recommended_display_name": "Stair Climber",
+    "formal_name": "Revolving Stairmaster Climber",
+    "aliases": [
+      "Stairmaster",
+      "Stair Stepper",
+      "Step Mill",
+      "Stairs",
+      "Stepper"
+    ],
+    "kerala_gym_notes": "Popular lower body sculpting and calorie-burning cardio machine. Stand upright without bearing weight on console handles.",
+    "malayalam_script": "സ്റ്റെയർ ക്ലൈമ്പർ",
+    "status": "ADD ALIAS",
+    "reason": "Universal gym stair climber machine.",
+    "muscle_group": "Cardio",
+    "equipment": "Stair Machine"
+  },
+  "Jump Rope": {
+    "exercise_id": 199,
+    "current_name": "Jump Rope",
+    "recommended_display_name": "Jump Rope",
+    "formal_name": "Cardiovascular Rope Skipping",
+    "aliases": [
+      "Skipping",
+      "Skipping Rope",
+      "Speed Rope",
+      "Rope Jump",
+      "Skipping Cardio"
+    ],
+    "kerala_gym_notes": "Almost universally called 'Skipping' in Kerala gyms and sports academies. Jump lightly on the balls of your feet.",
+    "malayalam_script": "ജമ്പ് റോപ്പ് (സ്കിപ്പിംഗ്)",
+    "status": "ADD ALIAS",
+    "reason": "Universal sports conditioning exercise.",
+    "muscle_group": "Cardio",
+    "equipment": "Jump Rope"
+  },
+  "Jumping Jacks": {
+    "exercise_id": 200,
+    "current_name": "Jumping Jacks",
+    "recommended_display_name": "Jumping Jacks",
+    "formal_name": "Calisthenic Jumping Jacks",
+    "aliases": [
+      "Star Jumps",
+      "Jacks",
+      "Side Straddle Hop",
+      "Cardio Jacks"
+    ],
+    "kerala_gym_notes": "Universal calisthenics warmup and HIIT circuit drill. Land with soft knees to protect joints.",
+    "malayalam_script": "ജമ്പിംഗ് ജാക്ക്സ്",
+    "status": "ADD ALIAS",
+    "reason": "Universal bodyweight cardio movement.",
+    "muscle_group": "Cardio",
+    "equipment": "Bodyweight"
+  },
+  "High Knees": {
+    "exercise_id": 201,
+    "current_name": "High Knees",
+    "recommended_display_name": "High Knees",
+    "formal_name": "High Knee Running in Place",
+    "aliases": [
+      "High Knee Run",
+      "Running High Knees",
+      "Sprint High Knees",
+      "Knee Drives"
+    ],
+    "kerala_gym_notes": "Athletic sprinting drill used in HIIT and warmup circuits. Pump arms dynamically while driving knees upward.",
+    "malayalam_script": "ഹൈ നീസ്",
+    "status": "ADD ALIAS",
+    "reason": "Universal athletic conditioning exercise.",
+    "muscle_group": "Cardio",
+    "equipment": "Bodyweight"
+  }
+}

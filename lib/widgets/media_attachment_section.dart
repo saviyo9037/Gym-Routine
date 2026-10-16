@@ -12,7 +12,8 @@ import 'voice_recorder_dialog.dart';
 import 'audio_player_card.dart';
 
 class MediaAttachmentSection extends StatefulWidget {
-  final String entityType; // 'exercise', 'muscle', 'plan', 'session', 'workout_exercise'
+  final String
+  entityType; // 'exercise', 'muscle', 'plan', 'session', 'workout_exercise'
   final int entityId;
   final String title;
   final String? sectionTitle;
@@ -49,7 +50,8 @@ class _MediaAttachmentSectionState extends State<MediaAttachmentSection> {
   @override
   void didUpdateWidget(covariant MediaAttachmentSection oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.entityId != widget.entityId || oldWidget.entityType != widget.entityType) {
+    if (oldWidget.entityId != widget.entityId ||
+        oldWidget.entityType != widget.entityType) {
       _loadAttachments();
     }
   }
@@ -60,7 +62,10 @@ class _MediaAttachmentSectionState extends State<MediaAttachmentSection> {
       return;
     }
 
-    final list = await _dbService.getMediaAttachments(widget.entityType, widget.entityId);
+    final list = await _dbService.getMediaAttachments(
+      widget.entityType,
+      widget.entityId,
+    );
     if (mounted) {
       setState(() {
         _attachments = list;
@@ -82,7 +87,10 @@ class _MediaAttachmentSectionState extends State<MediaAttachmentSection> {
           child: Wrap(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
                 child: Text(
                   'ATTACH MEDIA',
                   style: const TextStyle(
@@ -95,8 +103,14 @@ class _MediaAttachmentSectionState extends State<MediaAttachmentSection> {
               ),
               const Divider(color: AppColors.border),
               ListTile(
-                leading: const Icon(Icons.camera_alt_rounded, color: AppColors.primary),
-                title: const Text('Capture Photo (Camera)', style: TextStyle(color: Colors.white)),
+                leading: const Icon(
+                  Icons.camera_alt_rounded,
+                  color: AppColors.primary,
+                ),
+                title: const Text(
+                  'Capture Photo (Camera)',
+                  style: TextStyle(color: Colors.white),
+                ),
                 onTap: () async {
                   Navigator.pop(ctx);
                   final path = await _mediaService.capturePhoto();
@@ -106,8 +120,14 @@ class _MediaAttachmentSectionState extends State<MediaAttachmentSection> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.photo_library_rounded, color: AppColors.primary),
-                title: const Text('Choose Photo from Gallery', style: TextStyle(color: Colors.white)),
+                leading: const Icon(
+                  Icons.photo_library_rounded,
+                  color: AppColors.primary,
+                ),
+                title: const Text(
+                  'Choose Photo from Gallery',
+                  style: TextStyle(color: Colors.white),
+                ),
                 onTap: () async {
                   Navigator.pop(ctx);
                   final path = await _mediaService.pickPhotoFromGallery();
@@ -117,8 +137,14 @@ class _MediaAttachmentSectionState extends State<MediaAttachmentSection> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.videocam_rounded, color: AppColors.primary),
-                title: const Text('Record Video (Camera)', style: TextStyle(color: Colors.white)),
+                leading: const Icon(
+                  Icons.videocam_rounded,
+                  color: AppColors.primary,
+                ),
+                title: const Text(
+                  'Record Video (Camera)',
+                  style: TextStyle(color: Colors.white),
+                ),
                 onTap: () async {
                   Navigator.pop(ctx);
                   final path = await _mediaService.recordVideo();
@@ -128,8 +154,14 @@ class _MediaAttachmentSectionState extends State<MediaAttachmentSection> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.video_library_rounded, color: AppColors.primary),
-                title: const Text('Choose Video from Gallery', style: TextStyle(color: Colors.white)),
+                leading: const Icon(
+                  Icons.video_library_rounded,
+                  color: AppColors.primary,
+                ),
+                title: const Text(
+                  'Choose Video from Gallery',
+                  style: TextStyle(color: Colors.white),
+                ),
                 onTap: () async {
                   Navigator.pop(ctx);
                   final path = await _mediaService.pickVideoFromGallery();
@@ -139,8 +171,14 @@ class _MediaAttachmentSectionState extends State<MediaAttachmentSection> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.mic_rounded, color: AppColors.primary),
-                title: const Text('Record Voice Note', style: TextStyle(color: Colors.white)),
+                leading: const Icon(
+                  Icons.mic_rounded,
+                  color: AppColors.primary,
+                ),
+                title: const Text(
+                  'Record Voice Note',
+                  style: TextStyle(color: Colors.white),
+                ),
                 onTap: () {
                   Navigator.pop(ctx);
                   VoiceRecorderDialog.show(
@@ -158,13 +196,24 @@ class _MediaAttachmentSectionState extends State<MediaAttachmentSection> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.audio_file_rounded, color: AppColors.primary),
-                title: const Text('Import Audio File', style: TextStyle(color: Colors.white)),
+                leading: const Icon(
+                  Icons.audio_file_rounded,
+                  color: AppColors.primary,
+                ),
+                title: const Text(
+                  'Import Audio File',
+                  style: TextStyle(color: Colors.white),
+                ),
                 onTap: () async {
                   Navigator.pop(ctx);
                   final path = await _mediaService.pickAudioFile();
                   if (path != null) {
-                    await _saveAttachment('audio', path, 'Imported Audio Memo', durationSeconds: 30);
+                    await _saveAttachment(
+                      'audio',
+                      path,
+                      'Imported Audio Memo',
+                      durationSeconds: 30,
+                    );
                   }
                 },
               ),
@@ -219,7 +268,11 @@ class _MediaAttachmentSectionState extends State<MediaAttachmentSection> {
           children: [
             Row(
               children: [
-                const Icon(Icons.perm_media_rounded, color: AppColors.primary, size: 16),
+                const Icon(
+                  Icons.perm_media_rounded,
+                  color: AppColors.primary,
+                  size: 16,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   widget.sectionTitle ?? widget.title,
@@ -233,22 +286,40 @@ class _MediaAttachmentSectionState extends State<MediaAttachmentSection> {
                 if (_attachments.isNotEmpty) ...[
                   const SizedBox(width: 6),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 1,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
                       '${_attachments.length}',
-                      style: const TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
               ],
             ),
             TextButton.icon(
-              icon: const Icon(Icons.add_rounded, size: 18, color: AppColors.primary),
-              label: const Text('Add Media', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 12)),
+              icon: const Icon(
+                Icons.add_rounded,
+                size: 18,
+                color: AppColors.primary,
+              ),
+              label: const Text(
+                'Add Media',
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
               onPressed: _showAddMediaSheet,
             ),
           ],
@@ -272,17 +343,28 @@ class _MediaAttachmentSectionState extends State<MediaAttachmentSection> {
             ),
             child: Column(
               children: [
-                const Icon(Icons.perm_media_outlined, color: AppColors.textSecondary, size: 32),
+                const Icon(
+                  Icons.perm_media_outlined,
+                  color: AppColors.textSecondary,
+                  size: 32,
+                ),
                 const SizedBox(height: 8),
                 const Text(
                   'No media attachments yet',
-                  style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 const Text(
                   'Attach form photos, execution videos, or trainer voice notes.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 11.5),
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 11.5,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton.icon(
@@ -302,7 +384,12 @@ class _MediaAttachmentSectionState extends State<MediaAttachmentSection> {
           if (photos.isNotEmpty) ...[
             const Text(
               'PHOTOS',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.0),
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.0,
+              ),
             ),
             const SizedBox(height: 8),
             GridView.builder(
@@ -324,7 +411,12 @@ class _MediaAttachmentSectionState extends State<MediaAttachmentSection> {
           if (videos.isNotEmpty) ...[
             const Text(
               'VIDEOS',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.0),
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.0,
+              ),
             ),
             const SizedBox(height: 8),
             ...videos.map((v) => _buildVideoCard(v)),
@@ -335,7 +427,12 @@ class _MediaAttachmentSectionState extends State<MediaAttachmentSection> {
           if (audios.isNotEmpty) ...[
             const Text(
               'VOICE NOTES & AUDIO',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.0),
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.0,
+              ),
             ),
             const SizedBox(height: 8),
             ...audios.map(
@@ -400,9 +497,19 @@ class _MediaAttachmentSectionState extends State<MediaAttachmentSection> {
                       child: const Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.broken_image_rounded, color: Colors.amber, size: 24),
+                          Icon(
+                            Icons.broken_image_rounded,
+                            color: Colors.amber,
+                            size: 24,
+                          ),
                           SizedBox(height: 4),
-                          Text('Missing', style: TextStyle(color: Colors.amber, fontSize: 9.5)),
+                          Text(
+                            'Missing',
+                            style: TextStyle(
+                              color: Colors.amber,
+                              fontSize: 9.5,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -411,17 +518,27 @@ class _MediaAttachmentSectionState extends State<MediaAttachmentSection> {
                     left: 0,
                     right: 0,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Colors.transparent, Colors.black.withValues(alpha: 0.8)],
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withValues(alpha: 0.8),
+                          ],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                         ),
                       ),
                       child: Text(
                         photo.title,
-                        style: const TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.bold,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -472,7 +589,11 @@ class _MediaAttachmentSectionState extends State<MediaAttachmentSection> {
                 color: AppColors.primary.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.play_arrow_rounded, color: AppColors.primary, size: 28),
+              child: const Icon(
+                Icons.play_arrow_rounded,
+                color: AppColors.primary,
+                size: 28,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -481,14 +602,21 @@ class _MediaAttachmentSectionState extends State<MediaAttachmentSection> {
                 children: [
                   Text(
                     video.title,
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13.5),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13.5,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
                   Text(
                     'Recorded on ${video.createdAt.length >= 10 ? video.createdAt.substring(0, 10) : video.createdAt}',
-                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 11,
+                    ),
                   ),
                 ],
               ),
@@ -503,9 +631,20 @@ class _MediaAttachmentSectionState extends State<MediaAttachmentSection> {
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.videocam_rounded, color: AppColors.primary, size: 14),
+                  Icon(
+                    Icons.videocam_rounded,
+                    color: AppColors.primary,
+                    size: 14,
+                  ),
                   SizedBox(width: 4),
-                  Text('Play', style: TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.bold)),
+                  Text(
+                    'Play',
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
             ),

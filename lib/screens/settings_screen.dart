@@ -291,7 +291,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         m.title,
@@ -348,8 +349,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ),
                                   onPressed: () async {
                                     if (m.id != null) {
-                                      await _dbService.deleteMediaAttachment(m.id!);
-                                      await _mediaService.deleteFile(m.filePath);
+                                      await _dbService.deleteMediaAttachment(
+                                        m.id!,
+                                      );
+                                      await _mediaService.deleteFile(
+                                        m.filePath,
+                                      );
                                       await _loadSettings();
                                       if (ctx.mounted) {
                                         Navigator.pop(ctx);

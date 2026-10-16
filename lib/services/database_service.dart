@@ -70,6 +70,18 @@ class DatabaseService {
   }
 
   // ------------------- EXERCISES -------------------
+  Future<Exercise?> getExerciseById(int id) async {
+    final db = await _dbHelper.database;
+    final maps = await db.query(
+      'exercises',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    if (maps.isEmpty) return null;
+    return Exercise.fromMap(maps.first);
+  }
+
   Future<List<Exercise>> getAllExercises() async {
     final db = await _dbHelper.database;
     final maps = await db.query(
@@ -425,13 +437,6 @@ class DatabaseService {
     return maps.map((m) => Exercise.fromMap(m)).toList();
   }
 
-  Future<Exercise?> getExerciseById(int id) async {
-    final db = await _dbHelper.database;
-    final maps = await db.query('exercises', where: 'id = ?', whereArgs: [id]);
-    if (maps.isEmpty) return null;
-    return Exercise.fromMap(maps.first);
-  }
-
   Future<int> insertExercise(Exercise ex) async {
     final db = await _dbHelper.database;
     return await db.insert('exercises', ex.toMap());
@@ -619,6 +624,24 @@ class DatabaseService {
     final int diff = anchorDate.weekday - DateTime.monday;
     final monday = anchorDate.subtract(Duration(days: diff));
 
+    final splitDefaults = [
+      {'primary': 'Chest', 'secondary': 'Triceps', 'rest': false}, // Mon
+      {'primary': 'Back', 'secondary': 'Biceps', 'rest': false}, // Tue
+      {
+        'primary': 'Shoulders',
+        'secondary': 'Abs and Core',
+        'rest': false,
+      }, // Wed
+      {
+        'primary': 'Quadriceps',
+        'secondary': 'Hamstrings',
+        'rest': false,
+      }, // Thu
+      {'primary': 'Chest', 'secondary': 'Back', 'rest': false}, // Fri
+      {'primary': 'Biceps', 'secondary': 'Cardio', 'rest': false}, // Sat
+      {'primary': 'Rest', 'secondary': null, 'rest': true}, // Sun
+    ];
+
     final List<WorkoutPlan> result = [];
     for (int i = 0; i < 7; i++) {
       final day = monday.add(Duration(days: i));
@@ -627,12 +650,161 @@ class DatabaseService {
       if (p != null) {
         result.add(p);
       } else {
+        final def = splitDefaults[i];
+        final isRest = def['rest'] as bool;
         result.add(
-          WorkoutPlan(date: dateStr, isRestDay: (i == 6)),
-        ); // Sunday default rest
+          WorkoutPlan(
+            date: dateStr,
+            isRestDay: isRest,
+            primaryMuscleName: isRest ? null : (def['primary'] as String?),
+            secondaryMuscleName: isRest ? null : (def['secondary'] as String?),
+          ),
+        );
       }
     }
     return result;
+  }
+
+  /// Configurable Six-Day Weekly Workout Split generator:
+  /// Mon: Chest + Triceps
+  /// Tue: Back + Biceps
+  /// Wed: Shoulders + Abs
+  /// Thu: Legs (Quads + Hamstrings)
+  /// Fri: Chest + Back (Upper Body Hypertrophy)
+  /// Sat: Arms + Cardio & Conditioning
+  /// Sun: Rest & Active Recovery
+  static const List<Map<String, dynamic>> sixDaySplitConfig = [
+    // Day 1: Monday - Chest + Triceps
+    {
+      'day': 'Monday',
+      'title': 'Chest & Triceps',
+      'primaryId': 1,
+      'primary': 'Chest',
+      'secondaryId': 7,
+      'secondary': 'Triceps',
+      'isRest': false,
+      'notes': 'Upper body push hypertrophy focusing on barbell press and triceps lockout.',
+      'exerciseIds': [1, 2, 91, 95],
+    },
+    // Day 2: Tuesday - Back + Biceps
+    {
+      'day': 'Tuesday',
+      'title': 'Back & Biceps',
+      'primaryId': 2,
+      'primary': 'Back',
+      'secondaryId': 6,
+      'secondary': 'Biceps',
+      'isRest': false,
+      'notes': 'Pull chain strength: Lat pulldown width and bent-over rowing thickness paired with dumbbell curls.',
+      'exerciseIds': [26, 31, 69, 73],
+    },
+    // Day 3: Wednesday - Shoulders + Abs
+    {
+      'day': 'Wednesday',
+      'title': 'Shoulders & Abs',
+      'primaryId': 5,
+      'primary': 'Shoulders',
+      'secondaryId': 13,
+      'secondary': 'Abs and Core',
+      'isRest': false,
+      'notes': 'Overhead shoulder capping with lateral delt raises and core stability.',
+      'exerciseIds': [53, 58, 161, 176],
+    },
+    // Day 4: Thursday - Legs
+    {
+      'day': 'Thursday',
+      'title': 'Legs & Calves',
+      'primaryId': 9,
+      'primary': 'Quadriceps',
+      'secondaryId': 10,
+      'secondary': 'Hamstrings',
+      'isRest': false,
+      'notes': 'Lower body power foundation: Heavy back squats, Romanian deadlifts, lunges, and calf raises.',
+      'exerciseIds': [119, 134, 126, 154],
+    },
+    // Day 5: Friday - Chest + Back
+    {
+      'day': 'Friday',
+      'title': 'Chest & Back',
+      'primaryId': 1,
+      'primary': 'Chest',
+      'secondaryId': 2,
+      'secondary': 'Back',
+      'isRest': false,
+      'notes': 'Antagonist upper body volume: Dumbbell pressing paired with seated cable rows.',
+      'exerciseIds': [4, 10, 35, 26],
+    },
+    // Day 6: Saturday - Arms + Cardio
+    {
+      'day': 'Saturday',
+      'title': 'Arms & Cardio',
+      'primaryId': 6,
+      'primary': 'Biceps',
+      'secondaryId': 15,
+      'secondary': 'Cardio',
+      'isRest': false,
+      'notes': 'Arm hypertrophy pump coupled with heart-pumping aerobic cardio conditioning.',
+      'exerciseIds': [69, 73, 91, 192, 199],
+    },
+    // Day 7: Sunday - Rest & Recovery
+    {
+      'day': 'Sunday',
+      'title': 'Rest & Recovery',
+      'primaryId': null,
+      'primary': null,
+      'secondaryId': null,
+      'secondary': null,
+      'isRest': true,
+      'notes': 'Scheduled full rest & recovery day. Focus on hydration, mobility, and complete muscle replenishment.',
+      'exerciseIds': <int>[],
+    },
+  ];
+
+  Future<void> applySixDaySplitPreset(
+    DateTime anchorDate, {
+    bool overwriteExisting = false,
+  }) async {
+    final int diff = anchorDate.weekday - DateTime.monday;
+    final monday = anchorDate.subtract(Duration(days: diff));
+
+    for (int i = 0; i < 7; i++) {
+      final day = monday.add(Duration(days: i));
+      final dateStr = DateFormat('yyyy-MM-dd').format(day);
+      final existingPlan = await getPlanForDate(dateStr);
+
+      if (existingPlan != null &&
+          existingPlan.exercises.isNotEmpty &&
+          !overwriteExisting) {
+        continue; // Preserve existing user-customized plan
+      }
+
+      final cfg = sixDaySplitConfig[i];
+      final isRest = cfg['isRest'] as bool;
+
+      final plan = WorkoutPlan(
+        id: existingPlan?.id,
+        date: dateStr,
+        isRestDay: isRest,
+        primaryMuscleId: cfg['primaryId'] as int?,
+        primaryMuscleName: cfg['primary'] as String?,
+        secondaryMuscleId: cfg['secondaryId'] as int?,
+        secondaryMuscleName: cfg['secondary'] as String?,
+        notes: cfg['notes'] as String?,
+      );
+
+      await saveOrUpdatePlan(plan);
+
+      final exerciseIds = cfg['exerciseIds'] as List<int>;
+      if (!isRest && exerciseIds.isNotEmpty) {
+        for (int order = 0; order < exerciseIds.length; order++) {
+          final exId = exerciseIds[order];
+          final ex = await getExerciseById(exId);
+          if (ex != null) {
+            await addExerciseToDatePlan(dateStr, ex);
+          }
+        }
+      }
+    }
   }
 
   // ------------------- CHANGE LOGS -------------------

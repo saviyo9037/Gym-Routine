@@ -28,7 +28,8 @@ class RoutineService {
   RoutineService._internal();
 
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
-  final RoutineNotificationService _notificationService = RoutineNotificationService();
+  final RoutineNotificationService _notificationService =
+      RoutineNotificationService();
   final AlarmService _alarmService = AlarmService();
 
   /// Retrieves all routines from the database sorted by start time
@@ -115,7 +116,11 @@ class RoutineService {
   }
 
   /// Updates time only for quick action
-  Future<void> updateRoutineTime(int id, String startTime, String endTime) async {
+  Future<void> updateRoutineTime(
+    int id,
+    String startTime,
+    String endTime,
+  ) async {
     final existing = await getRoutineById(id);
     if (existing == null) return;
     final updated = existing.copyWith(
@@ -158,11 +163,7 @@ class RoutineService {
       where: 'routine_id = ?',
       whereArgs: [id],
     );
-    return await db.delete(
-      'routines',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete('routines', where: 'id = ?', whereArgs: [id]);
   }
 
   /// Gets routine items scheduled for a specific date, paired with any recorded completion
@@ -172,7 +173,9 @@ class RoutineService {
 
     // Fetch all enabled routines
     final allRoutines = await getEnabledRoutines();
-    final dayRoutines = allRoutines.where((r) => r.appliesToDate(date)).toList();
+    final dayRoutines = allRoutines
+        .where((r) => r.appliesToDate(date))
+        .toList();
 
     // Fetch completions recorded for this date
     final List<Map<String, dynamic>> completionMaps = await db.query(
@@ -206,7 +209,9 @@ class RoutineService {
   }
 
   /// Returns the currently active item, or the next upcoming item today
-  Future<RoutineTodayItem?> getNextUpcomingRoutine([DateTime? referenceTime]) async {
+  Future<RoutineTodayItem?> getNextUpcomingRoutine([
+    DateTime? referenceTime,
+  ]) async {
     final now = referenceTime ?? DateTime.now();
     final todayItems = await getTodayRoutineItems();
 
@@ -236,9 +241,13 @@ class RoutineService {
   }
 
   /// Returns the next upcoming meal / snack routine
-  Future<RoutineTodayItem?> getNextUpcomingMeal([DateTime? referenceTime]) async {
+  Future<RoutineTodayItem?> getNextUpcomingMeal([
+    DateTime? referenceTime,
+  ]) async {
     final todayItems = await getTodayRoutineItems();
-    final mealItems = todayItems.where((i) => i.routine.isFoodCategory).toList();
+    final mealItems = todayItems
+        .where((i) => i.routine.isFoodCategory)
+        .toList();
     if (mealItems.isEmpty) return null;
 
     final now = referenceTime ?? DateTime.now();
@@ -311,17 +320,13 @@ class RoutineService {
     final dateStr = DateFormat('yyyy-MM-dd').format(date);
     final nowIso = DateTime.now().toIso8601String();
 
-    await db.insert(
-      'routine_completions',
-      {
-        'routine_id': routineId,
-        'date': dateStr,
-        'status': status.toLowerCase(),
-        'notes': notes,
-        'completed_at': nowIso,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('routine_completions', {
+      'routine_id': routineId,
+      'date': dateStr,
+      'status': status.toLowerCase(),
+      'notes': notes,
+      'completed_at': nowIso,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   /// Clears/unsets completion status for an activity on a given date
@@ -339,7 +344,9 @@ class RoutineService {
   }
 
   /// Retrieves completion history for a specific routine (reverse chronological)
-  Future<List<RoutineCompletion>> getRoutineCompletionHistory(int routineId) async {
+  Future<List<RoutineCompletion>> getRoutineCompletionHistory(
+    int routineId,
+  ) async {
     final db = await _dbHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(
       'routine_completions',
@@ -369,12 +376,15 @@ class RoutineService {
       totalScheduled += allRoutines.where((r) => r.appliesToDate(day)).length;
     }
 
-    final List<Map<String, dynamic>> completions = await db.rawQuery('''
+    final List<Map<String, dynamic>> completions = await db.rawQuery(
+      '''
       SELECT status, COUNT(*) as count 
       FROM routine_completions
       WHERE date >= ? AND date <= ?
       GROUP BY status
-    ''', [startStr, endStr]);
+    ''',
+      [startStr, endStr],
+    );
 
     int completed = 0;
     int skipped = 0;
@@ -389,7 +399,9 @@ class RoutineService {
       }
     }
 
-    final rate = totalScheduled > 0 ? (completed / totalScheduled).clamp(0.0, 1.0) : 0.0;
+    final rate = totalScheduled > 0
+        ? (completed / totalScheduled).clamp(0.0, 1.0)
+        : 0.0;
 
     return RoutineWeeklyStats(
       totalScheduled: totalScheduled,

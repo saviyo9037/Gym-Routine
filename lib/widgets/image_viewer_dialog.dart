@@ -58,7 +58,9 @@ class _ImageViewerDialogState extends State<ImageViewerDialog> {
   }
 
   Future<void> _resolvePath() async {
-    final path = await _mediaService.resolveFilePath(_currentAttachment.filePath);
+    final path = await _mediaService.resolveFilePath(
+      _currentAttachment.filePath,
+    );
     final exists = await File(path).exists();
     if (mounted) {
       setState(() {
@@ -80,8 +82,14 @@ class _ImageViewerDialogState extends State<ImageViewerDialog> {
         child: Wrap(
           children: [
             ListTile(
-              leading: const Icon(Icons.camera_alt_rounded, color: AppColors.primary),
-              title: const Text('Capture with Camera', style: TextStyle(color: Colors.white)),
+              leading: const Icon(
+                Icons.camera_alt_rounded,
+                color: AppColors.primary,
+              ),
+              title: const Text(
+                'Capture with Camera',
+                style: TextStyle(color: Colors.white),
+              ),
               onTap: () async {
                 Navigator.pop(sheetCtx);
                 final newPath = await _mediaService.capturePhoto();
@@ -91,8 +99,14 @@ class _ImageViewerDialogState extends State<ImageViewerDialog> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.photo_library_rounded, color: AppColors.primary),
-              title: const Text('Choose from Gallery', style: TextStyle(color: Colors.white)),
+              leading: const Icon(
+                Icons.photo_library_rounded,
+                color: AppColors.primary,
+              ),
+              title: const Text(
+                'Choose from Gallery',
+                style: TextStyle(color: Colors.white),
+              ),
               onTap: () async {
                 Navigator.pop(sheetCtx);
                 final newPath = await _mediaService.pickPhotoFromGallery();
@@ -140,14 +154,20 @@ class _ImageViewerDialogState extends State<ImageViewerDialog> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surfaceElevated,
-        title: const Text('Delete Image?', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Delete Image?',
+          style: TextStyle(color: Colors.white),
+        ),
         content: const Text(
           'Are you sure you want to delete this photo attachment? This cannot be undone.',
           style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
-            child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
             onPressed: () => Navigator.pop(ctx, false),
           ),
           ElevatedButton(
@@ -200,12 +220,18 @@ class _ImageViewerDialogState extends State<ImageViewerDialog> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               color: AppColors.surfaceElevated,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
               border: Border.all(color: AppColors.border),
             ),
             child: Row(
               children: [
-                const Icon(Icons.photo_rounded, color: AppColors.primary, size: 20),
+                const Icon(
+                  Icons.photo_rounded,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -248,55 +274,80 @@ class _ImageViewerDialogState extends State<ImageViewerDialog> {
               width: double.infinity,
               color: Colors.black,
               child: _isLoading
-                  ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                      ),
+                    )
                   : (!_fileExists
-                      ? Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(24),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.broken_image_rounded,
-                                  color: Colors.amber,
-                                  size: 64,
-                                ),
-                                const SizedBox(height: 16),
-                                const Text(
-                                  'Photo file could not be found on device',
-                                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  _resolvedPath,
-                                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 20),
-                                ElevatedButton.icon(
-                                  icon: const Icon(Icons.sync_rounded, color: Colors.black),
-                                  label: const Text('Replace Photo', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-                                  onPressed: _replaceImage,
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                      : InteractiveViewer(
-                          minScale: 0.5,
-                          maxScale: 4.0,
-                          child: Center(
-                            child: Image.file(
-                              File(_resolvedPath),
-                              fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) => const Center(
-                                child: Text('Failed to render photo', style: TextStyle(color: Colors.white)),
+                        ? Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(24),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.broken_image_rounded,
+                                    color: Colors.amber,
+                                    size: 64,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    'Photo file could not be found on device',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    _resolvedPath,
+                                    style: const TextStyle(
+                                      color: AppColors.textSecondary,
+                                      fontSize: 11,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 20),
+                                  ElevatedButton.icon(
+                                    icon: const Icon(
+                                      Icons.sync_rounded,
+                                      color: Colors.black,
+                                    ),
+                                    label: const Text(
+                                      'Replace Photo',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.primary,
+                                    ),
+                                    onPressed: _replaceImage,
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
-                        )),
+                          )
+                        : InteractiveViewer(
+                            minScale: 0.5,
+                            maxScale: 4.0,
+                            child: Center(
+                              child: Image.file(
+                                File(_resolvedPath),
+                                fit: BoxFit.contain,
+                                errorBuilder: (_, __, ___) => const Center(
+                                  child: Text(
+                                    'Failed to render photo',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )),
             ),
           ),
 
@@ -305,25 +356,51 @@ class _ImageViewerDialogState extends State<ImageViewerDialog> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
               color: AppColors.surfaceElevated,
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(16),
+              ),
               border: Border.all(color: AppColors.border),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 TextButton.icon(
-                  icon: const Icon(Icons.sync_rounded, color: AppColors.primary, size: 18),
-                  label: const Text('Replace', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                  icon: const Icon(
+                    Icons.sync_rounded,
+                    color: AppColors.primary,
+                    size: 18,
+                  ),
+                  label: const Text(
+                    'Replace',
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   onPressed: _replaceImage,
                 ),
                 TextButton.icon(
-                  icon: const Icon(Icons.share_rounded, color: Colors.white, size: 18),
-                  label: const Text('Share', style: TextStyle(color: Colors.white)),
+                  icon: const Icon(
+                    Icons.share_rounded,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                  label: const Text(
+                    'Share',
+                    style: TextStyle(color: Colors.white),
+                  ),
                   onPressed: _shareImage,
                 ),
                 TextButton.icon(
-                  icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 18),
-                  label: const Text('Delete', style: TextStyle(color: Colors.redAccent)),
+                  icon: const Icon(
+                    Icons.delete_outline_rounded,
+                    color: Colors.redAccent,
+                    size: 18,
+                  ),
+                  label: const Text(
+                    'Delete',
+                    style: TextStyle(color: Colors.redAccent),
+                  ),
                   onPressed: _deleteImage,
                 ),
               ],

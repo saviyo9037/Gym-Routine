@@ -7,6 +7,7 @@ import '../models/muscle_group.dart';
 import '../models/exercise.dart';
 import '../services/database_service.dart';
 import '../services/exercise_media_service.dart';
+import '../services/exercise_terminology_service.dart';
 import '../widgets/exercise_image_widget.dart';
 import 'muscle_detail_screen.dart';
 import 'exercise_detail_screen.dart';
@@ -170,16 +171,10 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
       }).toList();
     }
 
-    // Apply search query
+    // Apply search query via Kerala gym-friendly terminology service
     if (query.isNotEmpty) {
       list = list.where((e) {
-        return e.name.toLowerCase().contains(query) ||
-            e.muscleGroupName.toLowerCase().contains(query) ||
-            e.secondaryMuscles.toLowerCase().contains(query) ||
-            e.target.toLowerCase().contains(query) ||
-            e.equipment.toLowerCase().contains(query) ||
-            e.description.toLowerCase().contains(query) ||
-            e.instructions.toLowerCase().contains(query);
+        return ExerciseTerminologyService.instance.matchesSearch(e, query);
       }).toList();
     }
 
@@ -974,139 +969,179 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                child: Builder(
+                  builder: (context) {
+                    final term = ExerciseTerminologyService.instance
+                        .getTerminology(id: ex.id, name: ex.name);
+                    final displayName =
+                        term?.recommendedDisplayName.isNotEmpty == true
+                        ? term!.recommendedDisplayName
+                        : ex.name;
+                    final primaryAlias = term != null && term.aliases.isNotEmpty
+                        ? term.aliases.firstWhere(
+                            (a) =>
+                                a.toLowerCase() != displayName.toLowerCase() &&
+                                a.toLowerCase() != ex.name.toLowerCase(),
+                            orElse: () => term.aliases.first,
+                          )
+                        : '';
+                    final friendlyMuscle = ExerciseTerminologyService.instance
+                        .getFriendlyMuscleName(ex.muscleGroupName);
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Text(
-                            ex.name,
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                displayName,
+                                style: const TextStyle(
+                                  color: AppColors.textMain,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            // Favourite toggle
+                            IconButton(
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              icon: Icon(
+                                ex.isFavourite
+                                    ? Icons.favorite_rounded
+                                    : Icons.favorite_border_rounded,
+                                color: ex.isFavourite
+                                    ? Colors.redAccent
+                                    : AppColors.textMuted,
+                                size: 20,
+                              ),
+                              onPressed: () => _toggleFavourite(ex),
+                            ),
+                          ],
+                        ),
+                        if (primaryAlias.isNotEmpty &&
+                            primaryAlias.toLowerCase() !=
+                                displayName.toLowerCase()) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            'Also: $primaryAlias',
                             style: const TextStyle(
-                              color: AppColors.textMain,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
+                              color: AppColors.textMuted,
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w500,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                        // Favourite toggle
-                        IconButton(
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                          icon: Icon(
-                            ex.isFavourite
-                                ? Icons.favorite_rounded
-                                : Icons.favorite_border_rounded,
-                            color: ex.isFavourite
-                                ? Colors.redAccent
-                                : AppColors.textMuted,
-                            size: 20,
-                          ),
-                          onPressed: () => _toggleFavourite(ex),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${ex.muscleGroupName} • ${ex.equipment}',
-                      style: const TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Target: ${ex.target}',
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 11,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (ex.secondaryMuscles.isNotEmpty) ...[
-                      const SizedBox(height: 3),
-                      Text(
-                        'Secondary: ${ex.secondaryMuscles}',
-                        style: const TextStyle(
-                          color: AppColors.textMuted,
-                          fontSize: 10.5,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.surfaceElevated,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            ex.difficulty,
-                            style: TextStyle(
-                              color: ex.difficulty == 'Beginner'
-                                  ? Colors.greenAccent
-                                  : (ex.difficulty == 'Advanced'
-                                        ? Colors.orangeAccent
-                                        : AppColors.primary),
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        if (ex.isCompound) ...[
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(
-                                color: AppColors.primary.withValues(alpha: 0.4),
-                              ),
-                            ),
-                            child: const Text(
-                              'Compound',
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
                         ],
-                        const SizedBox(width: 8),
+                        const SizedBox(height: 4),
                         Text(
-                          '${ex.defaultSets}×${ex.defaultReps} reps',
+                          '$friendlyMuscle • ${ex.equipment}',
                           style: const TextStyle(
-                            color: AppColors.textMuted,
+                            color: AppColors.primary,
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Target: ${ex.target}',
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
                             fontSize: 11,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        const Spacer(),
-                        const Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          color: AppColors.textMuted,
-                          size: 12,
+                        if (ex.secondaryMuscles.isNotEmpty) ...[
+                          const SizedBox(height: 3),
+                          Text(
+                            'Secondary: ${ex.secondaryMuscles}',
+                            style: const TextStyle(
+                              color: AppColors.textMuted,
+                              fontSize: 10.5,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.surfaceElevated,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                ex.difficulty,
+                                style: TextStyle(
+                                  color: ex.difficulty == 'Beginner'
+                                      ? Colors.greenAccent
+                                      : (ex.difficulty == 'Advanced'
+                                            ? Colors.orangeAccent
+                                            : AppColors.primary),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            if (ex.isCompound) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.15,
+                                  ),
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(
+                                    color: AppColors.primary.withValues(
+                                      alpha: 0.4,
+                                    ),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Compound',
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                            const SizedBox(width: 8),
+                            Text(
+                              '${ex.defaultSets}×${ex.defaultReps} reps',
+                              style: const TextStyle(
+                                color: AppColors.textMuted,
+                                fontSize: 11,
+                              ),
+                            ),
+                            const Spacer(),
+                            const Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              color: AppColors.textMuted,
+                              size: 12,
+                            ),
+                          ],
                         ),
                       ],
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
             ),
