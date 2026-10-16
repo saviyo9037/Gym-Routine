@@ -344,8 +344,8 @@ class DatabaseHelper {
     for (final ex in SeedData.exercises) {
       final existing = await db.query(
         'exercises',
-        where: 'name = ?',
-        whereArgs: [ex.name],
+        where: 'id = ? OR name = ?',
+        whereArgs: [ex.id, ex.name],
         limit: 1,
       );
       if (existing.isEmpty) {

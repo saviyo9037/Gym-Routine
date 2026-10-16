@@ -106,8 +106,7 @@ class DatabaseService {
     final db = await _dbHelper.database;
     final maps = await db.query(
       'exercises',
-      where: 'muscle_group_id = ?',
-      whereArgs: [3], // 3 = Biceps
+      where: "muscle_group_name = 'Biceps' OR muscle_group_id = 6",
       orderBy: 'id ASC',
     );
     return maps.map((m) => Exercise.fromMap(m)).toList();
@@ -161,8 +160,10 @@ class DatabaseService {
 
   Future<List<Exercise>> getCatalogueExercises(
     String catalogueName, {
-    String sortBy =
-        'name_asc', // 'name_asc', 'name_desc', 'difficulty', 'recommended'
+    String sortBy = 'name_asc',
+    String? subCategory,
+    String? secondaryMuscle,
+    bool includeSecondary = false,
   }) async {
     final db = await _dbHelper.database;
     String whereClause;
@@ -183,38 +184,143 @@ class DatabaseService {
     } else if (nameLower.contains('barbell')) {
       whereClause = "(equipment LIKE '%Barbell%' OR equipment LIKE '%EZ-Bar%' OR equipment LIKE '%Trap Bar%')";
     } else if (nameLower == 'chest') {
-      whereClause = "(muscle_group_name = 'Chest' OR secondary_muscles LIKE '%Chest%' OR secondary_muscles LIKE '%Pectoral%')";
-    } else if (nameLower == 'back') {
-      whereClause = "(muscle_group_name IN ('Back', 'Lats', 'Upper Back and Traps') OR secondary_muscles LIKE '%Back%' OR secondary_muscles LIKE '%Lat%' OR secondary_muscles LIKE '%Rhomboid%')";
-    } else if (nameLower == 'lats') {
-      whereClause =
-          "(muscle_group_name = 'Lats' OR secondary_muscles LIKE '%Lat%')";
-    } else if (nameLower.contains('upper back') || nameLower.contains('trap')) {
-      whereClause = "(muscle_group_name = 'Upper Back and Traps' OR secondary_muscles LIKE '%Trap%' OR secondary_muscles LIKE '%Rhomboid%' OR secondary_muscles LIKE '%Upper Back%')";
-    } else if (nameLower.contains('shoulder')) {
-      whereClause = "(muscle_group_name = 'Shoulders' OR secondary_muscles LIKE '%Deltoid%' OR secondary_muscles LIKE '%Shoulder%')";
-    } else if (nameLower == 'biceps') {
-      whereClause = "(muscle_group_name = 'Biceps' OR secondary_muscles LIKE '%Bicep%' OR secondary_muscles LIKE '%Brachialis%')";
+      if (includeSecondary) {
+        whereClause = "(muscle_group_name = 'Chest' OR secondary_muscles LIKE '%Chest%' OR secondary_muscles LIKE '%Pectoral%')";
+      } else {
+        whereClause = "muscle_group_name = 'Chest'";
+      }
     } else if (nameLower == 'triceps') {
-      whereClause = "(muscle_group_name = 'Triceps' OR secondary_muscles LIKE '%Tricep%')";
-    } else if (nameLower.contains('forearm') || nameLower.contains('grip')) {
-      whereClause = "(muscle_group_name = 'Forearms' OR secondary_muscles LIKE '%Forearm%' OR secondary_muscles LIKE '%Grip%')";
+      if (includeSecondary) {
+        whereClause = "(muscle_group_name = 'Triceps' OR secondary_muscles LIKE '%Tricep%')";
+      } else {
+        whereClause = "muscle_group_name = 'Triceps'";
+      }
+    } else if (nameLower == 'biceps') {
+      if (includeSecondary) {
+        whereClause = "(muscle_group_name = 'Biceps' OR secondary_muscles LIKE '%Bicep%' OR secondary_muscles LIKE '%Brachialis%')";
+      } else {
+        whereClause = "muscle_group_name = 'Biceps'";
+      }
+    } else if (nameLower.contains('shoulder')) {
+      if (includeSecondary) {
+        whereClause = "(muscle_group_name = 'Shoulders' OR secondary_muscles LIKE '%Deltoid%' OR secondary_muscles LIKE '%Shoulder%')";
+      } else {
+        whereClause = "muscle_group_name = 'Shoulders'";
+      }
+    } else if (nameLower == 'legs') {
+      if (subCategory != null &&
+          subCategory.isNotEmpty &&
+          subCategory.toLowerCase() != 'all') {
+        final subLower = subCategory.toLowerCase();
+        if (subLower.contains('quad')) {
+          whereClause = "muscle_group_name = 'Quadriceps'";
+        } else if (subLower.contains('hamstring')) {
+          whereClause = "muscle_group_name = 'Hamstrings'";
+        } else if (subLower.contains('glute')) {
+          whereClause = "muscle_group_name = 'Glutes'";
+        } else if (subLower.contains('calve') || subLower.contains('calf')) {
+          whereClause = "muscle_group_name = 'Calves'";
+        } else {
+          whereClause = "muscle_group_name IN ('Quadriceps', 'Hamstrings', 'Glutes', 'Calves')";
+        }
+      } else if (includeSecondary) {
+        whereClause = "(muscle_group_name IN ('Quadriceps', 'Hamstrings', 'Glutes', 'Calves') OR secondary_muscles LIKE '%Quad%' OR secondary_muscles LIKE '%Hamstring%' OR secondary_muscles LIKE '%Glute%' OR secondary_muscles LIKE '%Calf%')";
+      } else {
+        whereClause = "muscle_group_name IN ('Quadriceps', 'Hamstrings', 'Glutes', 'Calves')";
+      }
     } else if (nameLower.contains('quad')) {
-      whereClause = "(muscle_group_name = 'Quadriceps' OR secondary_muscles LIKE '%Quad%')";
+      if (includeSecondary) {
+        whereClause = "(muscle_group_name = 'Quadriceps' OR secondary_muscles LIKE '%Quad%')";
+      } else {
+        whereClause = "muscle_group_name = 'Quadriceps'";
+      }
     } else if (nameLower.contains('hamstring')) {
-      whereClause = "(muscle_group_name = 'Hamstrings' OR secondary_muscles LIKE '%Hamstring%')";
+      if (includeSecondary) {
+        whereClause = "(muscle_group_name = 'Hamstrings' OR secondary_muscles LIKE '%Hamstring%')";
+      } else {
+        whereClause = "muscle_group_name = 'Hamstrings'";
+      }
     } else if (nameLower.contains('glute')) {
-      whereClause =
-          "(muscle_group_name = 'Glutes' OR secondary_muscles LIKE '%Glute%')";
+      if (includeSecondary) {
+        whereClause = "(muscle_group_name = 'Glutes' OR secondary_muscles LIKE '%Glute%')";
+      } else {
+        whereClause = "muscle_group_name = 'Glutes'";
+      }
     } else if (nameLower.contains('calve') || nameLower.contains('calf')) {
-      whereClause = "(muscle_group_name = 'Calves' OR secondary_muscles LIKE '%Calf%' OR secondary_muscles LIKE '%Soleus%')";
+      if (includeSecondary) {
+        whereClause = "(muscle_group_name = 'Calves' OR secondary_muscles LIKE '%Calf%' OR secondary_muscles LIKE '%Soleus%')";
+      } else {
+        whereClause = "muscle_group_name = 'Calves'";
+      }
+    } else if (nameLower == 'back') {
+      if (subCategory != null &&
+          subCategory.isNotEmpty &&
+          subCategory.toLowerCase() != 'all') {
+        final subLower = subCategory.toLowerCase();
+        if (subLower == 'lats') {
+          whereClause = "muscle_group_name = 'Lats'";
+        } else if (subLower.contains('upper back') ||
+            subLower.contains('trap')) {
+          whereClause = "muscle_group_name = 'Upper Back and Traps'";
+        } else if (subLower.contains('mid') || subLower == 'back') {
+          whereClause = "muscle_group_name = 'Back'";
+        } else {
+          whereClause =
+              "muscle_group_name IN ('Back', 'Lats', 'Upper Back and Traps')";
+        }
+      } else if (includeSecondary) {
+        whereClause = "(muscle_group_name IN ('Back', 'Lats', 'Upper Back and Traps') OR secondary_muscles LIKE '%Back%' OR secondary_muscles LIKE '%Lat%' OR secondary_muscles LIKE '%Rhomboid%' OR secondary_muscles LIKE '%Trap%')";
+      } else {
+        whereClause =
+            "muscle_group_name IN ('Back', 'Lats', 'Upper Back and Traps')";
+      }
+    } else if (nameLower == 'lats') {
+      if (includeSecondary) {
+        whereClause =
+            "(muscle_group_name = 'Lats' OR secondary_muscles LIKE '%Lat%')";
+      } else {
+        whereClause = "muscle_group_name = 'Lats'";
+      }
+    } else if (nameLower.contains('upper back') || nameLower.contains('trap')) {
+      if (includeSecondary) {
+        whereClause = "(muscle_group_name = 'Upper Back and Traps' OR secondary_muscles LIKE '%Trap%' OR secondary_muscles LIKE '%Rhomboid%' OR secondary_muscles LIKE '%Upper Back%')";
+      } else {
+        whereClause = "muscle_group_name = 'Upper Back and Traps'";
+      }
+    } else if (nameLower.contains('forearm') || nameLower.contains('grip')) {
+      if (includeSecondary) {
+        whereClause = "(muscle_group_name = 'Forearms' OR secondary_muscles LIKE '%Forearm%' OR secondary_muscles LIKE '%Grip%')";
+      } else {
+        whereClause = "muscle_group_name = 'Forearms'";
+      }
     } else if (nameLower.contains('ab') || nameLower.contains('core')) {
-      whereClause = "(muscle_group_name = 'Abs and Core' OR secondary_muscles LIKE '%Core%' OR secondary_muscles LIKE '%Abdominal%' OR secondary_muscles LIKE '%Oblique%')";
+      if (includeSecondary) {
+        whereClause = "(muscle_group_name = 'Abs and Core' OR secondary_muscles LIKE '%Core%' OR secondary_muscles LIKE '%Abdominal%' OR secondary_muscles LIKE '%Oblique%')";
+      } else {
+        whereClause = "muscle_group_name = 'Abs and Core'";
+      }
+    } else if (nameLower == 'cardio') {
+      if (includeSecondary) {
+        whereClause = "(muscle_group_name = 'Cardio' OR secondary_muscles LIKE '%Cardio%' OR secondary_muscles LIKE '%Cardiovascular%')";
+      } else {
+        whereClause = "muscle_group_name = 'Cardio'";
+      }
     } else if (nameLower.contains('full body')) {
-      whereClause = "(muscle_group_name = 'Full Body' OR (is_compound = 1 AND (name LIKE '%Deadlift%' OR name LIKE '%Clean%' OR name LIKE '%Snatch%' OR name LIKE '%Burpee%' OR name LIKE '%Swing%' OR name LIKE '%Carry%')))";
+      if (includeSecondary) {
+        whereClause = "(muscle_group_name = 'Full Body' OR (is_compound = 1 AND (name LIKE '%Deadlift%' OR name LIKE '%Clean%' OR name LIKE '%Snatch%' OR name LIKE '%Burpee%' OR name LIKE '%Swing%' OR name LIKE '%Carry%')))";
+      } else {
+        whereClause = "muscle_group_name = 'Full Body'";
+      }
     } else {
       whereClause = "muscle_group_name LIKE ?";
       whereArgs = ['%$catalogueName%'];
+    }
+
+    if (secondaryMuscle != null &&
+        secondaryMuscle.isNotEmpty &&
+        secondaryMuscle.toLowerCase() != 'all') {
+      whereClause = "($whereClause) AND (secondary_muscles LIKE ?)";
+      whereArgs.add('%$secondaryMuscle%');
     }
 
     String orderSql;
@@ -243,26 +349,39 @@ class DatabaseService {
     return maps.map((m) => Exercise.fromMap(m)).toList();
   }
 
-  Future<int> getCatalogueCount(String catalogueName) async {
-    final exs = await getCatalogueExercises(catalogueName);
+  Future<int> getCatalogueCount(
+    String catalogueName, {
+    String? subCategory,
+    String? secondaryMuscle,
+    bool includeSecondary = false,
+  }) async {
+    final exs = await getCatalogueExercises(
+      catalogueName,
+      subCategory: subCategory,
+      secondaryMuscle: secondaryMuscle,
+      includeSecondary: includeSecondary,
+    );
     return exs.length;
   }
 
   Future<Map<String, int>> getAllCatalogueCounts() async {
     const allCatalogues = [
       'Chest',
-      'Back',
-      'Lats',
-      'Upper Back and Traps',
-      'Shoulders',
-      'Biceps',
       'Triceps',
+      'Back',
+      'Biceps',
+      'Legs',
+      'Abs / Core',
+      'Abs and Core',
+      'Shoulders',
+      'Cardio',
       'Forearms',
+      'Upper Back and Traps',
+      'Lats',
       'Quadriceps',
       'Hamstrings',
       'Glutes',
       'Calves',
-      'Abs and Core',
       'Full Body',
       'Compound Exercises',
       'Bodyweight Exercises',
@@ -281,6 +400,9 @@ class DatabaseService {
   Future<List<Exercise>> searchAndFilterExercises({
     int? muscleGroupId,
     String? categoryName,
+    String? subCategory,
+    String? secondaryMuscle,
+    bool includeSecondary = false,
     String? equipment,
     String? searchQuery,
     bool? onlyFavourites,
@@ -314,62 +436,170 @@ class DatabaseService {
           "(equipment LIKE '%Barbell%' OR equipment LIKE '%EZ-Bar%' OR equipment LIKE '%Trap Bar%')",
         );
       } else if (nameLower == 'chest') {
-        whereClauses.add(
-          "(muscle_group_name = 'Chest' OR secondary_muscles LIKE '%Chest%' OR secondary_muscles LIKE '%Pectoral%')",
-        );
+        if (includeSecondary) {
+          whereClauses.add(
+            "(muscle_group_name = 'Chest' OR secondary_muscles LIKE '%Chest%' OR secondary_muscles LIKE '%Pectoral%')",
+          );
+        } else {
+          whereClauses.add("muscle_group_name = 'Chest'");
+        }
+      } else if (nameLower == 'triceps') {
+        if (includeSecondary) {
+          whereClauses.add(
+            "(muscle_group_name = 'Triceps' OR secondary_muscles LIKE '%Tricep%')",
+          );
+        } else {
+          whereClauses.add("muscle_group_name = 'Triceps'");
+        }
+      } else if (nameLower == 'biceps') {
+        if (includeSecondary) {
+          whereClauses.add(
+            "(muscle_group_name = 'Biceps' OR secondary_muscles LIKE '%Bicep%' OR secondary_muscles LIKE '%Brachialis%')",
+          );
+        } else {
+          whereClauses.add("muscle_group_name = 'Biceps'");
+        }
+      } else if (nameLower.contains('shoulder')) {
+        if (includeSecondary) {
+          whereClauses.add(
+            "(muscle_group_name = 'Shoulders' OR secondary_muscles LIKE '%Deltoid%' OR secondary_muscles LIKE '%Shoulder%')",
+          );
+        } else {
+          whereClauses.add("muscle_group_name = 'Shoulders'");
+        }
+      } else if (nameLower == 'legs') {
+        if (subCategory != null &&
+            subCategory.isNotEmpty &&
+            subCategory.toLowerCase() != 'all') {
+          final s = subCategory.toLowerCase();
+          if (s.contains('quad')) {
+            whereClauses.add("muscle_group_name = 'Quadriceps'");
+          } else if (s.contains('hamstring')) {
+            whereClauses.add("muscle_group_name = 'Hamstrings'");
+          } else if (s.contains('glute')) {
+            whereClauses.add("muscle_group_name = 'Glutes'");
+          } else if (s.contains('calve') || s.contains('calf')) {
+            whereClauses.add("muscle_group_name = 'Calves'");
+          } else {
+            whereClauses.add(
+              "muscle_group_name IN ('Quadriceps', 'Hamstrings', 'Glutes', 'Calves')",
+            );
+          }
+        } else if (includeSecondary) {
+          whereClauses.add(
+            "(muscle_group_name IN ('Quadriceps', 'Hamstrings', 'Glutes', 'Calves') OR secondary_muscles LIKE '%Quad%' OR secondary_muscles LIKE '%Hamstring%' OR secondary_muscles LIKE '%Glute%' OR secondary_muscles LIKE '%Calf%')",
+          );
+        } else {
+          whereClauses.add(
+            "muscle_group_name IN ('Quadriceps', 'Hamstrings', 'Glutes', 'Calves')",
+          );
+        }
+      } else if (nameLower.contains('quad')) {
+        if (includeSecondary) {
+          whereClauses.add(
+            "(muscle_group_name = 'Quadriceps' OR secondary_muscles LIKE '%Quad%')",
+          );
+        } else {
+          whereClauses.add("muscle_group_name = 'Quadriceps'");
+        }
+      } else if (nameLower.contains('hamstring')) {
+        if (includeSecondary) {
+          whereClauses.add(
+            "(muscle_group_name = 'Hamstrings' OR secondary_muscles LIKE '%Hamstring%')",
+          );
+        } else {
+          whereClauses.add("muscle_group_name = 'Hamstrings'");
+        }
+      } else if (nameLower.contains('glute')) {
+        if (includeSecondary) {
+          whereClauses.add(
+            "(muscle_group_name = 'Glutes' OR secondary_muscles LIKE '%Glute%')",
+          );
+        } else {
+          whereClauses.add("muscle_group_name = 'Glutes'");
+        }
+      } else if (nameLower.contains('calve') || nameLower.contains('calf')) {
+        if (includeSecondary) {
+          whereClauses.add(
+            "(muscle_group_name = 'Calves' OR secondary_muscles LIKE '%Calf%' OR secondary_muscles LIKE '%Soleus%')",
+          );
+        } else {
+          whereClauses.add("muscle_group_name = 'Calves'");
+        }
       } else if (nameLower == 'back') {
-        whereClauses.add(
-          "(muscle_group_name IN ('Back', 'Lats', 'Upper Back and Traps') OR secondary_muscles LIKE '%Back%' OR secondary_muscles LIKE '%Lat%' OR secondary_muscles LIKE '%Rhomboid%')",
-        );
+        if (subCategory != null &&
+            subCategory.isNotEmpty &&
+            subCategory.toLowerCase() != 'all') {
+          final s = subCategory.toLowerCase();
+          if (s == 'lats') {
+            whereClauses.add("muscle_group_name = 'Lats'");
+          } else if (s.contains('upper back') || s.contains('trap')) {
+            whereClauses.add("muscle_group_name = 'Upper Back and Traps'");
+          } else if (s.contains('mid') || s == 'back') {
+            whereClauses.add("muscle_group_name = 'Back'");
+          } else {
+            whereClauses.add(
+              "muscle_group_name IN ('Back', 'Lats', 'Upper Back and Traps')",
+            );
+          }
+        } else if (includeSecondary) {
+          whereClauses.add(
+            "(muscle_group_name IN ('Back', 'Lats', 'Upper Back and Traps') OR secondary_muscles LIKE '%Back%' OR secondary_muscles LIKE '%Lat%' OR secondary_muscles LIKE '%Rhomboid%' OR secondary_muscles LIKE '%Trap%')",
+          );
+        } else {
+          whereClauses.add(
+            "muscle_group_name IN ('Back', 'Lats', 'Upper Back and Traps')",
+          );
+        }
       } else if (nameLower == 'lats') {
-        whereClauses.add(
-          "(muscle_group_name = 'Lats' OR secondary_muscles LIKE '%Lat%')",
-        );
+        if (includeSecondary) {
+          whereClauses.add(
+            "(muscle_group_name = 'Lats' OR secondary_muscles LIKE '%Lat%')",
+          );
+        } else {
+          whereClauses.add("muscle_group_name = 'Lats'");
+        }
       } else if (nameLower.contains('upper back') ||
           nameLower.contains('trap')) {
-        whereClauses.add(
-          "(muscle_group_name = 'Upper Back and Traps' OR secondary_muscles LIKE '%Trap%' OR secondary_muscles LIKE '%Rhomboid%' OR secondary_muscles LIKE '%Upper Back%')",
-        );
-      } else if (nameLower.contains('shoulder')) {
-        whereClauses.add(
-          "(muscle_group_name = 'Shoulders' OR secondary_muscles LIKE '%Deltoid%' OR secondary_muscles LIKE '%Shoulder%')",
-        );
-      } else if (nameLower == 'biceps') {
-        whereClauses.add(
-          "(muscle_group_name = 'Biceps' OR secondary_muscles LIKE '%Bicep%' OR secondary_muscles LIKE '%Brachialis%')",
-        );
-      } else if (nameLower == 'triceps') {
-        whereClauses.add(
-          "(muscle_group_name = 'Triceps' OR secondary_muscles LIKE '%Tricep%')",
-        );
+        if (includeSecondary) {
+          whereClauses.add(
+            "(muscle_group_name = 'Upper Back and Traps' OR secondary_muscles LIKE '%Trap%' OR secondary_muscles LIKE '%Rhomboid%' OR secondary_muscles LIKE '%Upper Back%')",
+          );
+        } else {
+          whereClauses.add("muscle_group_name = 'Upper Back and Traps'");
+        }
       } else if (nameLower.contains('forearm') || nameLower.contains('grip')) {
-        whereClauses.add(
-          "(muscle_group_name = 'Forearms' OR secondary_muscles LIKE '%Forearm%' OR secondary_muscles LIKE '%Grip%')",
-        );
-      } else if (nameLower.contains('quad')) {
-        whereClauses.add(
-          "(muscle_group_name = 'Quadriceps' OR secondary_muscles LIKE '%Quad%')",
-        );
-      } else if (nameLower.contains('hamstring')) {
-        whereClauses.add(
-          "(muscle_group_name = 'Hamstrings' OR secondary_muscles LIKE '%Hamstring%')",
-        );
-      } else if (nameLower.contains('glute')) {
-        whereClauses.add(
-          "(muscle_group_name = 'Glutes' OR secondary_muscles LIKE '%Glute%')",
-        );
-      } else if (nameLower.contains('calve') || nameLower.contains('calf')) {
-        whereClauses.add(
-          "(muscle_group_name = 'Calves' OR secondary_muscles LIKE '%Calf%' OR secondary_muscles LIKE '%Soleus%')",
-        );
+        if (includeSecondary) {
+          whereClauses.add(
+            "(muscle_group_name = 'Forearms' OR secondary_muscles LIKE '%Forearm%' OR secondary_muscles LIKE '%Grip%')",
+          );
+        } else {
+          whereClauses.add("muscle_group_name = 'Forearms'");
+        }
       } else if (nameLower.contains('ab') || nameLower.contains('core')) {
-        whereClauses.add(
-          "(muscle_group_name = 'Abs and Core' OR secondary_muscles LIKE '%Core%' OR secondary_muscles LIKE '%Abdominal%' OR secondary_muscles LIKE '%Oblique%')",
-        );
+        if (includeSecondary) {
+          whereClauses.add(
+            "(muscle_group_name = 'Abs and Core' OR secondary_muscles LIKE '%Core%' OR secondary_muscles LIKE '%Abdominal%' OR secondary_muscles LIKE '%Oblique%')",
+          );
+        } else {
+          whereClauses.add("muscle_group_name = 'Abs and Core'");
+        }
+      } else if (nameLower == 'cardio') {
+        if (includeSecondary) {
+          whereClauses.add(
+            "(muscle_group_name = 'Cardio' OR secondary_muscles LIKE '%Cardio%' OR secondary_muscles LIKE '%Cardiovascular%')",
+          );
+        } else {
+          whereClauses.add("muscle_group_name = 'Cardio'");
+        }
       } else if (nameLower.contains('full body')) {
-        whereClauses.add(
-          "(muscle_group_name = 'Full Body' OR (is_compound = 1 AND (name LIKE '%Deadlift%' OR name LIKE '%Clean%' OR name LIKE '%Snatch%' OR name LIKE '%Burpee%' OR name LIKE '%Swing%' OR name LIKE '%Carry%')))",
-        );
+        if (includeSecondary) {
+          whereClauses.add(
+            "(muscle_group_name = 'Full Body' OR (is_compound = 1 AND (name LIKE '%Deadlift%' OR name LIKE '%Clean%' OR name LIKE '%Snatch%' OR name LIKE '%Burpee%' OR name LIKE '%Swing%' OR name LIKE '%Carry%')))",
+          );
+        } else {
+          whereClauses.add("muscle_group_name = 'Full Body'");
+        }
       } else {
         whereClauses.add('muscle_group_name LIKE ?');
         whereArgs.add('%$categoryName%');
@@ -377,6 +607,13 @@ class DatabaseService {
     } else if (muscleGroupId != null && muscleGroupId > 0) {
       whereClauses.add('muscle_group_id = ?');
       whereArgs.add(muscleGroupId);
+    }
+
+    if (secondaryMuscle != null &&
+        secondaryMuscle.isNotEmpty &&
+        secondaryMuscle.toLowerCase() != 'all') {
+      whereClauses.add('secondary_muscles LIKE ?');
+      whereArgs.add('%$secondaryMuscle%');
     }
 
     if (equipment != null &&

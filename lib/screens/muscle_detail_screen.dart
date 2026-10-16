@@ -38,6 +38,8 @@ class _MuscleDetailScreenState extends State<MuscleDetailScreen> {
   String _selectedEquipment = 'All';
   String _selectedDifficulty = 'All';
   String _selectedSort = 'name_asc';
+  String _selectedSubCategory = 'All';
+  String _selectedSecondaryMuscle = 'All';
 
   final List<String> _equipmentFilters = [
     'All',
@@ -56,10 +58,78 @@ class _MuscleDetailScreenState extends State<MuscleDetailScreen> {
     'Advanced',
   ];
 
+  bool get _isLegsCategory {
+    final n = _muscleGroup.name.toLowerCase();
+    return n == 'legs' ||
+        n == 'quadriceps' ||
+        n == 'hamstrings' ||
+        n == 'glutes' ||
+        n == 'calves';
+  }
+
+  bool get _isBackCategory {
+    final n = _muscleGroup.name.toLowerCase();
+    return n == 'back' || n == 'lats' || n == 'upper back and traps';
+  }
+
+  List<String> get _subCategoryOptions {
+    if (_isLegsCategory) {
+      return ['All Legs', 'Quads', 'Hamstrings', 'Glutes', 'Calves'];
+    }
+    if (_isBackCategory) {
+      return ['All Back', 'Lats', 'Upper Back & Traps', 'Mid/Lower Back'];
+    }
+    return [];
+  }
+
+  List<String> get _availableSecondaryMuscles {
+    final Set<String> muscles = {};
+    for (final ex in _allExercises) {
+      if (ex.secondaryMuscles.isNotEmpty) {
+        for (final m in ex.secondaryMuscles.split(',')) {
+          final trimmed = m.trim();
+          if (trimmed.isNotEmpty) {
+            muscles.add(trimmed);
+          }
+        }
+      }
+    }
+    final list = muscles.toList()..sort();
+    return ['All', ...list];
+  }
+
+  bool get _hasActiveFilters {
+    final isSubActive =
+        _selectedSubCategory != 'All' &&
+        _selectedSubCategory != 'All Legs' &&
+        _selectedSubCategory != 'All Back';
+    return _selectedEquipment != 'All' ||
+        _selectedDifficulty != 'All' ||
+        _searchController.text.trim().isNotEmpty ||
+        isSubActive ||
+        _selectedSecondaryMuscle != 'All';
+  }
+
+  void _clearAllFilters() {
+    setState(() {
+      _selectedEquipment = 'All';
+      _selectedDifficulty = 'All';
+      _selectedSubCategory = _isLegsCategory
+          ? 'All Legs'
+          : (_isBackCategory ? 'All Back' : 'All');
+      _selectedSecondaryMuscle = 'All';
+      _searchController.clear();
+    });
+    _filterExercises();
+  }
+
   @override
   void initState() {
     super.initState();
     _muscleGroup = widget.muscleGroup;
+    _selectedSubCategory = _isLegsCategory
+        ? 'All Legs'
+        : (_isBackCategory ? 'All Back' : 'All');
     _loadData();
     _searchController.addListener(_filterExercises);
   }
@@ -87,7 +157,61 @@ class _MuscleDetailScreenState extends State<MuscleDetailScreen> {
     final query = _searchController.text.trim().toLowerCase();
     List<Exercise> list = List.from(_allExercises);
 
-    // Filter by equipment
+    // 1. Filter by sub-category (for Legs or Back)
+    if (_isLegsCategory &&
+        _selectedSubCategory != 'All' &&
+        _selectedSubCategory != 'All Legs') {
+      final sub = _selectedSubCategory.toLowerCase();
+      if (sub.contains('quad')) {
+        list = list
+            .where((e) => e.muscleGroupName.toLowerCase() == 'quadriceps')
+            .toList();
+      } else if (sub.contains('hamstring')) {
+        list = list
+            .where((e) => e.muscleGroupName.toLowerCase() == 'hamstrings')
+            .toList();
+      } else if (sub.contains('glute')) {
+        list = list
+            .where((e) => e.muscleGroupName.toLowerCase() == 'glutes')
+            .toList();
+      } else if (sub.contains('calve') || sub.contains('calf')) {
+        list = list
+            .where((e) => e.muscleGroupName.toLowerCase() == 'calves')
+            .toList();
+      }
+    } else if (_isBackCategory &&
+        _selectedSubCategory != 'All' &&
+        _selectedSubCategory != 'All Back') {
+      final sub = _selectedSubCategory.toLowerCase();
+      if (sub == 'lats') {
+        list = list
+            .where((e) => e.muscleGroupName.toLowerCase() == 'lats')
+            .toList();
+      } else if (sub.contains('trap') || sub.contains('upper back')) {
+        list = list
+            .where(
+              (e) => e.muscleGroupName.toLowerCase() == 'upper back and traps',
+            )
+            .toList();
+      } else if (sub.contains('mid') || sub == 'back') {
+        list = list
+            .where((e) => e.muscleGroupName.toLowerCase() == 'back')
+            .toList();
+      }
+    }
+
+    // 2. Filter by secondary muscle (if selected)
+    if (_selectedSecondaryMuscle != 'All') {
+      list = list
+          .where(
+            (e) => e.secondaryMuscles.toLowerCase().contains(
+              _selectedSecondaryMuscle.toLowerCase(),
+            ),
+          )
+          .toList();
+    }
+
+    // 3. Filter by equipment
     if (_selectedEquipment != 'All') {
       list = list.where((e) {
         return e.equipment.toLowerCase().contains(
@@ -96,21 +220,21 @@ class _MuscleDetailScreenState extends State<MuscleDetailScreen> {
       }).toList();
     }
 
-    // Filter by difficulty
+    // 4. Filter by difficulty
     if (_selectedDifficulty != 'All') {
       list = list.where((e) {
         return e.difficulty.toLowerCase() == _selectedDifficulty.toLowerCase();
       }).toList();
     }
 
-    // Filter by search query via Kerala gym-friendly terminology service
+    // 5. Filter by search query via Kerala gym-friendly terminology service
     if (query.isNotEmpty) {
       list = list.where((e) {
         return ExerciseTerminologyService.instance.matchesSearch(e, query);
       }).toList();
     }
 
-    // Sort list
+    // 6. Sort list
     if (_selectedSort == 'name_desc') {
       list.sort((a, b) => b.name.compareTo(a.name));
     } else if (_selectedSort == 'difficulty') {
@@ -452,6 +576,144 @@ class _MuscleDetailScreenState extends State<MuscleDetailScreen> {
                     ),
                   ),
 
+                  // Sub-category filter chips (for Legs: All Legs, Quads, Hamstrings, Glutes, Calves; for Back: All Back, Lats, Traps, Mid/Lower Back)
+                  if (_subCategoryOptions.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.alt_route_rounded,
+                          size: 14,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          _isLegsCategory
+                              ? 'LEG SUB-GROUPS'
+                              : 'BACK SUB-GROUPS',
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.1,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: _subCategoryOptions.map((sub) {
+                          final isSel = _selectedSubCategory == sub;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: FilterChip(
+                              selected: isSel,
+                              label: Text(sub),
+                              labelStyle: TextStyle(
+                                color: isSel
+                                    ? Colors.black
+                                    : AppColors.textSecondary,
+                                fontSize: 11.5,
+                                fontWeight: isSel
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                              backgroundColor: AppColors.cardSurface,
+                              selectedColor: AppColors.primary,
+                              checkmarkColor: Colors.black,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                side: BorderSide(
+                                  color: isSel
+                                      ? AppColors.primary
+                                      : AppColors.border,
+                                ),
+                              ),
+                              onSelected: (val) {
+                                setState(() {
+                                  _selectedSubCategory = sub;
+                                });
+                                _filterExercises();
+                              },
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+
+                  // Secondary / Assisting Muscle Filter Chips
+                  if (_availableSecondaryMuscles.length > 1) ...[
+                    const SizedBox(height: 10),
+                    const Row(
+                      children: [
+                        Icon(
+                          Icons.hub_rounded,
+                          size: 14,
+                          color: AppColors.primary,
+                        ),
+                        SizedBox(width: 6),
+                        Text(
+                          'ASSISTING / SECONDARY MUSCLE',
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.1,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: _availableSecondaryMuscles.take(10).map((
+                          sec,
+                        ) {
+                          final isSel = _selectedSecondaryMuscle == sec;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: FilterChip(
+                              selected: isSel,
+                              label: Text(
+                                sec == 'All' ? 'Primary Only' : '+ $sec',
+                              ),
+                              labelStyle: TextStyle(
+                                color: isSel
+                                    ? Colors.black
+                                    : AppColors.textSecondary,
+                                fontSize: 11.5,
+                                fontWeight: isSel
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                              backgroundColor: AppColors.cardSurface,
+                              selectedColor: AppColors.primary,
+                              checkmarkColor: Colors.black,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                side: BorderSide(
+                                  color: isSel
+                                      ? AppColors.primary
+                                      : AppColors.border,
+                                ),
+                              ),
+                              onSelected: (val) {
+                                setState(() {
+                                  _selectedSecondaryMuscle = sec;
+                                });
+                                _filterExercises();
+                              },
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+
                   const SizedBox(height: 12),
 
                   // Equipment Filter Chips
@@ -598,7 +860,82 @@ class _MuscleDetailScreenState extends State<MuscleDetailScreen> {
                     ],
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
+
+                  // Active Filters banner & Clear All
+                  if (_hasActiveFilters) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceElevated,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.primary.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.filter_alt_rounded,
+                            size: 15,
+                            color: AppColors.primary,
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'Showing ${_filteredExercises.length} filtered exercises',
+                              style: const TextStyle(
+                                color: AppColors.textMain,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: _clearAllFilters,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.redAccent.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: Colors.redAccent.withValues(
+                                    alpha: 0.4,
+                                  ),
+                                ),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.close_rounded,
+                                    size: 13,
+                                    color: Colors.redAccent,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'Clear Filters',
+                                    style: TextStyle(
+                                      color: Colors.redAccent,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
 
                   // Header with Count
                   Row(

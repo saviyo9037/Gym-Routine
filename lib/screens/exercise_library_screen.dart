@@ -14,6 +14,7 @@ import 'exercise_detail_screen.dart';
 import 'add_edit_exercise_screen.dart';
 
 enum LibraryViewMode {
+  mainCategories,
   muscleCatalogues,
   modalityCatalogues,
   allExercises,
@@ -24,6 +25,57 @@ enum LibraryViewMode {
 
 class ExerciseLibraryScreen extends StatefulWidget {
   const ExerciseLibraryScreen({super.key});
+
+  static final List<MuscleGroup> mainCategories = [
+    MuscleGroup(
+      id: 201,
+      name: 'Chest',
+      description: 'Pectoralis major and minor muscles, powering pressing, push-ups, and horizontal adduction.',
+      imagePath: 'assets/images/muscles/chest.jpg',
+    ),
+    MuscleGroup(
+      id: 202,
+      name: 'Triceps',
+      description: 'Lateral, long, and medial heads of the triceps brachii powering elbow extension and lockout.',
+      imagePath: 'assets/images/muscles/triceps.jpg',
+    ),
+    MuscleGroup(
+      id: 203,
+      name: 'Back',
+      description: 'Complete posterior pulling chain including lats, rhomboids, mid-traps, and spinal erectors.',
+      imagePath: 'assets/images/muscles/back.jpg',
+    ),
+    MuscleGroup(
+      id: 204,
+      name: 'Biceps',
+      description: 'Biceps brachii (long and short heads) and brachialis powering elbow flexion and supination.',
+      imagePath: 'assets/images/muscles/biceps.jpg',
+    ),
+    MuscleGroup(
+      id: 205,
+      name: 'Legs',
+      description: 'Complete lower body kinetic chain comprising quadriceps, hamstrings, glutes, and calves.',
+      imagePath: 'assets/images/muscles/quadriceps.jpg',
+    ),
+    MuscleGroup(
+      id: 206,
+      name: 'Abs / Core',
+      description: 'Rectus abdominis, obliques, transverse abdominis, and deep core brace powering midline rigidity.',
+      imagePath: 'assets/images/muscles/abs.jpg',
+    ),
+    MuscleGroup(
+      id: 207,
+      name: 'Shoulders',
+      description: 'Anterior, lateral, and posterior deltoid heads for 3D shoulder capping and overhead pressing.',
+      imagePath: 'assets/images/muscles/shoulders.jpg',
+    ),
+    MuscleGroup(
+      id: 208,
+      name: 'Cardio',
+      description: 'Cardiovascular conditioning, aerobic endurance, running, cycling, rowing, and metabolic stamina.',
+      imagePath: 'assets/images/muscles/cardio.jpg',
+    ),
+  ];
 
   static final List<MuscleGroup> modalityCategories = [
     MuscleGroup(
@@ -77,12 +129,34 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
   List<Exercise> _displayExercises = [];
   bool _isLoading = true;
 
-  LibraryViewMode _currentMode = LibraryViewMode.muscleCatalogues;
+  LibraryViewMode _currentMode = LibraryViewMode.mainCategories;
+  String _selectedCategory = 'All';
+  String _selectedSubCategory = 'All';
+  String _selectedSecondary = 'All';
   String _selectedEquipment = 'All';
   String _selectedDifficulty = 'All';
   String _selectedSort = 'name_asc';
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
+
+  final List<String> _categoryFilterOptions = [
+    'All',
+    'Chest',
+    'Triceps',
+    'Back',
+    'Biceps',
+    'Legs',
+    'Abs / Core',
+    'Shoulders',
+    'Cardio',
+    'Forearms',
+    'Traps',
+    'Quads',
+    'Hamstrings',
+    'Glutes',
+    'Calves',
+    'Full Body',
+  ];
 
   final List<String> _equipmentOptions = [
     'All',
@@ -100,6 +174,71 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
     'Intermediate',
     'Advanced',
   ];
+
+  List<String> get _availableSecondaryMuscles {
+    final Set<String> muscles = {};
+    for (final ex in _allExercises) {
+      if (ex.secondaryMuscles.isNotEmpty) {
+        for (final m in ex.secondaryMuscles.split(',')) {
+          final trimmed = m.trim();
+          if (trimmed.isNotEmpty) {
+            muscles.add(trimmed);
+          }
+        }
+      }
+    }
+    final list = muscles.toList()..sort();
+    return ['All', ...list];
+  }
+
+  bool get _hasActiveFilters {
+    final isSubActive =
+        _selectedSubCategory != 'All' &&
+        _selectedSubCategory != 'All Legs' &&
+        _selectedSubCategory != 'All Back';
+    return _selectedCategory != 'All' ||
+        isSubActive ||
+        _selectedSecondary != 'All' ||
+        _selectedEquipment != 'All' ||
+        _selectedDifficulty != 'All' ||
+        _searchController.text.trim().isNotEmpty;
+  }
+
+  void _clearAllFilters() {
+    setState(() {
+      _selectedCategory = 'All';
+      _selectedSubCategory = 'All';
+      _selectedSecondary = 'All';
+      _selectedEquipment = 'All';
+      _selectedDifficulty = 'All';
+      _searchController.clear();
+    });
+    _applyFilters();
+  }
+
+  int _getCountForCategory(String name) {
+    if (_catalogueCounts.containsKey(name)) {
+      return _catalogueCounts[name]!;
+    }
+    if (name == 'Abs / Core' && _catalogueCounts.containsKey('Abs and Core')) {
+      return _catalogueCounts['Abs and Core']!;
+    }
+    if (name == 'Legs') {
+      const legGroups = ['Quadriceps', 'Hamstrings', 'Glutes', 'Calves'];
+      return _allExercises
+          .where((e) => legGroups.contains(e.muscleGroupName))
+          .length;
+    }
+    if (name == 'Back') {
+      const backGroups = ['Back', 'Lats', 'Upper Back and Traps'];
+      return _allExercises
+          .where((e) => backGroups.contains(e.muscleGroupName))
+          .length;
+    }
+    return _allExercises
+        .where((e) => e.muscleGroupName.toLowerCase() == name.toLowerCase())
+        .length;
+  }
 
   @override
   void initState() {
@@ -137,6 +276,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
 
     List<Exercise> list;
     switch (_currentMode) {
+      case LibraryViewMode.mainCategories:
       case LibraryViewMode.muscleCatalogues:
       case LibraryViewMode.modalityCatalogues:
       case LibraryViewMode.allExercises:
@@ -155,7 +295,137 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
         break;
     }
 
-    // Apply equipment filter
+    // 1. Apply category filter
+    if (_selectedCategory != 'All') {
+      final cat = _selectedCategory.toLowerCase();
+      if (cat == 'chest') {
+        list = list
+            .where((e) => e.muscleGroupName.toLowerCase() == 'chest')
+            .toList();
+      } else if (cat == 'triceps') {
+        list = list
+            .where((e) => e.muscleGroupName.toLowerCase() == 'triceps')
+            .toList();
+      } else if (cat == 'biceps') {
+        list = list
+            .where((e) => e.muscleGroupName.toLowerCase() == 'biceps')
+            .toList();
+      } else if (cat.contains('shoulder')) {
+        list = list
+            .where((e) => e.muscleGroupName.toLowerCase() == 'shoulders')
+            .toList();
+      } else if (cat == 'legs') {
+        if (_selectedSubCategory != 'All' &&
+            _selectedSubCategory != 'All Legs') {
+          final sub = _selectedSubCategory.toLowerCase();
+          if (sub.contains('quad')) {
+            list = list
+                .where((e) => e.muscleGroupName.toLowerCase() == 'quadriceps')
+                .toList();
+          } else if (sub.contains('hamstring')) {
+            list = list
+                .where((e) => e.muscleGroupName.toLowerCase() == 'hamstrings')
+                .toList();
+          } else if (sub.contains('glute')) {
+            list = list
+                .where((e) => e.muscleGroupName.toLowerCase() == 'glutes')
+                .toList();
+          } else if (sub.contains('calve') || sub.contains('calf')) {
+            list = list
+                .where((e) => e.muscleGroupName.toLowerCase() == 'calves')
+                .toList();
+          }
+        } else {
+          const legGroups = ['quadriceps', 'hamstrings', 'glutes', 'calves'];
+          list = list
+              .where((e) => legGroups.contains(e.muscleGroupName.toLowerCase()))
+              .toList();
+        }
+      } else if (cat.contains('quad')) {
+        list = list
+            .where((e) => e.muscleGroupName.toLowerCase() == 'quadriceps')
+            .toList();
+      } else if (cat.contains('hamstring')) {
+        list = list
+            .where((e) => e.muscleGroupName.toLowerCase() == 'hamstrings')
+            .toList();
+      } else if (cat.contains('glute')) {
+        list = list
+            .where((e) => e.muscleGroupName.toLowerCase() == 'glutes')
+            .toList();
+      } else if (cat.contains('calve') || cat.contains('calf')) {
+        list = list
+            .where((e) => e.muscleGroupName.toLowerCase() == 'calves')
+            .toList();
+      } else if (cat == 'back') {
+        if (_selectedSubCategory != 'All' &&
+            _selectedSubCategory != 'All Back') {
+          final sub = _selectedSubCategory.toLowerCase();
+          if (sub == 'lats') {
+            list = list
+                .where((e) => e.muscleGroupName.toLowerCase() == 'lats')
+                .toList();
+          } else if (sub.contains('trap') || sub.contains('upper back')) {
+            list = list
+                .where(
+                  (e) =>
+                      e.muscleGroupName.toLowerCase() == 'upper back and traps',
+                )
+                .toList();
+          } else if (sub.contains('mid') || sub == 'back') {
+            list = list
+                .where((e) => e.muscleGroupName.toLowerCase() == 'back')
+                .toList();
+          }
+        } else {
+          const backGroups = ['back', 'lats', 'upper back and traps'];
+          list = list
+              .where(
+                (e) => backGroups.contains(e.muscleGroupName.toLowerCase()),
+              )
+              .toList();
+        }
+      } else if (cat == 'lats') {
+        list = list
+            .where((e) => e.muscleGroupName.toLowerCase() == 'lats')
+            .toList();
+      } else if (cat.contains('upper back') || cat.contains('trap')) {
+        list = list
+            .where(
+              (e) => e.muscleGroupName.toLowerCase() == 'upper back and traps',
+            )
+            .toList();
+      } else if (cat.contains('forearm')) {
+        list = list
+            .where((e) => e.muscleGroupName.toLowerCase() == 'forearms')
+            .toList();
+      } else if (cat.contains('ab') || cat.contains('core')) {
+        list = list
+            .where((e) => e.muscleGroupName.toLowerCase() == 'abs and core')
+            .toList();
+      } else if (cat == 'cardio') {
+        list = list
+            .where((e) => e.muscleGroupName.toLowerCase() == 'cardio')
+            .toList();
+      } else if (cat.contains('full body')) {
+        list = list
+            .where((e) => e.muscleGroupName.toLowerCase() == 'full body')
+            .toList();
+      }
+    }
+
+    // 2. Apply secondary muscle filter
+    if (_selectedSecondary != 'All') {
+      list = list
+          .where(
+            (e) => e.secondaryMuscles.toLowerCase().contains(
+              _selectedSecondary.toLowerCase(),
+            ),
+          )
+          .toList();
+    }
+
+    // 3. Apply equipment filter
     if (_selectedEquipment != 'All') {
       list = list.where((e) {
         return e.equipment.toLowerCase().contains(
@@ -164,21 +434,21 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
       }).toList();
     }
 
-    // Apply difficulty filter
+    // 4. Apply difficulty filter
     if (_selectedDifficulty != 'All') {
       list = list.where((e) {
         return e.difficulty.toLowerCase() == _selectedDifficulty.toLowerCase();
       }).toList();
     }
 
-    // Apply search query via Kerala gym-friendly terminology service
+    // 5. Apply search query via Kerala gym-friendly terminology service
     if (query.isNotEmpty) {
       list = list.where((e) {
         return ExerciseTerminologyService.instance.matchesSearch(e, query);
       }).toList();
     }
 
-    // Apply sorting
+    // 6. Apply sorting
     if (_selectedSort == 'name_desc') {
       list.sort((a, b) => b.name.compareTo(a.name));
     } else if (_selectedSort == 'difficulty') {
@@ -297,7 +567,8 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
 
     final bool showExerciseList =
         _isSearching ||
-        (_currentMode != LibraryViewMode.muscleCatalogues &&
+        (_currentMode != LibraryViewMode.mainCategories &&
+            _currentMode != LibraryViewMode.muscleCatalogues &&
             _currentMode != LibraryViewMode.modalityCatalogues);
 
     return Scaffold(
@@ -384,6 +655,12 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
               child: Row(
                 children: [
                   _buildModeChip(
+                    'Main (8)',
+                    LibraryViewMode.mainCategories,
+                    Icons.dashboard_rounded,
+                  ),
+                  const SizedBox(width: 8),
+                  _buildModeChip(
                     'Muscles (14)',
                     LibraryViewMode.muscleCatalogues,
                     Icons.sports_gymnastics_rounded,
@@ -423,8 +700,216 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
             ),
             const SizedBox(height: 12),
 
-            // Filter chips (Equipment + Difficulty + Sort)
+            // Filters & Exercise List options
             if (showExerciseList) ...[
+              // 1. Category Filter Chips
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: _categoryFilterOptions.map((cat) {
+                    final isSel = _selectedCategory == cat;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: FilterChip(
+                        selected: isSel,
+                        label: Text(cat),
+                        labelStyle: TextStyle(
+                          color: isSel ? Colors.black : AppColors.textMain,
+                          fontSize: 12,
+                          fontWeight: isSel ? FontWeight.w800 : FontWeight.w600,
+                        ),
+                        backgroundColor: AppColors.cardSurface,
+                        selectedColor: AppColors.primary,
+                        checkmarkColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          side: BorderSide(
+                            color: isSel ? AppColors.primary : AppColors.border,
+                          ),
+                        ),
+                        onSelected: (val) {
+                          setState(() {
+                            _selectedCategory = val ? cat : 'All';
+                            _selectedSubCategory = 'All';
+                          });
+                          _applyFilters();
+                        },
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // 2. Sub-Category Chips (for Legs or Back)
+              if (_selectedCategory == 'Legs') ...[
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children:
+                        [
+                          'All Legs',
+                          'Quads',
+                          'Hamstrings',
+                          'Glutes',
+                          'Calves',
+                        ].map((sub) {
+                          final isSel =
+                              _selectedSubCategory == sub ||
+                              (_selectedSubCategory == 'All' &&
+                                  sub == 'All Legs');
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 6),
+                            child: FilterChip(
+                              selected: isSel,
+                              label: Text(sub),
+                              labelStyle: TextStyle(
+                                color: isSel
+                                    ? Colors.black
+                                    : AppColors.textSecondary,
+                                fontSize: 11.5,
+                                fontWeight: isSel
+                                    ? FontWeight.bold
+                                    : FontWeight.w500,
+                              ),
+                              backgroundColor: AppColors.surfaceElevated,
+                              selectedColor: AppColors.primary,
+                              checkmarkColor: Colors.black,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                side: BorderSide(
+                                  color: isSel
+                                      ? AppColors.primary
+                                      : AppColors.border,
+                                ),
+                              ),
+                              onSelected: (val) {
+                                setState(() {
+                                  _selectedSubCategory = val ? sub : 'All Legs';
+                                });
+                                _applyFilters();
+                              },
+                            ),
+                          );
+                        }).toList(),
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ] else if (_selectedCategory == 'Back') ...[
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children:
+                        [
+                          'All Back',
+                          'Lats',
+                          'Upper Back & Traps',
+                          'Mid/Lower Back',
+                        ].map((sub) {
+                          final isSel =
+                              _selectedSubCategory == sub ||
+                              (_selectedSubCategory == 'All' &&
+                                  sub == 'All Back');
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 6),
+                            child: FilterChip(
+                              selected: isSel,
+                              label: Text(sub),
+                              labelStyle: TextStyle(
+                                color: isSel
+                                    ? Colors.black
+                                    : AppColors.textSecondary,
+                                fontSize: 11.5,
+                                fontWeight: isSel
+                                    ? FontWeight.bold
+                                    : FontWeight.w500,
+                              ),
+                              backgroundColor: AppColors.surfaceElevated,
+                              selectedColor: AppColors.primary,
+                              checkmarkColor: Colors.black,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                side: BorderSide(
+                                  color: isSel
+                                      ? AppColors.primary
+                                      : AppColors.border,
+                                ),
+                              ),
+                              onSelected: (val) {
+                                setState(() {
+                                  _selectedSubCategory = val ? sub : 'All Back';
+                                });
+                                _applyFilters();
+                              },
+                            ),
+                          );
+                        }).toList(),
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+
+              // 3. Assisting / Secondary Muscle Filter
+              if (_availableSecondaryMuscles.length > 1) ...[
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.only(right: 6),
+                        child: Text(
+                          'Assisting:',
+                          style: TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      ..._availableSecondaryMuscles.take(8).map((sec) {
+                        final isSel = _selectedSecondary == sec;
+                        final label = sec == 'All' ? 'All' : '+ $sec';
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 6),
+                          child: FilterChip(
+                            selected: isSel,
+                            label: Text(label),
+                            labelStyle: TextStyle(
+                              color: isSel
+                                  ? Colors.black
+                                  : AppColors.textSecondary,
+                              fontSize: 11,
+                              fontWeight: isSel
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                            backgroundColor: AppColors.surfaceElevated,
+                            selectedColor: AppColors.primary,
+                            checkmarkColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              side: BorderSide(
+                                color: isSel
+                                    ? AppColors.primary
+                                    : AppColors.border,
+                              ),
+                            ),
+                            onSelected: (val) {
+                              setState(() {
+                                _selectedSecondary = val ? sec : 'All';
+                              });
+                              _applyFilters();
+                            },
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+
+              // 4. Filter chips (Equipment)
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
@@ -463,6 +948,8 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                 ),
               ),
               const SizedBox(height: 8),
+
+              // 5. Difficulty + Sort
               Row(
                 children: [
                   Expanded(
@@ -560,7 +1047,75 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
+
+              // 6. Active Filters Banner with Clear All
+              if (_hasActiveFilters) ...[
+                Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceElevated,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.filter_list_rounded,
+                        color: AppColors.primary,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Filters active (${_displayExercises.length} results)',
+                          style: const TextStyle(
+                            color: AppColors.textMain,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: _clearAllFilters,
+                        borderRadius: BorderRadius.circular(6),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.close_rounded,
+                                color: Colors.redAccent,
+                                size: 14,
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                'Clear All',
+                                style: TextStyle(
+                                  color: Colors.redAccent,
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              const SizedBox(height: 6),
             ],
 
             // Content switch: Exercise Cards List OR Catalogues
@@ -585,12 +1140,12 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                       onPressed: () {
                         _searchController.clear();
                         setState(() {
-                          _currentMode = LibraryViewMode.muscleCatalogues;
+                          _currentMode = LibraryViewMode.mainCategories;
                         });
                         _applyFilters();
                       },
                       child: const Text(
-                        'Back to Catalogues',
+                        'Back to Main',
                         style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 12,
@@ -614,8 +1169,44 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                     return _buildExerciseCard(ex);
                   },
                 ),
+            ] else if (_currentMode == LibraryViewMode.mainCategories) ...[
+              // 8 Main Muscle Categories
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'MAIN MUSCLE CATEGORIES (8)',
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.1,
+                    ),
+                  ),
+                  Text(
+                    '${_allExercises.length} Total Exercises',
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: ExerciseLibraryScreen.mainCategories.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final mg = ExerciseLibraryScreen.mainCategories[index];
+                  final count = _getCountForCategory(mg.name);
+                  return _buildMuscleGroupVisualCard(mg, count);
+                },
+              ),
             ] else if (_currentMode == LibraryViewMode.muscleCatalogues) ...[
-              // 14 Target Muscle Catalogues
+              // 14/15 Target Muscle Catalogues
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -689,6 +1280,8 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
 
   String _getModeTitle() {
     switch (_currentMode) {
+      case LibraryViewMode.mainCategories:
+        return 'Main Categories';
       case LibraryViewMode.muscleCatalogues:
         return 'Muscle Catalogues';
       case LibraryViewMode.modalityCatalogues:

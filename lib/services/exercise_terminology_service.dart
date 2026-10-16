@@ -59,6 +59,8 @@ class ExerciseTerminologyService {
     'glute': 'glutes',
     'glutes': 'glutes',
     'hips': 'glutes',
+    'leg': 'legs',
+    'legs': 'legs',
     'cardio': 'cardio',
     'hiit': 'cardio',
     'stamina': 'cardio',
@@ -201,6 +203,12 @@ class ExerciseTerminologyService {
     // 1. Muscle slang query (e.g. "wings", "quads", "hams", "delts", "thighs", "pecs")
     if (_muscleSlangMap.containsKey(query)) {
       final targetMg = _muscleSlangMap[query]!;
+      if (targetMg == 'legs') {
+        const legGroups = ['quadriceps', 'hamstrings', 'glutes', 'calves'];
+        return legGroups.contains(exercise.muscleGroupName.toLowerCase()) ||
+            exercise.target.toLowerCase().contains('leg') ||
+            exercise.target.toLowerCase().contains('thigh');
+      }
       return exercise.muscleGroupName.toLowerCase().contains(targetMg) ||
           exercise.target.toLowerCase().contains(targetMg);
     }
