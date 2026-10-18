@@ -261,6 +261,7 @@ class _ImageViewerDialogState extends State<ImageViewerDialog> {
                   ),
                 ),
                 IconButton(
+                  tooltip: 'Close',
                   icon: const Icon(Icons.close_rounded, color: Colors.white),
                   onPressed: () => Navigator.pop(context),
                 ),

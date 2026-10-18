@@ -46,3 +46,23 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Original (pre-compression) media; local only
+/media_src/
+/audit/_tmp/
+
+# Release signing (never commit)
+android/key.properties
+*.jks
+*.keystore
+
+# Local secrets (dart-define files)
+env.local.json
+*.env
+.env.local
+
+# Local release candidates (never commit)
+/release_candidates/
+
+# Obfuscation symbols (archive per release outside the repo)
+/symbols/

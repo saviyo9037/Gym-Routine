@@ -1,3 +1,5 @@
+import '../core/safe_cast.dart';
+
 enum RoutineCompletionStatus {
   upcoming('Upcoming'),
   inProgress('In Progress'),
@@ -41,12 +43,12 @@ class RoutineCompletion {
 
   factory RoutineCompletion.fromMap(Map<String, dynamic> map) {
     return RoutineCompletion(
-      id: map['id'] as int?,
-      routineId: map['routine_id'] as int? ?? 0,
-      date: map['date'] as String? ?? '',
-      status: map['status'] as String? ?? 'completed',
-      notes: map['notes'] as String?,
-      completedAt: map['completed_at'] as String?,
+      id: asInt(map['id']),
+      routineId: asInt(map['routine_id']) ?? 0,
+      date: asStr(map['date']) ?? '',
+      status: asStr(map['status']) ?? 'completed',
+      notes: asStr(map['notes']),
+      completedAt: asStr(map['completed_at']),
     );
   }
 }

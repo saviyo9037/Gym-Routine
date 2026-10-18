@@ -1,3 +1,4 @@
+import '../core/clock.dart';
 import 'routine.dart';
 import 'routine_completion.dart';
 
@@ -27,8 +28,7 @@ class RoutineTodayItem {
     final minute = int.tryParse(parts.length > 1 ? parts[1] : '0') ?? 0;
     if (routine.isOvernight) {
       // End time is on the next day
-      final nextDay = date.add(const Duration(days: 1));
-      return DateTime(nextDay.year, nextDay.month, nextDay.day, hour, minute);
+      return DateTime(date.year, date.month, date.day + 1, hour, minute);
     } else {
       return DateTime(date.year, date.month, date.day, hour, minute);
     }
@@ -41,14 +41,11 @@ class RoutineTodayItem {
       if (completion!.isSkipped) return RoutineCompletionStatus.skipped;
     }
 
-    final now = DateTime.now();
-    // Only compute in-progress/upcoming relative to today
-    final isToday =
-        date.year == now.year && date.month == now.month && date.day == now.day;
-    if (isToday) {
-      if (now.isAfter(startDateTime) && now.isBefore(endDateTime)) {
-        return RoutineCompletionStatus.inProgress;
-      }
+    // In progress whenever "now" falls inside [start, end). This also covers the
+    // after-midnight tail of an overnight routine that started yesterday.
+    final now = AppClock.now();
+    if (now.isAfter(startDateTime) && now.isBefore(endDateTime)) {
+      return RoutineCompletionStatus.inProgress;
     }
 
     return RoutineCompletionStatus.upcoming;

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../core/clock.dart';
 import '../core/theme.dart';
+import '../widgets/load_error_view.dart';
 import '../models/workout_plan.dart';
 import '../models/muscle_group.dart';
 import '../models/exercise.dart';
@@ -12,6 +14,8 @@ import '../widgets/change_log_dialog.dart';
 import '../widgets/exercise_image_widget.dart';
 import '../widgets/media_attachment_section.dart';
 import 'active_workout_screen.dart';
+import 'training_plans_screen.dart';
+import '../core/dev_log.dart';
 
 class WorkoutPlanScreen extends StatefulWidget {
   const WorkoutPlanScreen({super.key});
@@ -34,22 +38,53 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedDate = DateTime.now();
+    _selectedDate = AppClock.now();
     _loadData();
   }
 
+  bool _loadFailed = false;
+
   Future<void> _loadData() async {
+    try {
+      await _loadDataImpl();
+      if (mounted && _loadFailed) setState(() => _loadFailed = false);
+    } catch (e, st) {
+      devLog('workout_plan_screen.dart: load failed: $e\n$st');
+      if (!mounted) return;
+      setState(() {
+        _loadFailed = true;
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _retryLoad() {
+    setState(() {
+      _loadFailed = false;
+      _isLoading = true;
+    });
+    _loadData();
+  }
+
+  Future<void> _loadDataImpl() async {
     final mgs = await _dbService.getAllMuscleGroups();
     final exs = await _dbService.getAllExercises();
     final week = await _dbService.getWeeklyPlans(_selectedDate);
     final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
-    var plan = await _dbService.getPlanForDate(dateStr);
-    if (plan == null) {
+    var plan = await _dbService.getEffectivePlanForDate(_selectedDate);
+    final today = AppClock.now();
+    final isPast = DateTime(
+      _selectedDate.year,
+      _selectedDate.month,
+      _selectedDate.day,
+    ).isBefore(DateTime(today.year, today.month, today.day));
+    if (plan == null && !isPast) {
+      // Only today/future dates get an editable (empty) plan; browsing the
+      // past never writes fake plans into the database.
       await _dbService.saveOrUpdatePlan(
         WorkoutPlan(
           date: dateStr,
           isRestDay: (_selectedDate.weekday == DateTime.sunday),
-          primaryMuscleName: 'Biceps',
         ),
       );
       plan = await _dbService.getPlanForDate(dateStr);
@@ -556,6 +591,13 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_loadFailed) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(),
+        body: LoadErrorView(onRetry: _retryLoad),
+      );
+    }
     if (_isLoading) {
       return const Scaffold(
         backgroundColor: AppColors.background,
@@ -575,6 +617,20 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
         title: const Text('WORKOUT PLANNER'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.view_list_rounded, color: AppColors.primary),
+            tooltip: 'My training plans',
+            onPressed: () async {
+              final changed = await Navigator.push<bool>(
+                context,
+                MaterialPageRoute(builder: (_) => const TrainingPlansScreen()),
+              );
+              if (changed == true) {
+                setState(() => _isLoading = true);
+                _loadData();
+              }
+            },
+          ),
+          IconButton(
             icon: const Icon(
               Icons.calendar_view_week_rounded,
               color: AppColors.primary,
@@ -590,328 +646,436 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
             ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 7-Day Weekly Bar Header with 6-Day split action
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  '7-DAY SCHEDULE (6-DAY SPLIT)',
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.1,
-                  ),
-                ),
-                TextButton.icon(
-                  onPressed: _showSixDaySplitDialog,
-                  icon: const Icon(
-                    Icons.auto_awesome_rounded,
-                    size: 14,
-                    color: AppColors.primary,
-                  ),
-                  label: const Text(
-                    'Preset Split',
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            // 7-Day Weekly Bar
-            _buildWeeklyBar(),
-            const SizedBox(height: 20),
-
-            // Date Header & Target Muscles Card
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.cardSurface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
-              ),
+      body: CustomScrollView(
+        key: const PageStorageKey<String>('workout_plan_scroll'),
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(18, 12, 18, 0),
+            sliver: SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  // 7-Day Weekly Bar Header with 6-Day split action
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      Text(
-                        headerDateStr.toUpperCase(),
-                        style: const TextStyle(
+                      const Text(
+                        '7-DAY SCHEDULE',
+                        style: TextStyle(
                           color: AppColors.primary,
-                          fontSize: 12,
+                          fontSize: 11.5,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 1.1,
                         ),
                       ),
-                      IconButton(
+                      TextButton.icon(
+                        onPressed: _showSixDaySplitDialog,
                         icon: const Icon(
-                          Icons.tune_rounded,
+                          Icons.auto_awesome_rounded,
+                          size: 14,
                           color: AppColors.primary,
-                          size: 20,
                         ),
-                        tooltip: 'Configure Muscle Groups',
-                        onPressed: _showChangeMuscleGroupsDialog,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-
-                  if (isRest) ...[
-                    const Row(
-                      children: [
-                        Icon(
-                          Icons.bedtime_rounded,
-                          color: AppColors.primary,
-                          size: 24,
-                        ),
-                        SizedBox(width: 10),
-                        Text(
-                          'Scheduled Rest & Recovery Day',
+                        label: const Text(
+                          'Preset Split',
                           style: TextStyle(
-                            color: AppColors.textMain,
-                            fontSize: 16,
+                            color: AppColors.primary,
+                            fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  // 7-Day Weekly Bar
+                  _buildWeeklyBar(),
+                  const SizedBox(height: 20),
+
+                  // Date Header & Target Muscles Card
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.cardSurface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.border),
                     ),
-                  ] else ...[
-                    Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildMuscleTag(
-                          _currentPlan?.primaryMuscleName ?? 'Biceps',
-                        ),
-                        if (_currentPlan?.secondaryMuscleName != null &&
-                            _currentPlan!.secondaryMuscleName!.isNotEmpty) ...[
-                          const SizedBox(width: 8),
-                          const Text(
-                            '&',
-                            style: TextStyle(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.bold,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                headerDateStr.toUpperCase(),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: AppColors.primary,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.1,
+                                ),
+                              ),
                             ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.tune_rounded,
+                                color: AppColors.primary,
+                                size: 20,
+                              ),
+                              tooltip: 'Configure Muscle Groups',
+                              onPressed: _showChangeMuscleGroupsDialog,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+
+                        if (isRest) ...[
+                          const Row(
+                            children: [
+                              Icon(
+                                Icons.bedtime_rounded,
+                                color: AppColors.primary,
+                                size: 24,
+                              ),
+                              SizedBox(width: 10),
+                              Text(
+                                'Scheduled Rest & Recovery Day',
+                                style: TextStyle(
+                                  color: AppColors.textMain,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          _buildMuscleTag(_currentPlan!.secondaryMuscleName!),
+                        ] else ...[
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 6,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              _buildMuscleTag(
+                                _currentPlan?.primaryMuscleName ??
+                                    'No focus set',
+                              ),
+                              if (_currentPlan?.secondaryMuscleName != null &&
+                                  _currentPlan!
+                                      .secondaryMuscleName!
+                                      .isNotEmpty) ...[
+                                const SizedBox(width: 8),
+                                const Text(
+                                  '&',
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                _buildMuscleTag(
+                                  _currentPlan!.secondaryMuscleName!,
+                                ),
+                              ],
+                            ],
+                          ),
                         ],
                       ],
                     ),
+                  ),
+                  const SizedBox(height: 22),
+
+                  // Planned Exercises list
+                  if (!isRest) ...[
+                    Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text(
+                          'SCHEDULED EXERCISES (${exercises.length})',
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.1,
+                          ),
+                        ),
+                        TextButton.icon(
+                          onPressed: _addExerciseToPlan,
+                          icon: const Icon(
+                            Icons.add_rounded,
+                            size: 16,
+                            color: AppColors.primary,
+                          ),
+                          label: const Text(
+                            'Add Exercise',
+                            style: TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+
+                    if (exercises.isEmpty)
+                      Container(
+                        padding: const EdgeInsets.all(28),
+                        decoration: BoxDecoration(
+                          color: AppColors.cardSurface,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Center(
+                          child: Column(
+                            children: [
+                              const Icon(
+                                Icons.fitness_center_rounded,
+                                color: AppColors.textMuted,
+                                size: 36,
+                              ),
+                              const SizedBox(height: 10),
+                              const Text(
+                                'No exercises added for this day.',
+                                style: TextStyle(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              ElevatedButton.icon(
+                                onPressed: _addExerciseToPlan,
+                                icon: const Icon(
+                                  Icons.add,
+                                  color: Colors.black,
+                                ),
+                                label: const Text('Add Exercise'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                   ],
                 ],
               ),
             ),
-            const SizedBox(height: 22),
-
-            // Planned Exercises list
-            if (!isRest) ...[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'SCHEDULED EXERCISES (${exercises.length})',
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.1,
+          ),
+          // Scheduled exercises: lazy sliver (only visible rows are built).
+          if (!isRest && exercises.isNotEmpty)
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+              sliver: SliverList.separated(
+                itemCount: exercises.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                itemBuilder: (context, index) {
+                  final pe = exercises[index];
+                  return Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.cardSurface,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.border),
                     ),
-                  ),
-                  TextButton.icon(
-                    onPressed: _addExerciseToPlan,
-                    icon: const Icon(
-                      Icons.add_rounded,
-                      size: 16,
-                      color: AppColors.primary,
-                    ),
-                    label: const Text(
-                      'Add Exercise',
-                      style: TextStyle(color: AppColors.primary, fontSize: 13),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-
-              if (exercises.isEmpty)
-                Container(
-                  padding: const EdgeInsets.all(28),
-                  decoration: BoxDecoration(
-                    color: AppColors.cardSurface,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Center(
-                    child: Column(
+                    child: Row(
                       children: [
-                        const Icon(
-                          Icons.fitness_center_rounded,
-                          color: AppColors.textMuted,
-                          size: 36,
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Text(
+                              '${index + 1}',
+                              style: const TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                         ),
-                        const SizedBox(height: 10),
-                        const Text(
-                          'No exercises added for this day.',
-                          style: TextStyle(color: AppColors.textSecondary),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                pe.exerciseName,
+                                style: const TextStyle(
+                                  color: AppColors.textMain,
+                                  fontSize: 14.5,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                '${pe.targetSets} sets × ${pe.targetReps} reps • ${pe.targetWeightKg} kg • Rest ${pe.restSeconds}s',
+                                style: const TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(height: 14),
-                        ElevatedButton.icon(
-                          onPressed: _addExerciseToPlan,
-                          icon: const Icon(Icons.add, color: Colors.black),
-                          label: const Text('Add Exercise'),
+                        IconButton(
+                          tooltip: 'Remove ${pe.exerciseName} from this day',
+                          icon: const Icon(
+                            Icons.delete_outline_rounded,
+                            color: AppColors.error,
+                            size: 20,
+                          ),
+                          onPressed: () => _removeExercise(index),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 18),
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (!isRest) ...[
+                    if (_currentPlan != null && _currentPlan!.id != null) ...[
+                      const SizedBox(height: 24),
+                      MediaAttachmentSection(
+                        entityType: 'plan',
+                        entityId: _currentPlan!.id!,
+                        entityTitle: 'Plan: $headerDateStr',
+                        sectionTitle: 'PLANNED WORKOUT MEDIA & NOTES',
+                      ),
+                    ],
+
+                    const SizedBox(height: 24),
+                    // Prominent Start Workout button
+                    if (exercises.isNotEmpty)
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton.icon(
+                          onPressed: _startWorkout,
+                          icon: const Icon(
+                            Icons.play_arrow_rounded,
+                            color: Colors.black,
+                          ),
+                          label: const Text(
+                            'Start This Workout',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                )
-              else
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: exercises.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
-                  itemBuilder: (context, index) {
-                    final pe = exercises[index];
-                    return Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: AppColors.cardSurface,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: AppColors.border),
                       ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 32,
-                            height: 32,
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.15),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: Text(
-                                '${index + 1}',
-                                style: const TextStyle(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  pe.exerciseName,
-                                  style: const TextStyle(
-                                    color: AppColors.textMain,
-                                    fontSize: 14.5,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const SizedBox(height: 3),
-                                Text(
-                                  '${pe.targetSets} sets × ${pe.targetReps} reps • ${pe.targetWeightKg} kg • Rest ${pe.restSeconds}s',
-                                  style: const TextStyle(
-                                    color: AppColors.textSecondary,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(
-                              Icons.delete_outline_rounded,
-                              color: AppColors.error,
-                              size: 20,
-                            ),
-                            onPressed: () async {
-                              final updatedList = List<PlannedExercise>.from(
-                                exercises,
-                              )..removeAt(index);
-                              final updatedPlan = _currentPlan!.copyWith(
-                                exercises: updatedList,
-                              );
-                              await _savePlanChanges(updatedPlan);
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-
-              if (_currentPlan != null && _currentPlan!.id != null) ...[
-                const SizedBox(height: 24),
-                MediaAttachmentSection(
-                  entityType: 'plan',
-                  entityId: _currentPlan!.id!,
-                  entityTitle: 'Plan: $headerDateStr',
-                  sectionTitle: 'PLANNED WORKOUT MEDIA & NOTES',
-                ),
-              ],
-
-              const SizedBox(height: 24),
-              // Prominent Start Workout button
-              if (exercises.isNotEmpty)
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton.icon(
-                    onPressed: () async {
-                      final res = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              ActiveWorkoutScreen(plan: _currentPlan),
-                        ),
-                      );
-                      if (res == true) _loadData();
-                    },
-                    icon: const Icon(
-                      Icons.play_arrow_rounded,
-                      color: Colors.black,
-                    ),
-                    label: const Text(
-                      'Start This Workout',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                    ),
-                  ),
-                ),
-            ],
-
-            const SizedBox(height: 40),
-          ],
-        ),
+                  ],
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
+  /// Removes one exercise from the selected day with an UNDO snackbar.
+  Future<void> _removeExercise(int index) async {
+    final plan = _currentPlan;
+    if (plan == null || index < 0 || index >= plan.exercises.length) return;
+    final removed = plan.exercises[index];
+    final before = List<PlannedExercise>.from(plan.exercises);
+    final after = List<PlannedExercise>.from(before)..removeAt(index);
+    try {
+      await _savePlanChanges(plan.copyWith(exercises: after));
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not remove the exercise.')),
+        );
+      }
+      return;
+    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('Removed ${removed.exerciseName}'),
+          action: SnackBarAction(
+            label: 'UNDO',
+            onPressed: () async {
+              final current = _currentPlan;
+              if (current == null) return;
+              try {
+                await _savePlanChanges(current.copyWith(exercises: before));
+              } catch (_) {}
+            },
+          ),
+        ),
+      );
+  }
+
+  /// Starts the selected day's workout. The session is always logged on the
+  /// day it is actually performed; starting another day's plan asks first.
+  Future<void> _startWorkout() async {
+    final plan = _currentPlan;
+    if (plan == null) return;
+    if (plan.date != AppClock.todayKey()) {
+      DateTime? d;
+      try {
+        d = DateTime.parse(plan.date);
+      } catch (_) {}
+      final label = d != null
+          ? DateFormat('EEEE, MMMM d').format(d)
+          : plan.date;
+      final go = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: AppColors.surfaceElevated,
+          title: const Text('Start a different day?'),
+          content: Text(
+            'This plan is for $label, not today. If you start it now the '
+            'workout is saved under today\'s date.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Start anyway'),
+            ),
+          ],
+        ),
+      );
+      if (go != true || !mounted) return;
+    }
+    final res = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => ActiveWorkoutScreen(plan: plan)),
+    );
+    if (res == true) _loadData();
+  }
+
   Widget _buildWeeklyBar() {
+    // Day chips hold two lines of text: grow with the user's text scale.
+    final extra = MediaQuery.textScalerOf(context).scale(1) - 1;
+    final barHeight = (74 + extra * 125).clamp(74.0, 230.0);
     return SizedBox(
-      height: 74,
+      height: barHeight,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: _weeklyPlans.length,

@@ -350,6 +350,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                       Row(
                         children: [
                           IconButton(
+                            tooltip: 'Decrease',
                             icon: const Icon(
                               Icons.remove_circle_outline,
                               color: AppColors.primary,
@@ -367,6 +368,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                             ),
                           ),
                           IconButton(
+                            tooltip: 'Add',
                             icon: const Icon(
                               Icons.add_circle_outline,
                               color: AppColors.primary,
@@ -391,6 +393,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                       Row(
                         children: [
                           IconButton(
+                            tooltip: 'Decrease',
                             icon: const Icon(
                               Icons.remove_circle_outline,
                               color: AppColors.primary,
@@ -408,6 +411,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                             ),
                           ),
                           IconButton(
+                            tooltip: 'Add',
                             icon: const Icon(
                               Icons.add_circle_outline,
                               color: AppColors.primary,
@@ -432,6 +436,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                       Row(
                         children: [
                           IconButton(
+                            tooltip: 'Decrease',
                             icon: const Icon(
                               Icons.remove_circle_outline,
                               color: AppColors.primary,
@@ -449,6 +454,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                             ),
                           ),
                           IconButton(
+                            tooltip: 'Add',
                             icon: const Icon(
                               Icons.add_circle_outline,
                               color: AppColors.primary,
@@ -473,6 +479,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                       Row(
                         children: [
                           IconButton(
+                            tooltip: 'Decrease',
                             icon: const Icon(
                               Icons.remove_circle_outline,
                               color: AppColors.primary,
@@ -490,6 +497,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                             ),
                           ),
                           IconButton(
+                            tooltip: 'Add',
                             icon: const Icon(
                               Icons.add_circle_outline,
                               color: AppColors.primary,
@@ -563,6 +571,12 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
         ),
       );
     }
+  }
+
+  @override
+  void dispose() {
+    _notesController.dispose();
+    super.dispose();
   }
 
   @override
@@ -891,14 +905,16 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                                 size: 18,
                               ),
                               const SizedBox(width: 8),
-                              Text(
-                                _demonstration!.hasVideo
-                                    ? '3-Phase Biomechanical Breakdown (~10s)'
-                                    : 'Technique Reference Guide',
-                                style: const TextStyle(
-                                  color: AppColors.primary,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
+                              Flexible(
+                                child: Text(
+                                  _demonstration!.hasVideo
+                                      ? '3-Phase Biomechanical Breakdown (~10s)'
+                                      : 'Technique Reference Guide',
+                                  style: const TextStyle(
+                                    color: AppColors.primary,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ],
@@ -980,8 +996,11 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
                   _buildTerminologyCard(term, displayName),
 
                   // Suggested Plan Card with Edit affordance
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
+                    runSpacing: 6,
                     children: [
                       _buildSectionHeader('SUGGESTED WORKOUT TARGETS'),
                       TextButton.icon(
@@ -1449,12 +1468,14 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
         children: [
           Icon(icon, color: color, size: 13),
           const SizedBox(width: 5),
-          Text(
-            label,
-            style: TextStyle(
-              color: color,
-              fontSize: 11.5,
-              fontWeight: FontWeight.w700,
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 11.5,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ],
@@ -1463,26 +1484,31 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen> {
   }
 
   Widget _buildStatCol(String title, String val) {
-    return Column(
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-          ),
+    return Expanded(
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Column(
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              val,
+              style: const TextStyle(
+                color: AppColors.textMain,
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 4),
-        Text(
-          val,
-          style: const TextStyle(
-            color: AppColors.textMain,
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-      ],
+      ),
     );
   }
 

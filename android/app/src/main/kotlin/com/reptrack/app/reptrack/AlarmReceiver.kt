@@ -17,6 +17,10 @@ class AlarmReceiver : BroadcastReceiver() {
 
     companion object {
         const val ACTION_TRIGGER_ALARM = "com.reptrack.app.action.TRIGGER_ALARM"
+        const val ACTION_REMINDER = "com.reptrack.app.action.ROUTINE_REMINDER"
+        const val EXTRA_LEAD_MINUTES = "extra_lead_minutes"
+        const val EXTRA_IS_SNOOZE = "extra_is_snooze"
+        const val REMINDER_CHANNEL_ID = "reptrack_reminder_channel"
 
         const val EXTRA_ROUTINE_ID = "extra_routine_id"
         const val EXTRA_TITLE = "extra_title"
@@ -31,6 +35,22 @@ class AlarmReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val routineId = intent.getIntExtra(EXTRA_ROUTINE_ID, 0)
+
+        // Chain the next occurrence FIRST so a failure while showing the alarm can never
+        // break the repeating schedule. Snoozes are one-off and do not re-arm the routine.
+        if (!intent.getBooleanExtra(EXTRA_IS_SNOOZE, false)) {
+            try {
+                AlarmScheduler.onFired(context, routineId)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+        if (intent.action == ACTION_REMINDER) {
+            showReminder(context, intent)
+            return
+        }
+
         val title = intent.getStringExtra(EXTRA_TITLE) ?: "Routine Reminder"
         val category = intent.getStringExtra(EXTRA_CATEGORY) ?: "Routine"
         val time = intent.getStringExtra(EXTRA_TIME) ?: ""
@@ -156,6 +176,56 @@ class AlarmReceiver : BroadcastReceiver() {
             .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Stop", stopPending)
             .build()
 
-        manager.notify(routineId + 3000, notification)
+        try {
+            manager.notify(routineId + 3000, notification)
+        } catch (e: SecurityException) {
+            // POST_NOTIFICATIONS not granted; audio/vibration (if any) still run via the service.
+        }
+    }
+
+    private fun showReminder(context: Context, intent: Intent) {
+        val routineId = intent.getIntExtra(EXTRA_ROUTINE_ID, 0)
+        val title = intent.getStringExtra(EXTRA_TITLE) ?: "Routine"
+        val category = intent.getStringExtra(EXTRA_CATEGORY) ?: "Routine"
+        val time = intent.getStringExtra(EXTRA_TIME) ?: ""
+        val lead = intent.getIntExtra(EXTRA_LEAD_MINUTES, 0)
+
+        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                REMINDER_CHANNEL_ID,
+                "RepTrack Routine Reminders",
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply { description = "Heads-up before a scheduled routine starts" }
+            manager.createNotificationChannel(channel)
+        }
+
+        val open = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        val openPending = PendingIntent.getActivity(
+            context,
+            routineId + 80000,
+            open,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val text = if (lead > 0) "Starts in $lead min (at $time) • $category" else "Starting now ($time) • $category"
+        val notification = NotificationCompat.Builder(context, REMINDER_CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setContentIntent(openPending)
+            .setAutoCancel(true)
+            .build()
+
+        // Same id per routine: a repeated reminder replaces the previous one (no duplicates).
+        try {
+            manager.notify(routineId + 4000, notification)
+        } catch (e: SecurityException) {
+            // POST_NOTIFICATIONS not granted: nothing to show.
+        }
     }
 }

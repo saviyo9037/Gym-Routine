@@ -21,11 +21,13 @@ class ExerciseTerminologyService {
     'wing': 'lats',
     'quad': 'quadriceps',
     'quads': 'quadriceps',
+    'quadriceps': 'quadriceps',
     'thigh': 'quadriceps',
     'thighs': 'quadriceps',
     'ham': 'hamstrings',
     'hams': 'hamstrings',
     'hamstring': 'hamstrings',
+    'hamstrings': 'hamstrings',
     'delts': 'shoulders',
     'delt': 'shoulders',
     'shoulder': 'shoulders',
@@ -65,6 +67,8 @@ class ExerciseTerminologyService {
     'hiit': 'cardio',
     'stamina': 'cardio',
     'aerobic': 'cardio',
+    'full body': 'full body',
+    'fullbody': 'full body',
   };
 
   Future<void> initialize({String? jsonContent, bool force = false}) async {
@@ -196,21 +200,53 @@ class ExerciseTerminologyService {
     }
   }
 
-  bool matchesSearch(Exercise exercise, String rawQuery) {
+  bool matchesSearch(
+    Exercise exercise,
+    String rawQuery, {
+    bool matchSecondary = false,
+  }) {
     final query = rawQuery.trim().toLowerCase();
     if (query.isEmpty) return true;
 
-    // 1. Muscle slang query (e.g. "wings", "quads", "hams", "delts", "thighs", "pecs")
+    // 1. Muscle slang query (e.g. "wings", "quads", "hams", "delts", "thighs", "pecs", "legs")
     if (_muscleSlangMap.containsKey(query)) {
       final targetMg = _muscleSlangMap[query]!;
       if (targetMg == 'legs') {
         const legGroups = ['quadriceps', 'hamstrings', 'glutes', 'calves'];
-        return legGroups.contains(exercise.muscleGroupName.toLowerCase()) ||
-            exercise.target.toLowerCase().contains('leg') ||
-            exercise.target.toLowerCase().contains('thigh');
+        if (legGroups.contains(exercise.muscleGroupName.toLowerCase())) {
+          return true;
+        }
+        if (matchSecondary) {
+          final sec = exercise.secondaryMuscles.toLowerCase();
+          return sec.contains('quad') ||
+              sec.contains('hamstring') ||
+              sec.contains('glute') ||
+              sec.contains('calf');
+        }
+        return false;
       }
-      return exercise.muscleGroupName.toLowerCase().contains(targetMg) ||
-          exercise.target.toLowerCase().contains(targetMg);
+      if (targetMg == 'back') {
+        const backGroups = ['back', 'lats', 'upper back and traps'];
+        if (backGroups.contains(exercise.muscleGroupName.toLowerCase())) {
+          return true;
+        }
+        if (matchSecondary) {
+          final sec = exercise.secondaryMuscles.toLowerCase();
+          return sec.contains('back') ||
+              sec.contains('lat') ||
+              sec.contains('rhomboid') ||
+              sec.contains('trap');
+        }
+        return false;
+      }
+      if (exercise.muscleGroupName.toLowerCase() == targetMg) {
+        return true;
+      }
+      if (matchSecondary &&
+          exercise.secondaryMuscles.toLowerCase().contains(targetMg)) {
+        return true;
+      }
+      return false;
     }
 
     // 2. Equipment abbreviations (e.g. "db", "bb", "ez", "bw")
@@ -229,20 +265,21 @@ class ExerciseTerminologyService {
           exercise.equipment.toLowerCase().contains('body weight');
     }
 
-    // 3. Direct check on Exercise Name and Target
+    // 3. Direct check on Exercise Name, Primary Muscle Group, and Equipment
     if (exercise.name.toLowerCase().contains(query)) {
-      return true;
-    }
-    if (exercise.target.toLowerCase().contains(query)) {
       return true;
     }
     if (exercise.muscleGroupName.toLowerCase().contains(query)) {
       return true;
     }
-    if (exercise.secondaryMuscles.toLowerCase().contains(query)) {
+    if (exercise.equipment.toLowerCase().contains(query)) {
       return true;
     }
-    if (exercise.equipment.toLowerCase().contains(query)) {
+    if (matchSecondary &&
+        exercise.secondaryMuscles.toLowerCase().contains(query)) {
+      return true;
+    }
+    if (exercise.target.toLowerCase().contains(query)) {
       return true;
     }
 
@@ -289,7 +326,7 @@ class ExerciseTerminologyService {
     }
 
     // 6. Longer full-text search in description/instructions (min 4 chars to avoid noise)
-    if (query.length >= 4) {
+    if (query.length >= 4 && !_muscleSlangMap.containsKey(query)) {
       if (exercise.description.toLowerCase().contains(query)) {
         return true;
       }

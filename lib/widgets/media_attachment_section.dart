@@ -266,45 +266,51 @@ class _MediaAttachmentSectionState extends State<MediaAttachmentSection> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                const Icon(
-                  Icons.perm_media_rounded,
-                  color: AppColors.primary,
-                  size: 16,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  widget.sectionTitle ?? widget.title,
-                  style: const TextStyle(
+            Expanded(
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.perm_media_rounded,
                     color: AppColors.primary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.1,
+                    size: 16,
                   ),
-                ),
-                if (_attachments.isNotEmpty) ...[
-                  const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 1,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                  const SizedBox(width: 8),
+                  Flexible(
                     child: Text(
-                      '${_attachments.length}',
+                      widget.sectionTitle ?? widget.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: AppColors.primary,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.1,
                       ),
                     ),
                   ),
+                  if (_attachments.isNotEmpty) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 1,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        '${_attachments.length}',
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
             TextButton.icon(
               icon: const Icon(

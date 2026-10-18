@@ -267,7 +267,7 @@ void main() {
       expect(bicepsNames, contains('Concentration Curl'));
     });
 
-    test('7. Media Mapping Integrity: All 201 exercises correspond to verified offline demonstration videos', () {
+    test('7. Media Mapping Integrity: every exercise has a demonstration entry; a video is a protected storage path (never bundled), and every exercise keeps its bundled photo', () {
       final mediaService = ExerciseMediaService.instance;
 
       for (final ex in allExercises) {
@@ -281,21 +281,15 @@ void main() {
           reason:
               'Exercise ${ex.id} (${ex.name}) must have a valid demonstration',
         );
-        expect(
-          demo!.hasVideo,
-          isTrue,
-          reason:
-              'Exercise ${ex.id} (${ex.name}) must have a demonstration video',
-        );
-        expect(demo.localBundledPath, isNotNull);
-
-        final videoFile = File(demo.localBundledPath!);
-        expect(
-          videoFile.existsSync(),
-          isTrue,
-          reason:
-              'Video file must physically exist on disk: ${demo.localBundledPath}',
-        );
+        // Nothing is bundled any more; the photo is the always-available fallback.
+        expect(demo!.localBundledPath, isNull, reason: ex.name);
+        expect(ex.imagePath, isNotNull, reason: ex.name);
+        expect(File(ex.imagePath!).existsSync(), isTrue, reason: ex.name);
+        if (demo.hasVideo) {
+          expect(demo.storagePath, 'videos/${ex.id}.mp4', reason: ex.name);
+        } else {
+          expect(demo.storagePath, isNull, reason: '${ex.name} has no video');
+        }
       }
     });
 

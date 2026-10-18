@@ -1,0 +1,11 @@
+{
+  "name": "reptrack-backend-harness",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:sql": "node run-sql-tests.mjs",
+    "test:logic": "node --test ../supabase/functions/_shared/entitlement.test.ts ../supabase/functions/_shared/video_url.test.ts",
+    "test": "npm run test:sql && npm run test:logic"
+  },
+  "devDependencies": { "@electric-sql/pglite": "0.3.14" }
+}

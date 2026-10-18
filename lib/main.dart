@@ -9,11 +9,17 @@ import 'screens/exercise_library_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/add_edit_exercise_screen.dart';
+import 'screens/access_root.dart';
 import 'screens/alarm_ringing_screen.dart';
 import 'services/alarm_service.dart';
+import 'services/cloud_services.dart';
+import 'services/app_config_service.dart';
+import 'services/routine_service.dart';
+import 'widgets/app_config_gate.dart';
 import 'services/exercise_media_service.dart';
 import 'services/exercise_terminology_service.dart';
 import 'data/db_helper.dart';
+import 'core/dev_log.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,23 +38,48 @@ void main() async {
   try {
     await DatabaseHelper.instance.database;
   } catch (e) {
-    debugPrint('Database init error: $e');
+    devLog('Database init error: $e');
   }
 
   // Initialize Exercise Demonstration Media Service
   try {
     await ExerciseMediaService.instance.initialize();
   } catch (e) {
-    debugPrint('Media service init error: $e');
+    devLog('Media service init error: $e');
   }
 
   // Initialize Exercise Terminology Service
   try {
     await ExerciseTerminologyService.instance.initialize();
   } catch (e) {
-    debugPrint('Terminology service init error: $e');
+    devLog('Terminology service init error: $e');
   }
 
+  // Re-arm every routine alarm from the database (source of truth). Failure
+  // must never block app start.
+  try {
+    await RoutineService().rescheduleAllRoutines();
+  } catch (e) {
+    devLog('Alarm reschedule error: $e');
+  }
+
+  // Optional accounts / subscriptions / sync. Never throws; without cloud
+  // configuration the app is exactly the local app.
+  try {
+    await CloudServices.initialize();
+  } catch (e) {
+    devLog('Cloud init error: $e');
+  }
+
+  // Remote config (maintenance, minimum version, paywall copy, announcements):
+  // cached/default values when offline or unconfigured; never blocks start-up.
+  try {
+    await AppConfigService.configureForApp();
+  } catch (e) {
+    devLog('App config init error: ${e.runtimeType}');
+  }
+
+  CloudServices.installAccessGuard();
   runApp(const RepTrackApp());
 }
 
@@ -61,26 +92,25 @@ class RepTrackApp extends StatelessWidget {
       title: 'RepTrack',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
-      home: const MainNavigationShell(),
+      home: const AppHost(),
     );
   }
 }
 
-class MainNavigationShell extends StatefulWidget {
-  const MainNavigationShell({super.key});
+/// Sits above the access gate so the app-level duties keep working in every
+/// state (also while locked): showing a ringing alarm, re-arming alarms from
+/// the database on resume, refreshing the subscription and cloud sync.
+class AppHost extends StatefulWidget {
+  const AppHost({super.key, this.child});
+
+  /// Defaults to the tabbed app; tests pass a stub.
+  final Widget? child;
 
   @override
-  State<MainNavigationShell> createState() => _MainNavigationShellState();
+  State<AppHost> createState() => _AppHostState();
 }
 
-class _MainNavigationShellState extends State<MainNavigationShell>
-    with WidgetsBindingObserver {
-  int _currentIndex = 0;
-  Key _homeKey = UniqueKey();
-  Key _routineKey = UniqueKey();
-  Key _planKey = UniqueKey();
-  Key _historyKey = UniqueKey();
-
+class _AppHostState extends State<AppHost> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
@@ -98,6 +128,16 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _checkTriggeredAlarm();
+      CloudServices.onResume();
+      final premium = CloudServices.premium;
+      if (premium.isLocked || premium.verificationFailed) {
+        // Re-check on return (for example the user subscribed or restored
+        // elsewhere). Never throws.
+        premium.refresh();
+      }
+      RoutineService().rescheduleAllRoutines().catchError((Object e) {
+        devLog('Alarm reschedule error: $e');
+      });
     }
   }
 
@@ -126,9 +166,33 @@ class _MainNavigationShellState extends State<MainNavigationShell>
         );
       }
     } catch (e) {
-      debugPrint('[MainNavigationShell] Error checking triggered alarm: $e');
+      devLog('[AppHost] Error checking triggered alarm: $e');
     }
   }
+
+  @override
+  Widget build(BuildContext context) {
+    // Maintenance / minimum-version gate outermost, then the access flow:
+    // onboarding -> sign in / register -> account checks -> paywall -> app.
+    return AppConfigGate(
+      child: AccessRoot(child: widget.child ?? const MainNavigationShell()),
+    );
+  }
+}
+
+class MainNavigationShell extends StatefulWidget {
+  const MainNavigationShell({super.key});
+
+  @override
+  State<MainNavigationShell> createState() => _MainNavigationShellState();
+}
+
+class _MainNavigationShellState extends State<MainNavigationShell> {
+  int _currentIndex = 0;
+  Key _homeKey = UniqueKey();
+  Key _routineKey = UniqueKey();
+  Key _planKey = UniqueKey();
+  Key _historyKey = UniqueKey();
 
   void _onTabSelected(int index) {
     setState(() {

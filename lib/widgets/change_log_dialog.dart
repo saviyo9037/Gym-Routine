@@ -53,6 +53,7 @@ class ChangeLogDialog extends StatelessWidget {
                   ],
                 ),
                 IconButton(
+                  tooltip: 'Close',
                   icon: const Icon(
                     Icons.close_rounded,
                     color: AppColors.textSecondary,

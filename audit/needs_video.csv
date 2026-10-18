@@ -1,0 +1,79 @@
+id,name,category
+1,Barbell Bench Press,Chest
+4,Flat Dumbbell Press,Chest
+10,Cable Chest Fly,Chest
+11,High-to-Low Cable Crossover,Chest
+14,Smith Machine Bench Press,Chest
+15,Push-Up,Chest
+17,Decline Push-Up,Chest
+18,Weighted Push-Up,Chest
+19,Assisted Dip,Chest
+21,Dumbbell Pullover,Chest
+23,Pull-Up,Lats
+26,Lat Pulldown,Lats
+27,Close-Grip Lat Pulldown,Lats
+28,Wide-Grip Lat Pulldown,Lats
+29,Neutral-Grip Lat Pulldown,Lats
+30,Straight-Arm Cable Pulldown,Lats
+31,Barbell Bent-Over Row,Back
+32,Pendlay Row,Back
+40,Cable Pullover,Lats
+41,Smith Machine Row,Back
+43,Barbell Shrug,Upper Back and Traps
+44,Smith Machine Shrug,Upper Back and Traps
+50,Back Extension,Upper Back and Traps
+57,Arnold Press,Shoulders
+67,Landmine Shoulder Press,Shoulders
+68,Pike Push-Up,Shoulders
+73,Hammer Curl,Biceps
+76,Preacher Curl,Biceps
+79,Straight-Bar Curl,Biceps
+80,Close-Grip Barbell Curl,Biceps
+81,Wide-Grip Barbell Curl,Biceps
+82,Cable Biceps Curl,Biceps
+83,Low Cable Curl,Biceps
+84,High Cable Curl,Biceps
+85,Bayesian Cable Curl,Biceps
+86,Rope Hammer Curl,Biceps
+87,Machine Biceps Curl,Biceps
+89,Reverse Curl,Biceps
+94,Reverse-Grip Pushdown,Triceps
+97,Single-Arm Cable Extension,Triceps
+103,Assisted Triceps Dip,Triceps
+104,Bench Dip,Triceps
+107,Cross-Body Cable Triceps Extension,Triceps
+110,Wrist Curl,Forearms
+111,Reverse Wrist Curl,Forearms
+113,Dumbbell Wrist Curl,Forearms
+115,Dead Hang,Forearms
+118,Cable Wrist Curl,Forearms
+122,Smith Machine Squat,Quadriceps
+125,Bulgarian Split Squat,Quadriceps
+127,Reverse Lunge,Quadriceps
+128,Forward Lunge,Quadriceps
+129,Step-Up,Quadriceps
+132,Split Squat,Quadriceps
+133,Belt Squat,Quadriceps
+134,Romanian Deadlift,Hamstrings
+135,Conventional Deadlift,Hamstrings
+141,Good Morning,Hamstrings
+143,Cable Pull-Through,Hamstrings
+144,Glute-Ham Raise,Hamstrings
+145,Barbell Hip Thrust,Glutes
+147,Glute Bridge,Glutes
+148,Single-Leg Glute Bridge,Glutes
+173,Bird Dog,Abs and Core
+176,Mountain Climber,Abs and Core
+181,Trap Bar Deadlift,Full Body
+183,Kettlebell Swing,Full Body
+185,Sled Push,Full Body
+186,Sled Pull,Full Body
+187,Battle Rope Exercise,Full Body
+189,Burpee,Full Body
+190,Bear Crawl,Full Body
+193,Outdoor Walking,Cardio
+194,Outdoor Running,Cardio
+196,Elliptical Trainer,Cardio
+197,Rowing Machine,Cardio
+198,Stair Climber,Cardio
+201,High Knees,Cardio

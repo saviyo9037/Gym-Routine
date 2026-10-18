@@ -1,3 +1,5 @@
+import '../core/safe_cast.dart';
+
 class Exercise {
   final int? id;
   final int muscleGroupId;
@@ -98,36 +100,36 @@ class Exercise {
 
   factory Exercise.fromMap(Map<String, dynamic> map) {
     return Exercise(
-      id: map['id'] as int?,
-      muscleGroupId: map['muscle_group_id'] as int? ?? 0,
-      muscleGroupName: map['muscle_group_name'] as String? ?? '',
-      secondaryMuscles: map['secondary_muscles'] as String? ?? '',
-      name: map['name'] as String,
-      target: map['target'] as String? ?? '',
-      description: map['description'] as String? ?? '',
-      startingPosition: map['starting_position'] as String? ?? '',
-      instructions: map['instructions'] as String? ?? '',
-      breathingGuidance: map['breathing_guidance'] as String? ?? '',
-      beginnerModification: map['beginner_modification'] as String? ?? '',
-      equipment: map['equipment'] as String? ?? '',
-      difficulty: map['difficulty'] as String? ?? 'Intermediate',
+      id: asInt(map['id']),
+      muscleGroupId: asInt(map['muscle_group_id']) ?? 0,
+      muscleGroupName: asStr(map['muscle_group_name']) ?? '',
+      secondaryMuscles: asStr(map['secondary_muscles']) ?? '',
+      name: (asStr(map['name']) ?? ''),
+      target: asStr(map['target']) ?? '',
+      description: asStr(map['description']) ?? '',
+      startingPosition: asStr(map['starting_position']) ?? '',
+      instructions: asStr(map['instructions']) ?? '',
+      breathingGuidance: asStr(map['breathing_guidance']) ?? '',
+      beginnerModification: asStr(map['beginner_modification']) ?? '',
+      equipment: asStr(map['equipment']) ?? '',
+      difficulty: asStr(map['difficulty']) ?? 'Intermediate',
       suggestedSetsReps:
-          map['suggested_sets_reps'] as String? ?? '3 sets × 8-12 reps',
-      commonMistakes: map['common_mistakes'] as String? ?? '',
-      defaultSets: map['default_sets'] as int? ?? 3,
-      defaultReps: map['default_reps'] as int? ?? 10,
-      defaultWeightKg: (map['default_weight_kg'] as num?)?.toDouble() ?? 15.0,
-      restSeconds: map['rest_seconds'] as int? ?? 90,
-      imagePath: map['image_path'] as String?,
-      personalPhotoPath: map['personal_photo_path'] as String?,
-      personalNotes: map['personal_notes'] as String?,
-      trainerInstructions: map['trainer_instructions'] as String?,
-      isCustom: (map['is_custom'] as int?) == 1,
-      isRecommended: (map['is_recommended'] as int?) != 0,
-      isFavourite: (map['is_favourite'] as int?) == 1,
-      isCompound: (map['is_compound'] as int?) == 1,
-      createdAt: map['created_at'] as String?,
-      updatedAt: map['updated_at'] as String?,
+          asStr(map['suggested_sets_reps']) ?? '3 sets × 8-12 reps',
+      commonMistakes: asStr(map['common_mistakes']) ?? '',
+      defaultSets: asInt(map['default_sets']) ?? 3,
+      defaultReps: asInt(map['default_reps']) ?? 10,
+      defaultWeightKg: asDouble(map['default_weight_kg']) ?? 15.0,
+      restSeconds: asInt(map['rest_seconds']) ?? 90,
+      imagePath: asStr(map['image_path']),
+      personalPhotoPath: asStr(map['personal_photo_path']),
+      personalNotes: asStr(map['personal_notes']),
+      trainerInstructions: asStr(map['trainer_instructions']),
+      isCustom: (asInt(map['is_custom'])) == 1,
+      isRecommended: (asInt(map['is_recommended'])) != 0,
+      isFavourite: (asInt(map['is_favourite'])) == 1,
+      isCompound: (asInt(map['is_compound'])) == 1,
+      createdAt: asStr(map['created_at']),
+      updatedAt: asStr(map['updated_at']),
     );
   }
 

@@ -1,3 +1,5 @@
+import '../core/safe_cast.dart';
+
 class MuscleGroup {
   final int? id;
   final String name;
@@ -28,12 +30,12 @@ class MuscleGroup {
 
   factory MuscleGroup.fromMap(Map<String, dynamic> map) {
     return MuscleGroup(
-      id: map['id'] as int?,
-      name: map['name'] as String,
-      description: map['description'] as String? ?? '',
-      imagePath: map['image_path'] as String?,
-      isCustom: (map['is_custom'] as int?) == 1,
-      createdAt: map['created_at'] as String?,
+      id: asInt(map['id']),
+      name: (asStr(map['name']) ?? ''),
+      description: asStr(map['description']) ?? '',
+      imagePath: asStr(map['image_path']),
+      isCustom: (asInt(map['is_custom'])) == 1,
+      createdAt: asStr(map['created_at']),
     );
   }
 

@@ -5,6 +5,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:intl/intl.dart';
 
 import 'seed_data.dart';
+import 'sync_schema.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._internal();
@@ -18,19 +19,51 @@ class DatabaseHelper {
     return _database!;
   }
 
+  static const int schemaVersion = 7;
+
   Future<Database> _initDatabase() async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'reptrack.db');
 
     final db = await openDatabase(
       path,
-      version: 5,
+      version: schemaVersion,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
+      onOpen: SyncSchema.ensureCurrent,
     );
     await syncCatalogue(db);
     return db;
   }
+
+  /// Test hook: use an already opened database (for example an in-memory
+  /// sqflite_common_ffi database created with [createSchemaForTesting]).
+  void useDatabaseForTesting(Database? db) {
+    _database = db;
+  }
+
+  /// Test hook: run the production create/upgrade callbacks on [factory].
+  Future<Database> openForTesting(
+    DatabaseFactory factory,
+    String path, {
+    int version = schemaVersion,
+    int? upgradeFrom,
+  }) {
+    return factory.openDatabase(
+      path,
+      options: OpenDatabaseOptions(
+        version: version,
+        onCreate: _onCreate,
+        onUpgrade: _onUpgrade,
+        onOpen: SyncSchema.ensureCurrent,
+        singleInstance: false,
+      ),
+    );
+  }
+
+  /// Test hook: run the production upgrade path against an existing database.
+  Future<void> upgradeForTesting(Database db, int from, int to) =>
+      _onUpgrade(db, from, to);
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
@@ -113,6 +146,90 @@ class DatabaseHelper {
         await db.execute("ALTER TABLE routines ADD COLUMN food_details TEXT");
       } catch (_) {}
     }
+    if (oldVersion < 6) {
+      await _migrateToV6(db);
+    }
+    if (oldVersion < 7) {
+      // Additive change tracking for cloud sync (no data is modified except
+      // adding bookkeeping columns).
+      await SyncSchema.install(db);
+    }
+  }
+
+  /// v6 (additive only, never touches existing rows):
+  ///  - named weekly training plans (+ days + per-day exercises)
+  ///  - persisted in-progress workout (crash/kill recovery)
+  ///  - cardio time/distance columns and an idempotency key on sessions
+  Future<void> _migrateToV6(Database db) async {
+    await _createTrainingPlanTables(db);
+    for (final stmt in const [
+      'ALTER TABLE planned_exercises ADD COLUMN target_duration_seconds INTEGER',
+      'ALTER TABLE planned_exercises ADD COLUMN target_distance_km REAL',
+      'ALTER TABLE workout_sets ADD COLUMN duration_seconds INTEGER',
+      'ALTER TABLE workout_sets ADD COLUMN distance_km REAL',
+      'ALTER TABLE workout_sessions ADD COLUMN client_ref TEXT',
+    ]) {
+      try {
+        await db.execute(stmt);
+      } catch (_) {
+        // Column already present (idempotent migration).
+      }
+    }
+    await db.execute(
+      'CREATE UNIQUE INDEX IF NOT EXISTS idx_sessions_client_ref '
+      'ON workout_sessions(client_ref) WHERE client_ref IS NOT NULL',
+    );
+  }
+
+  Future<void> _createTrainingPlanTables(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS training_plans (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        notes TEXT,
+        is_active INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        deleted_at TEXT
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS training_plan_days (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        plan_id INTEGER NOT NULL,
+        weekday INTEGER NOT NULL,
+        is_rest INTEGER NOT NULL DEFAULT 0,
+        title TEXT,
+        notes TEXT,
+        UNIQUE(plan_id, weekday)
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS training_plan_day_exercises (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        day_id INTEGER NOT NULL,
+        exercise_id INTEGER NOT NULL,
+        exercise_name TEXT NOT NULL,
+        muscle_group_name TEXT,
+        exercise_order INTEGER NOT NULL DEFAULT 0,
+        target_sets INTEGER NOT NULL DEFAULT 3,
+        target_reps INTEGER NOT NULL DEFAULT 10,
+        target_weight_kg REAL NOT NULL DEFAULT 0,
+        rest_seconds INTEGER NOT NULL DEFAULT 90,
+        target_duration_seconds INTEGER,
+        target_distance_km REAL,
+        notes TEXT
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS active_sessions (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        client_ref TEXT NOT NULL,
+        state_json TEXT NOT NULL,
+        started_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+    ''');
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -197,6 +314,8 @@ class DatabaseHelper {
         rest_seconds INTEGER DEFAULT 90,
         notes TEXT,
         image_path TEXT,
+        target_duration_seconds INTEGER,
+        target_distance_km REAL,
         FOREIGN KEY (plan_id) REFERENCES workout_plans(id) ON DELETE CASCADE,
         FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
       )
@@ -214,9 +333,14 @@ class DatabaseHelper {
         primary_muscle TEXT NOT NULL,
         secondary_muscle TEXT,
         notes TEXT,
-        created_at TEXT NOT NULL
+        created_at TEXT NOT NULL,
+        client_ref TEXT
       )
     ''');
+    await db.execute(
+      'CREATE UNIQUE INDEX IF NOT EXISTS idx_sessions_client_ref '
+      'ON workout_sessions(client_ref) WHERE client_ref IS NOT NULL',
+    );
 
     // 6. Workout Sets table
     await db.execute('''
@@ -230,6 +354,8 @@ class DatabaseHelper {
         weight_kg REAL NOT NULL,
         is_completed INTEGER DEFAULT 1,
         completed_at TEXT NOT NULL,
+        duration_seconds INTEGER,
+        distance_km REAL,
         FOREIGN KEY (session_id) REFERENCES workout_sessions(id) ON DELETE CASCADE
       )
     ''');
@@ -271,6 +397,12 @@ class DatabaseHelper {
 
     // 10. Routine tables
     await _createRoutineTables(db);
+
+    // 11. Training plans + in-progress workout recovery (schema v6)
+    await _createTrainingPlanTables(db);
+
+    // 12. Cloud-sync change tracking (schema v7)
+    await SyncSchema.install(db);
 
     // Populate initial seed data
     await _seedInitialData(db);
@@ -315,6 +447,60 @@ class DatabaseHelper {
     ''');
   }
 
+  /// Custom exercises whose id collides with a catalogue id get a fresh id
+  /// (>= 100001) and every reference that carried the old id AND the
+  /// exercise's name is repointed. Idempotent; a no-op on healthy databases.
+  Future<void> _relocateCustomExerciseIds(Database db) async {
+    final catalogueIds = {
+      for (final e in SeedData.exercises)
+        if (e.id != null) e.id!,
+    };
+    final customs = await db.query(
+      'exercises',
+      columns: ['id', 'name'],
+      where: 'COALESCE(is_custom, 0) = 1',
+    );
+    final clashing = [
+      for (final r in customs)
+        if (catalogueIds.contains(r['id'] as int)) r,
+    ];
+    if (clashing.isEmpty) return;
+    await db.transaction((txn) async {
+      final maxRow = await txn.rawQuery('SELECT MAX(id) AS m FROM exercises');
+      var next = (maxRow.first['m'] as int? ?? 0);
+      if (next < 100000) next = 100000;
+      for (final r in clashing) {
+        final oldId = r['id'] as int;
+        final name = r['name'] as String;
+        next++;
+        await txn.update(
+          'exercises',
+          {'id': next},
+          where: 'id = ? AND COALESCE(is_custom, 0) = 1',
+          whereArgs: [oldId],
+        );
+        for (final t in const [
+          'planned_exercises',
+          'workout_sets',
+          'training_plan_day_exercises',
+        ]) {
+          await txn.update(
+            t,
+            {'exercise_id': next},
+            where: 'exercise_id = ? AND exercise_name = ?',
+            whereArgs: [oldId, name],
+          );
+        }
+        await txn.update(
+          'media_attachments',
+          {'entity_id': next},
+          where: "entity_type = 'exercise' AND entity_id = ?",
+          whereArgs: [oldId],
+        );
+      }
+    });
+  }
+
   Future<void> syncCatalogue(Database db) async {
     // 1. Sync muscle groups
     for (final mg in SeedData.muscleGroups) {
@@ -341,10 +527,16 @@ class DatabaseHelper {
     }
 
     // 2. Sync exercises
+    // A custom exercise created while the catalogue was smaller may sit on an
+    // id the catalogue now uses. Move it out of the way first so it is never
+    // overwritten and the real catalogue exercise is still inserted.
+    await _relocateCustomExerciseIds(db);
     for (final ex in SeedData.exercises) {
+      // Only catalogue rows are matched: a user's custom exercise that happens
+      // to share a name with a catalogue exercise is left untouched.
       final existing = await db.query(
         'exercises',
-        where: 'id = ? OR name = ?',
+        where: '(id = ? OR name = ?) AND COALESCE(is_custom, 0) = 0',
         whereArgs: [ex.id, ex.name],
         limit: 1,
       );
@@ -584,16 +776,30 @@ class DatabaseHelper {
       },
     ];
 
-    for (final r in defaultRoutines) {
-      final existing = await db.query(
-        'routines',
-        where: 'title = ?',
-        whereArgs: [r['title']],
-        limit: 1,
-      );
-      if (existing.isEmpty) {
-        await db.insert('routines', r);
+    // Seed the starter routines exactly once. A routine the user deletes or
+    // renames must never come back on the next launch.
+    final seeded = await db.query(
+      'user_settings',
+      where: 'key = ?',
+      whereArgs: ['default_routines_seeded'],
+      limit: 1,
+    );
+    if (seeded.isEmpty) {
+      final existingCount =
+          Sqflite.firstIntValue(
+            await db.rawQuery('SELECT COUNT(*) FROM routines'),
+          ) ??
+          0;
+      // Existing installs that already have routines keep exactly what they have.
+      if (existingCount == 0) {
+        for (final r in defaultRoutines) {
+          await db.insert('routines', r);
+        }
       }
+      await db.insert('user_settings', {
+        'key': 'default_routines_seeded',
+        'value': '1',
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
     }
   }
 
@@ -601,12 +807,8 @@ class DatabaseHelper {
     await syncCatalogue(db);
 
     // Insert Default Settings
-    await db.insert('user_settings', {'key': 'theme_mode', 'value': 'dark'});
-    await db.insert('user_settings', {'key': 'weight_unit', 'value': 'kg'});
-    await db.insert('user_settings', {
-      'key': 'reminders_enabled',
-      'value': 'false',
-    });
+    // No default settings are seeded: nothing reads a missing key without a
+    // default (theme_mode / weight_unit / reminders_enabled were dead values).
 
     final planCount =
         Sqflite.firstIntValue(
@@ -623,7 +825,7 @@ class DatabaseHelper {
     // Today: Biceps (3) & Chest (1)
     final todayPlanId = await db.insert('workout_plans', {
       'date': todayStr,
-      'primary_muscle_id': 3,
+      'primary_muscle_id': 6,
       'primary_muscle_name': 'Biceps',
       'secondary_muscle_id': 1,
       'secondary_muscle_name': 'Chest',
@@ -764,6 +966,19 @@ class DatabaseHelper {
     await db.delete('muscle_groups');
     await db.delete('routine_completions');
     await db.delete('routines');
+    await db.delete(
+      'user_settings',
+      where: 'key = ?',
+      whereArgs: ['default_routines_seeded'],
+    );
+    await db.delete('training_plan_day_exercises');
+    await db.delete('training_plan_days');
+    await db.delete('training_plans');
+    await db.delete('active_sessions');
+    // A local reset must never be mirrored to the cloud as mass deletion:
+    // forget pending tombstones/cursors (the cloud copy stays untouched).
+    await db.delete('sync_tombstones');
+    await db.delete('sync_meta', where: "key LIKE 'cursor:%'");
     await _seedInitialData(db);
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../core/theme.dart';
+import '../widgets/load_error_view.dart';
 import '../models/routine.dart';
 import '../models/routine_completion.dart';
 import '../models/routine_today_item.dart';
@@ -14,6 +15,7 @@ import 'alarm_settings_screen.dart';
 import 'alarm_ringing_screen.dart';
 import 'active_workout_screen.dart';
 import 'workout_plan_screen.dart';
+import '../core/dev_log.dart';
 
 class RoutineManagementScreen extends StatefulWidget {
   final int initialTabIndex;
@@ -75,7 +77,31 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
     super.dispose();
   }
 
+  bool _loadFailed = false;
+
   Future<void> _loadAllData() async {
+    try {
+      await _loadAllDataImpl();
+      if (mounted && _loadFailed) setState(() => _loadFailed = false);
+    } catch (e, st) {
+      devLog('routine_management_screen.dart: load failed: $e\n$st');
+      if (!mounted) return;
+      setState(() {
+        _loadFailed = true;
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _retryLoad() {
+    setState(() {
+      _loadFailed = false;
+      _isLoading = true;
+    });
+    _loadAllData();
+  }
+
+  Future<void> _loadAllDataImpl() async {
     setState(() => _isLoading = true);
 
     final today = await _routineService.getTodayRoutineItems();
@@ -506,7 +532,16 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
     );
 
     if (confirmed == true && routine.id != null) {
-      await _routineService.deleteRoutine(routine.id!);
+      try {
+        await _routineService.deleteRoutine(routine.id!);
+      } catch (_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Could not delete the routine.')),
+          );
+        }
+        return;
+      }
       await _loadAllData();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -530,6 +565,13 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
 
   @override
   Widget build(BuildContext context) {
+    if (_loadFailed) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(),
+        body: LoadErrorView(onRetry: _retryLoad),
+      );
+    }
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -537,6 +579,7 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
         elevation: 0,
         leading: Navigator.canPop(context)
             ? IconButton(
+                tooltip: 'Back',
                 icon: const Icon(
                   Icons.arrow_back_ios_new_rounded,
                   color: Colors.white,
@@ -710,8 +753,11 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  runSpacing: 6,
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -851,8 +897,11 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
+                    runSpacing: 6,
                     children: [
                       const Row(
                         children: [
@@ -862,13 +911,15 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
                             size: 18,
                           ),
                           SizedBox(width: 6),
-                          Text(
-                            'NEXT MEAL REMINDER',
-                            style: TextStyle(
-                              color: Color(0xFF00B894),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 1.2,
+                          Flexible(
+                            child: Text(
+                              'NEXT MEAL REMINDER',
+                              style: TextStyle(
+                                color: Color(0xFF00B894),
+                                fontSize: 11,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.2,
+                              ),
                             ),
                           ),
                         ],
@@ -955,8 +1006,11 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
           const SizedBox(height: 20),
 
           // Section Title
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 6,
             children: [
               const Text(
                 "CHRONOLOGICAL TIMELINE",
@@ -1048,8 +1102,11 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Top row: highlight badge / category & status badge & overflow
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  runSpacing: 6,
                   children: [
                     Row(
                       children: [
@@ -1644,8 +1701,10 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
           const SizedBox(height: 20),
 
           // Day summary header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
             children: [
               Text(
                 DateFormat('EEEE, MMM d')
@@ -1691,64 +1750,68 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
               final routine = item.routine;
               final catColor = routine.color;
 
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                decoration: BoxDecoration(
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Material(
                   color: AppColors.cardSurface,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: ListTile(
-                  onTap: () => _openDetails(routine, item),
-                  leading: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: catColor.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(routine.icon, color: catColor, size: 20),
+                  clipBehavior: Clip.antiAlias,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    side: const BorderSide(color: AppColors.border),
                   ),
-                  title: Text(
-                    routine.title,
-                    style: TextStyle(
-                      color: item.isCompleted
-                          ? AppColors.textSecondary
-                          : Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      decoration: item.isCompleted
-                          ? TextDecoration.lineThrough
-                          : null,
-                    ),
-                  ),
-                  subtitle: Text(
-                    '${routine.formattedTimeRange} (${routine.formattedDuration})',
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 12,
-                    ),
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildStatusChip(item.status),
-                      IconButton(
-                        icon: Icon(
-                          item.isCompleted
-                              ? Icons.check_circle_rounded
-                              : Icons.check_circle_outline_rounded,
-                          color: item.isCompleted
-                              ? const Color(0xFF00B894)
-                              : AppColors.textSecondary,
-                          size: 20,
-                        ),
-                        onPressed: () {
-                          if (routine.id != null) {
-                            _toggleWeeklyCompletion(routine.id!, 'completed');
-                          }
-                        },
+                  child: ListTile(
+                    onTap: () => _openDetails(routine, item),
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: catColor.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                    ],
+                      child: Icon(routine.icon, color: catColor, size: 20),
+                    ),
+                    title: Text(
+                      routine.title,
+                      style: TextStyle(
+                        color: item.isCompleted
+                            ? AppColors.textSecondary
+                            : Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        decoration: item.isCompleted
+                            ? TextDecoration.lineThrough
+                            : null,
+                      ),
+                    ),
+                    subtitle: Text(
+                      '${routine.formattedTimeRange} (${routine.formattedDuration})',
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildStatusChip(item.status),
+                        IconButton(
+                          tooltip: 'Mark done',
+                          icon: Icon(
+                            item.isCompleted
+                                ? Icons.check_circle_rounded
+                                : Icons.check_circle_outline_rounded,
+                            color: item.isCompleted
+                                ? const Color(0xFF00B894)
+                                : AppColors.textSecondary,
+                            size: 20,
+                          ),
+                          onPressed: () {
+                            if (routine.id != null) {
+                              _toggleWeeklyCompletion(routine.id!, 'completed');
+                            }
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -1768,209 +1831,239 @@ class _RoutineManagementScreenState extends State<RoutineManagementScreen>
       color: AppColors.primary,
       backgroundColor: AppColors.surfaceElevated,
       onRefresh: _loadAllData,
-      child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'ALL CONFIGURED ROUTINES',
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              Text(
-                '${_allRoutines.length} total',
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 11,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          if (_allRoutines.isEmpty)
-            _buildEmptyState(
-              icon: Icons.list_alt_rounded,
-              title: 'No routines created yet',
-              subtitle: 'Establish your daily structure by adding your first routine.',
-              buttonLabel: '+ Add Routine',
-              onButtonPressed: _navigateToAddRoutine,
-            )
-          else
-            ..._allRoutines.map((routine) {
-              final catColor = routine.color;
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  color: AppColors.cardSurface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: routine.isEnabled
-                        ? AppColors.border
-                        : Colors.grey.shade900,
+      child: CustomScrollView(
+        key: const PageStorageKey<String>('routines_all_scroll'),
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
+                    children: [
+                      const Text(
+                        'ALL CONFIGURED ROUTINES',
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      Text(
+                        '${_allRoutines.length} total',
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(16),
-                    onTap: () => _openDetails(routine),
-                    child: Padding(
-                      padding: const EdgeInsets.all(14),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: routine.isEnabled
-                                  ? catColor.withValues(alpha: 0.15)
-                                  : Colors.white10,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: routine.isEnabled
-                                    ? catColor.withValues(alpha: 0.3)
-                                    : Colors.transparent,
+                  const SizedBox(height: 12),
+
+                  if (_allRoutines.isEmpty)
+                    _buildEmptyState(
+                      icon: Icons.list_alt_rounded,
+                      title: 'No routines created yet',
+                      subtitle: 'Establish your daily structure by adding your first routine.',
+                      buttonLabel: '+ Add Routine',
+                      onButtonPressed: _navigateToAddRoutine,
+                    ),
+                ],
+              ),
+            ),
+          ),
+          // Routine cards: lazy sliver (only visible cards are built).
+          if (_allRoutines.isNotEmpty)
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: SliverList.builder(
+                itemCount: _allRoutines.length,
+                itemBuilder: (context, index) {
+                  final routine = _allRoutines[index];
+                  final catColor = routine.color;
+                  return Container(
+                    key: ValueKey('routine_card_${routine.id}'),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.cardSurface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: routine.isEnabled
+                            ? AppColors.border
+                            : Colors.grey.shade900,
+                      ),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () => _openDetails(routine),
+                        child: Padding(
+                          padding: const EdgeInsets.all(14),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: routine.isEnabled
+                                      ? catColor.withValues(alpha: 0.15)
+                                      : Colors.white10,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: routine.isEnabled
+                                        ? catColor.withValues(alpha: 0.3)
+                                        : Colors.transparent,
+                                  ),
+                                ),
+                                child: Icon(
+                                  routine.icon,
+                                  color: routine.isEnabled
+                                      ? catColor
+                                      : Colors.grey,
+                                  size: 22,
+                                ),
                               ),
-                            ),
-                            child: Icon(
-                              routine.icon,
-                              color: routine.isEnabled ? catColor : Colors.grey,
-                              size: 22,
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 6,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: catColor.withValues(alpha: 0.15),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Text(
-                                        routine.category.toUpperCase(),
-                                        style: TextStyle(
-                                          color: catColor,
-                                          fontSize: 9,
-                                          fontWeight: FontWeight.bold,
+                                    Wrap(
+                                      spacing: 6,
+                                      runSpacing: 4,
+                                      crossAxisAlignment:
+                                          WrapCrossAlignment.center,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: catColor.withValues(
+                                              alpha: 0.15,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            routine.category.toUpperCase(),
+                                            style: TextStyle(
+                                              color: catColor,
+                                              fontSize: 9,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                         ),
+                                        const SizedBox(width: 6),
+                                        if (routine.alarmType == 'alarm' ||
+                                            routine.isAlarmEnabled)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 6,
+                                              vertical: 2,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.primary
+                                                  .withValues(alpha: 0.2),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            child: const Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  Icons.alarm_on_rounded,
+                                                  size: 10,
+                                                  color: AppColors.primary,
+                                                ),
+                                                SizedBox(width: 2),
+                                                Text(
+                                                  'ALARM',
+                                                  style: TextStyle(
+                                                    color: AppColors.primary,
+                                                    fontSize: 8.5,
+                                                    fontWeight: FontWeight.w900,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                        else if (routine.alarmType ==
+                                            'notification')
+                                          const Icon(
+                                            Icons.notifications_active_rounded,
+                                            size: 13,
+                                            color: Colors.blueAccent,
+                                          ),
+                                        if (routine.isOvernight) ...[
+                                          const SizedBox(width: 4),
+                                          const Text(
+                                            '🌙',
+                                            style: TextStyle(fontSize: 10),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      routine.title,
+                                      style: TextStyle(
+                                        color: routine.isEnabled
+                                            ? Colors.white
+                                            : AppColors.textSecondary,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700,
                                       ),
                                     ),
-                                    const SizedBox(width: 6),
-                                    if (routine.alarmType == 'alarm' ||
-                                        routine.isAlarmEnabled)
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 6,
-                                          vertical: 2,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.primary.withValues(
-                                            alpha: 0.2,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            4,
-                                          ),
-                                        ),
-                                        child: const Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(
-                                              Icons.alarm_on_rounded,
-                                              size: 10,
-                                              color: AppColors.primary,
-                                            ),
-                                            SizedBox(width: 2),
-                                            Text(
-                                              'ALARM',
-                                              style: TextStyle(
-                                                color: AppColors.primary,
-                                                fontSize: 8.5,
-                                                fontWeight: FontWeight.w900,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    else if (routine.alarmType ==
-                                        'notification')
-                                      const Icon(
-                                        Icons.notifications_active_rounded,
-                                        size: 13,
-                                        color: Colors.blueAccent,
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      '${routine.formattedTimeRange} • ${routine.formattedRepeatDays}',
+                                      style: const TextStyle(
+                                        color: AppColors.textSecondary,
+                                        fontSize: 11,
                                       ),
-                                    if (routine.isOvernight) ...[
-                                      const SizedBox(width: 4),
-                                      const Text(
-                                        '🌙',
-                                        style: TextStyle(fontSize: 10),
+                                    ),
+                                    if (routine.foodDetails != null &&
+                                        routine.foodDetails!.isNotEmpty) ...[
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        '🥗 ${routine.foodDetails!}',
+                                        style: const TextStyle(
+                                          color: Color(0xFF00B894),
+                                          fontSize: 10.5,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ],
                                   ],
                                 ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  routine.title,
-                                  style: TextStyle(
-                                    color: routine.isEnabled
-                                        ? Colors.white
-                                        : AppColors.textSecondary,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  '${routine.formattedTimeRange} • ${routine.formattedRepeatDays}',
-                                  style: const TextStyle(
-                                    color: AppColors.textSecondary,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                                if (routine.foodDetails != null &&
-                                    routine.foodDetails!.isNotEmpty) ...[
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    '🥗 ${routine.foodDetails!}',
-                                    style: const TextStyle(
-                                      color: Color(0xFF00B894),
-                                      fontSize: 10.5,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ],
-                            ),
+                              ),
+                              Switch(
+                                value: routine.isEnabled,
+                                activeThumbColor: AppColors.primary,
+                                onChanged: (val) =>
+                                    _toggleRoutineEnabled(routine),
+                              ),
+                              _buildRoutinePopupMenu(routine),
+                            ],
                           ),
-                          Switch(
-                            value: routine.isEnabled,
-                            activeThumbColor: AppColors.primary,
-                            onChanged: (val) => _toggleRoutineEnabled(routine),
-                          ),
-                          _buildRoutinePopupMenu(routine),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              );
-            }),
-
-          const SizedBox(height: 40),
+                  );
+                },
+              ),
+            ),
+          const SliverToBoxAdapter(child: SizedBox(height: 40)),
         ],
       ),
     );

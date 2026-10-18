@@ -1,4 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+
+import 'helpers/video_fakes.dart';
+
 import 'package:reptrack/data/seed_data.dart';
 import 'package:reptrack/models/workout_plan.dart';
 import 'package:reptrack/models/workout_session.dart';
@@ -287,78 +290,83 @@ void main() {
   group('Active Workout Video Resolution & Anti-Cross-Contamination Tests', () {
     final mediaService = ExerciseMediaService.instance;
 
+    // MOCK-ONLY entitlement/backend: videos are delivered on demand from a
+    // private bucket, so resolution depends on the (faked) subscription state.
+    late VideoTestRig rig;
+
     setUpAll(() async {
       await mediaService.initialize();
     });
-
-    test(
-      'Standing Dumbbell Curl resolves to standing_dumbbell_curl.mp4',
-      () async {
-        final source = await mediaService.resolveMediaSource(
-          'Standing Dumbbell Curl',
-        );
-        expect(source.type, equals(DemonstrationSourceType.bundledAsset));
-        expect(
-          source.uri,
-          equals('assets/videos/exercises/standing_dumbbell_curl.mp4'),
-        );
-      },
-    );
-
-    test('Hammer Curl resolves to hammer_curl.mp4', () async {
-      final source = await mediaService.resolveMediaSource('Hammer Curl');
-      expect(source.type, equals(DemonstrationSourceType.bundledAsset));
-      expect(source.uri, equals('assets/videos/exercises/hammer_curl.mp4'));
+    setUp(() {
+      rig = VideoTestRig();
+      mediaService.accessForTesting = rig.service;
+    });
+    tearDown(() {
+      mediaService.accessForTesting = null;
+      rig.dispose();
     });
 
-    test(
-      'Barbell Curl resolves to barbell_curl.mp4 or straight_bar_curl.mp4',
-      () async {
-        final source = await mediaService.resolveMediaSource('Barbell Curl');
-        expect(source.type, equals(DemonstrationSourceType.bundledAsset));
-        expect(
-          source.uri,
-          anyOf(
-            'assets/videos/exercises/barbell_curl.mp4',
-            'assets/videos/exercises/straight_bar_curl.mp4',
-          ),
-        );
-      },
-    );
-
-    test('Bench Press resolves to barbell_bench_press.mp4', () async {
-      final source = await mediaService.resolveMediaSource('Bench Press');
-      expect(source.type, equals(DemonstrationSourceType.bundledAsset));
-      expect(
-        source.uri,
-        equals('assets/videos/exercises/barbell_bench_press.mp4'),
-      );
-    });
-
-    test('Mismatched exercise IDs in planned exercises do not corrupt video display', () async {
-      // Even if database has exerciseId 1 paired with "Hammer Curl", name priority guarantees hammer_curl.mp4
+    test('Standing Dumbbell Curl: entitled -> on-demand protected video for its own id', () async {
       final source = await mediaService.resolveMediaSource(
-        'Hammer Curl',
-        exerciseId: 1, // Mismatched ID (1 is Bench Press in catalogue)
+        'Standing Dumbbell Curl',
       );
-      expect(source.uri, equals('assets/videos/exercises/hammer_curl.mp4'));
-      expect(source.uri, isNot(contains('bench_press')));
+      expect(source.type, equals(DemonstrationSourceType.protectedDownload));
+      expect(source.exerciseId, 69);
+      expect(source.uri, isNot(contains('.mp4')));
+    });
+
+    test('Standing Dumbbell Curl: not entitled -> locked photo', () async {
+      rig.entitled = false;
+      final source = await mediaService.resolveMediaSource(
+        'Standing Dumbbell Curl',
+      );
+      expect(source.type, equals(DemonstrationSourceType.lockedPhoto));
+      expect(source.uri, endsWith('.jpg'));
     });
 
     test(
-      'Cardio exercises resolve to authentic verified demonstration videos',
+      'Hammer Curl has no video (duplicate removed) and shows its photo',
       () async {
-        final source = await mediaService.resolveMediaSource(
-          'Stationary Cycling',
-        );
-        expect(source.type, equals(DemonstrationSourceType.bundledAsset));
-        expect(
-          source.uri,
-          equals('assets/videos/exercises/stationary_cycling.mp4'),
-        );
-        expect(source.isOfflineReady, isTrue);
+        final source = await mediaService.resolveMediaSource('Hammer Curl');
+        expect(source.type, equals(DemonstrationSourceType.photoFallback));
+        expect(source.uri, equals('assets/images/exercises/hammer_curl.jpg'));
       },
     );
+
+    test('Barbell Curl alias has no video and shows a photo', () async {
+      final source = await mediaService.resolveMediaSource('Barbell Curl');
+      expect(source.type, equals(DemonstrationSourceType.photoFallback));
+      expect(source.uri, endsWith('.jpg'));
+    });
+
+    test('Bench Press alias has no video and shows a photo', () async {
+      final source = await mediaService.resolveMediaSource('Bench Press');
+      expect(source.type, equals(DemonstrationSourceType.photoFallback));
+      expect(source.uri, endsWith('.jpg'));
+    });
+
+    test(
+      'Mismatched exercise IDs never show a different exercise media',
+      () async {
+        final source = await mediaService.resolveMediaSource(
+          'Hammer Curl',
+          exerciseId: 1, // Mismatched ID (1 is Barbell Bench Press)
+        );
+        expect(source.uri, equals('assets/images/exercises/hammer_curl.jpg'));
+        expect(source.uri, isNot(contains('bench_press')));
+      },
+    );
+
+    test('Cardio exercise with a video resolves to the protected on-demand video of its own id', () async {
+      final source = await mediaService.resolveMediaSource(
+        'Stationary Cycling',
+      );
+      expect(source.type, equals(DemonstrationSourceType.protectedDownload));
+      final demo = mediaService.getDemonstration('Stationary Cycling')!;
+      expect(source.exerciseId, demo.exerciseId);
+      expect(demo.storagePath, 'videos/${demo.exerciseId}.mp4');
+      expect(source.isOfflineReady, isFalse);
+    });
   });
 
   group('Rest Day & Active Recovery Daily Plan Tests', () {

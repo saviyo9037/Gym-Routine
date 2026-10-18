@@ -1,3 +1,5 @@
+import '../core/safe_cast.dart';
+
 class PlanChangeLog {
   final int? id;
   final int planId;
@@ -28,12 +30,12 @@ class PlanChangeLog {
 
   factory PlanChangeLog.fromMap(Map<String, dynamic> map) {
     return PlanChangeLog(
-      id: map['id'] as int?,
-      planId: map['plan_id'] as int? ?? 0,
-      planDate: map['plan_date'] as String? ?? '',
-      changeDescription: map['change_description'] as String? ?? '',
-      reason: map['reason'] as String? ?? '',
-      changedAt: map['changed_at'] as String?,
+      id: asInt(map['id']),
+      planId: asInt(map['plan_id']) ?? 0,
+      planDate: asStr(map['plan_date']) ?? '',
+      changeDescription: asStr(map['change_description']) ?? '',
+      reason: asStr(map['reason']) ?? '',
+      changedAt: asStr(map['changed_at']),
     );
   }
 }

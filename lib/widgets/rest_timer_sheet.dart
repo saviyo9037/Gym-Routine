@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../core/theme.dart';
 
@@ -18,6 +19,8 @@ class RestTimerSheet extends StatefulWidget {
     return showModalBottomSheet(
       context: context,
       isDismissible: true,
+      isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (_) =>
           RestTimerSheet(initialSeconds: seconds, onComplete: onComplete),
@@ -52,6 +55,7 @@ class _RestTimerSheetState extends State<RestTimerSheet> {
         });
       } else {
         _timer?.cancel();
+        HapticFeedback.mediumImpact();
         widget.onComplete?.call();
         Navigator.pop(context);
       }
@@ -95,128 +99,133 @@ class _RestTimerSheetState extends State<RestTimerSheet> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         border: Border(top: BorderSide(color: AppColors.border, width: 1.5)),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: AppColors.border,
-              borderRadius: BorderRadius.circular(2),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.border,
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'REST TIMER',
-                style: TextStyle(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 14,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              IconButton(
-                icon: const Icon(
-                  Icons.close_rounded,
-                  color: AppColors.textSecondary,
-                ),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              SizedBox(
-                width: 170,
-                height: 170,
-                child: CircularProgressIndicator(
-                  value: progress,
-                  strokeWidth: 8,
-                  backgroundColor: AppColors.cardSurface,
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                    AppColors.primary,
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'REST TIMER',
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                    letterSpacing: 1.2,
                   ),
                 ),
-              ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '$mins:$secs',
-                    style: const TextStyle(
-                      color: AppColors.textMain,
-                      fontSize: 42,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -1,
+                IconButton(
+                  tooltip: 'Close',
+                  icon: const Icon(
+                    Icons.close_rounded,
+                    color: AppColors.textSecondary,
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                SizedBox(
+                  width: 170,
+                  height: 170,
+                  child: CircularProgressIndicator(
+                    value: progress,
+                    strokeWidth: 8,
+                    backgroundColor: AppColors.cardSurface,
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      AppColors.primary,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'RECOVER FOR NEXT SET',
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.8,
+                ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '$mins:$secs',
+                      style: const TextStyle(
+                        color: AppColors.textMain,
+                        fontSize: 42,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -1,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'RECOVER FOR NEXT SET',
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 28),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _addThirtySeconds,
+                    icon: const Icon(Icons.add_rounded, size: 18),
+                    label: const Text('+30s'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.textMain,
+                      side: const BorderSide(color: AppColors.border),
                     ),
                   ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 28),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: _addThirtySeconds,
-                  icon: const Icon(Icons.add_rounded, size: 18),
-                  label: const Text('+30s'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.textMain,
-                    side: const BorderSide(color: AppColors.border),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _togglePause,
+                    icon: Icon(
+                      _isRunning
+                          ? Icons.pause_rounded
+                          : Icons.play_arrow_rounded,
+                      color: Colors.black,
+                    ),
+                    label: Text(_isRunning ? 'Pause' : 'Resume'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.black,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: _togglePause,
-                  icon: Icon(
-                    _isRunning ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                    color: Colors.black,
-                  ),
-                  label: Text(_isRunning ? 'Pause' : 'Resume'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.black,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      _timer?.cancel();
+                      Navigator.pop(context);
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.textSecondary,
+                      side: const BorderSide(color: AppColors.border),
+                    ),
+                    child: const Text('Skip'),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () {
-                    _timer?.cancel();
-                    Navigator.pop(context);
-                  },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.textSecondary,
-                    side: const BorderSide(color: AppColors.border),
-                  ),
-                  child: const Text('Skip'),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-        ],
+              ],
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
       ),
     );
   }

@@ -1,3 +1,5 @@
+import '../core/safe_cast.dart';
+
 import 'package:flutter/material.dart';
 
 enum RoutineCategory {
@@ -270,7 +272,7 @@ class Routine {
   }
 
   factory Routine.fromMap(Map<String, dynamic> map) {
-    final repeatDaysStr = (map['repeat_days'] as String? ?? '').trim();
+    final repeatDaysStr = (asStr(map['repeat_days']) ?? '').trim();
     List<int> days = [];
     if (repeatDaysStr.isNotEmpty) {
       days = repeatDaysStr
@@ -284,25 +286,25 @@ class Routine {
     }
 
     return Routine(
-      id: map['id'] as int?,
-      title: map['title'] as String? ?? '',
-      category: map['category'] as String? ?? 'Custom',
-      startTime: map['start_time'] as String? ?? '08:00',
-      endTime: map['end_time'] as String? ?? '09:00',
+      id: asInt(map['id']),
+      title: asStr(map['title']) ?? '',
+      category: asStr(map['category']) ?? 'Custom',
+      startTime: asStr(map['start_time']) ?? '08:00',
+      endTime: asStr(map['end_time']) ?? '09:00',
       repeatDays: days,
-      notes: map['notes'] as String?,
-      foodDetails: map['food_details'] as String?,
-      isReminderEnabled: (map['is_reminder_enabled'] as int? ?? 1) == 1,
-      reminderMinutesBefore: map['reminder_minutes_before'] as int? ?? 10,
-      alarmType: map['alarm_type'] as String? ?? 'notification',
-      isAlarmEnabled: (map['is_alarm_enabled'] as int? ?? 1) == 1,
-      soundName: map['sound_name'] as String? ?? 'Digital Beep',
-      isVibrationEnabled: (map['is_vibration_enabled'] as int? ?? 1) == 1,
-      snoozeMinutes: map['snooze_minutes'] as int? ?? 10,
-      isEnabled: (map['is_enabled'] as int? ?? 1) == 1,
-      colorHex: map['color_hex'] as String?,
-      createdAt: map['created_at'] as String?,
-      updatedAt: map['updated_at'] as String?,
+      notes: asStr(map['notes']),
+      foodDetails: asStr(map['food_details']),
+      isReminderEnabled: (asInt(map['is_reminder_enabled']) ?? 1) == 1,
+      reminderMinutesBefore: asInt(map['reminder_minutes_before']) ?? 10,
+      alarmType: asStr(map['alarm_type']) ?? 'notification',
+      isAlarmEnabled: (asInt(map['is_alarm_enabled']) ?? 1) == 1,
+      soundName: asStr(map['sound_name']) ?? 'Digital Beep',
+      isVibrationEnabled: (asInt(map['is_vibration_enabled']) ?? 1) == 1,
+      snoozeMinutes: asInt(map['snooze_minutes']) ?? 10,
+      isEnabled: (asInt(map['is_enabled']) ?? 1) == 1,
+      colorHex: asStr(map['color_hex']),
+      createdAt: asStr(map['created_at']),
+      updatedAt: asStr(map['updated_at']),
     );
   }
 }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../core/theme.dart';
+import '../widgets/load_error_view.dart';
 import '../models/muscle_group.dart';
 import '../models/exercise.dart';
 import '../models/media_attachment.dart';
@@ -14,6 +15,7 @@ import '../widgets/exercise_image_widget.dart';
 import '../widgets/media_attachment_section.dart';
 import 'exercise_detail_screen.dart';
 import 'add_edit_exercise_screen.dart';
+import '../core/dev_log.dart';
 
 class MuscleDetailScreen extends StatefulWidget {
   final MuscleGroup muscleGroup;
@@ -60,16 +62,12 @@ class _MuscleDetailScreenState extends State<MuscleDetailScreen> {
 
   bool get _isLegsCategory {
     final n = _muscleGroup.name.toLowerCase();
-    return n == 'legs' ||
-        n == 'quadriceps' ||
-        n == 'hamstrings' ||
-        n == 'glutes' ||
-        n == 'calves';
+    return n == 'legs';
   }
 
   bool get _isBackCategory {
     final n = _muscleGroup.name.toLowerCase();
-    return n == 'back' || n == 'lats' || n == 'upper back and traps';
+    return n == 'back';
   }
 
   List<String> get _subCategoryOptions {
@@ -134,7 +132,31 @@ class _MuscleDetailScreenState extends State<MuscleDetailScreen> {
     _searchController.addListener(_filterExercises);
   }
 
+  bool _loadFailed = false;
+
   Future<void> _loadData() async {
+    try {
+      await _loadDataImpl();
+      if (mounted && _loadFailed) setState(() => _loadFailed = false);
+    } catch (e, st) {
+      devLog('muscle_detail_screen.dart: load failed: $e\n$st');
+      if (!mounted) return;
+      setState(() {
+        _loadFailed = true;
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _retryLoad() {
+    setState(() {
+      _loadFailed = false;
+      _isLoading = true;
+    });
+    _loadData();
+  }
+
+  Future<void> _loadDataImpl() async {
     await ExerciseMediaService.instance.initialize();
     final exList = await _dbService.getCatalogueExercises(
       _muscleGroup.name,
@@ -297,11 +319,19 @@ class _MuscleDetailScreenState extends State<MuscleDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_loadFailed) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(),
+        body: LoadErrorView(onRetry: _retryLoad),
+      );
+    }
     final isBiceps = _muscleGroup.name.toLowerCase() == 'biceps';
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
+        key: PageStorageKey<String>('muscle_detail_scroll_${_muscleGroup.id}'),
         slivers: [
           // Collapsible Banner Header
           SliverAppBar(
@@ -416,14 +446,16 @@ class _MuscleDetailScreenState extends State<MuscleDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 8,
+                          runSpacing: 6,
                           children: [
                             const Icon(
                               Icons.info_outline_rounded,
                               color: AppColors.primary,
                               size: 18,
                             ),
-                            const SizedBox(width: 8),
                             const Text(
                               'ANATOMY & FUNCTION',
                               style: TextStyle(
@@ -433,7 +465,6 @@ class _MuscleDetailScreenState extends State<MuscleDetailScreen> {
                                 letterSpacing: 1.1,
                               ),
                             ),
-                            const Spacer(),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
@@ -558,6 +589,7 @@ class _MuscleDetailScreenState extends State<MuscleDetailScreen> {
                       ),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
+                              tooltip: 'Clear',
                               icon: const Icon(
                                 Icons.clear,
                                 color: AppColors.textSecondary,
@@ -655,13 +687,17 @@ class _MuscleDetailScreenState extends State<MuscleDetailScreen> {
                           color: AppColors.primary,
                         ),
                         SizedBox(width: 6),
-                        Text(
-                          'ASSISTING / SECONDARY MUSCLE',
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.1,
+                        Expanded(
+                          child: Text(
+                            'ASSISTING / SECONDARY MUSCLE',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.1,
+                            ),
                           ),
                         ),
                       ],
@@ -938,8 +974,10 @@ class _MuscleDetailScreenState extends State<MuscleDetailScreen> {
                   ],
 
                   // Header with Count
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
                     children: [
                       Text(
                         'EXERCISES (${_filteredExercises.length})',
@@ -960,50 +998,63 @@ class _MuscleDetailScreenState extends State<MuscleDetailScreen> {
                     ],
                   ),
                   const SizedBox(height: 10),
+                ],
+              ),
+            ),
+          ),
 
-                  if (_isLoading)
-                    const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(32),
-                        child: CircularProgressIndicator(
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    )
-                  else if (_filteredExercises.isEmpty)
-                    Container(
-                      padding: const EdgeInsets.all(32),
-                      alignment: Alignment.center,
-                      child: Column(
-                        children: [
-                          const Icon(
-                            Icons.search_off_rounded,
-                            color: AppColors.textMuted,
-                            size: 40,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'No ${_muscleGroup.name} exercises found matching your filter.',
-                            style: const TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  else
-                    ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _filteredExercises.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemBuilder: (context, index) {
-                        final ex = _filteredExercises[index];
-                        return _buildExerciseCard(ex);
-                      },
+          // Exercise cards: lazy sliver (only visible cards are built).
+          if (_isLoading)
+            const SliverToBoxAdapter(
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.all(32),
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                ),
+              ),
+            )
+          else if (_filteredExercises.isEmpty)
+            SliverToBoxAdapter(
+              child: Container(
+                padding: const EdgeInsets.all(32),
+                alignment: Alignment.center,
+                child: Column(
+                  children: [
+                    const Icon(
+                      Icons.search_off_rounded,
+                      color: AppColors.textMuted,
+                      size: 40,
                     ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'No ${_muscleGroup.name} exercises found matching your filter.',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: SliverList.separated(
+                itemCount: _filteredExercises.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) =>
+                    _buildExerciseCard(_filteredExercises[index]),
+              ),
+            ),
 
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   // Media attachments section
                   if (_media.isNotEmpty) ...[
                     const SizedBox(height: 28),
@@ -1083,6 +1134,7 @@ class _MuscleDetailScreenState extends State<MuscleDetailScreen> {
 
   Widget _buildExerciseCard(Exercise ex) {
     return InkWell(
+      key: ValueKey('muscle_card_${ex.id}'),
       onTap: () async {
         await Navigator.push(
           context,
@@ -1198,6 +1250,7 @@ class _MuscleDetailScreenState extends State<MuscleDetailScreen> {
                               ),
                             ),
                             IconButton(
+                              tooltip: 'Toggle favourite',
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
                               icon: Icon(
@@ -1262,68 +1315,82 @@ class _MuscleDetailScreenState extends State<MuscleDetailScreen> {
                           ),
                         ],
                         const SizedBox(height: 8),
-                        Row(
+                        Wrap(
+                          alignment: WrapAlignment.spaceBetween,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 6,
+                          runSpacing: 6,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.surfaceElevated,
-                                borderRadius: BorderRadius.circular(4),
-                                border: Border.all(color: AppColors.border),
-                              ),
-                              child: Text(
-                                ex.difficulty,
-                                style: TextStyle(
-                                  color: ex.difficulty == 'Beginner'
-                                      ? Colors.greenAccent
-                                      : (ex.difficulty == 'Advanced'
-                                            ? Colors.orangeAccent
-                                            : AppColors.primary),
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            if (ex.isCompound) ...[
-                              const SizedBox(width: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(
-                                    alpha: 0.15,
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 4,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
                                   ),
-                                  borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(
-                                    color: AppColors.primary.withValues(
-                                      alpha: 0.4,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surfaceElevated,
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(color: AppColors.border),
+                                  ),
+                                  child: Text(
+                                    ex.difficulty,
+                                    style: TextStyle(
+                                      color: ex.difficulty == 'Beginner'
+                                          ? Colors.greenAccent
+                                          : (ex.difficulty == 'Advanced'
+                                                ? Colors.orangeAccent
+                                                : AppColors.primary),
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
-                                child: const Text(
-                                  'Compound',
-                                  style: TextStyle(
-                                    color: AppColors.primary,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
+                                if (ex.isCompound) ...[
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary.withValues(
+                                        alpha: 0.15,
+                                      ),
+                                      borderRadius: BorderRadius.circular(4),
+                                      border: Border.all(
+                                        color: AppColors.primary.withValues(
+                                          alpha: 0.4,
+                                        ),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      'Compound',
+                                      style: TextStyle(
+                                        color: AppColors.primary,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ],
-                            const Spacer(),
+                                ],
+                              ],
+                            ),
                             Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Text(
-                                  'View Details',
-                                  style: TextStyle(
-                                    color: AppColors.primary,
-                                    fontSize: 11.5,
-                                    fontWeight: FontWeight.bold,
+                                const Flexible(
+                                  child: Text(
+                                    'View Details',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: AppColors.primary,
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 4),

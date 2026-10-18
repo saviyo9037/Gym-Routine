@@ -5,13 +5,37 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
+
+import '../core/media_config.dart';
 import '../models/exercise_demonstration.dart';
+import 'video_access_service.dart';
 
 enum DemonstrationSourceType {
+  /// Legacy/dev only: a video packaged in the app (release builds bundle none).
   bundledAsset,
+
+  /// A protected video already in the private on-device cache.
   downloadedFile,
+
+  /// Legacy remote stream (no longer produced: third-party URLs are not used).
   remoteNetwork,
+
+  /// Photo only: NO_VIDEO exercise, or videos switched off.
   photoFallback,
+
+  /// The exercise HAS a protected video and the user may watch it, but it is not
+  /// on the device yet: the player downloads it now (on demand, per exercise).
+  protectedDownload,
+
+  /// The exercise has a video but the user has no active subscription/trial:
+  /// photo plus a short explanation, never the video.
+  lockedPhoto,
+
+  /// TRIAL tier: the exercise has a video, but videos are locked during the
+  /// trial. Blurred photo + "unlock with a full subscription" + Subscribe.
+  /// No controller, no signed-URL request, no download.
+  trialLockedPhoto,
 }
 
 class DemonstrationMediaSource {
@@ -20,11 +44,19 @@ class DemonstrationMediaSource {
   final bool isOfflineReady;
   final String? localFilePath;
 
+  /// Set for [DemonstrationSourceType.protectedDownload] / [lockedPhoto].
+  final int? exerciseId;
+
+  /// Photo to show underneath (all types).
+  final String? photoPath;
+
   const DemonstrationMediaSource({
     required this.type,
     required this.uri,
     required this.isOfflineReady,
     this.localFilePath,
+    this.exerciseId,
+    this.photoPath,
   });
 }
 
@@ -34,6 +66,28 @@ class ExerciseMediaService {
   ExerciseMediaService._internal();
 
   bool _isInitialized = false;
+  bool? _videosEnabledOverride;
+  VideoAccessService? _accessOverride;
+
+  /// Delivery of protected videos (entitlement check + on-demand cache).
+  VideoAccessService get access =>
+      _accessOverride ?? VideoAccessService.instance;
+
+  @visibleForTesting
+  set accessForTesting(VideoAccessService? value) => _accessOverride = value;
+
+  /// Effective value of the global video switch ([kBundledVideosEnabled]
+  /// unless a test overrides it).
+  bool get videosEnabled => _videosEnabledOverride ?? kBundledVideosEnabled;
+
+  @visibleForTesting
+  set videosEnabledForTesting(bool? value) => _videosEnabledOverride = value;
+
+  ExerciseDemonstration? _effective(ExerciseDemonstration? demo) {
+    if (demo == null || videosEnabled || !demo.hasVideo) return demo;
+    return demo.withoutVideo();
+  }
+
   final Map<String, ExerciseDemonstration> _registryByName = {};
   final Map<int, ExerciseDemonstration> _registryById = {};
 
@@ -111,13 +165,13 @@ class ExerciseMediaService {
 
   ExerciseDemonstration? getDemonstration(String name) {
     if (_registryByName.containsKey(name)) {
-      return _registryByName[name];
+      return _effective(_registryByName[name]);
     }
-    return _registryByName[_normalize(name)];
+    return _effective(_registryByName[_normalize(name)]);
   }
 
   ExerciseDemonstration? getDemonstrationById(int id) {
-    return _registryById[id];
+    return _effective(_registryById[id]);
   }
 
   bool hasDemonstration(String name, {int? exerciseId}) {
@@ -186,6 +240,19 @@ class ExerciseMediaService {
     String? fallbackImagePath,
   }) async {
     await initialize();
+    if (!videosEnabled) {
+      // Global kill switch: photo only, no controller, no remote stream.
+      final demo =
+          (exerciseName.isNotEmpty ? getDemonstration(exerciseName) : null) ??
+          (exerciseId != null && exerciseId > 0
+              ? getDemonstrationById(exerciseId)
+              : null);
+      return DemonstrationMediaSource(
+        type: DemonstrationSourceType.photoFallback,
+        uri: fallbackImagePath ?? demo?.imageFallbackPath ?? '',
+        isOfflineReady: true,
+      );
+    }
     ExerciseDemonstration? demo;
     if (exerciseName.isNotEmpty) {
       demo = getDemonstration(exerciseName);
@@ -202,43 +269,71 @@ class ExerciseMediaService {
       );
     }
 
-    // 1. Check if bundled in assets
+    final photo = fallbackImagePath ?? demo.imageFallbackPath ?? '';
+
+    // Trial tier: a deliverable video exists but trials may not watch it. Decided
+    // before ANY source (bundled, cached, protected) so nothing is requested.
+    final deliverable =
+        (demo.isBundled && demo.localBundledPath != null) ||
+        demo.hasProtectedVideo;
+    if (deliverable && access.trialLocked) {
+      return DemonstrationMediaSource(
+        type: DemonstrationSourceType.trialLockedPhoto,
+        uri: photo,
+        isOfflineReady: true,
+        exerciseId: demo.exerciseId,
+        photoPath: photo,
+      );
+    }
+
+    // 1. Legacy / dev: a video packaged inside the app (release builds bundle none).
     if (demo.isBundled && demo.localBundledPath != null) {
       return DemonstrationMediaSource(
         type: DemonstrationSourceType.bundledAsset,
         uri: demo.localBundledPath!,
         isOfflineReady: true,
+        photoPath: photo,
       );
     }
 
-    // 2. Check if downloaded in app-private storage
-    final localPath = await getLocalCachedVideoPath(
-      exerciseName,
-      exerciseId: exerciseId,
-    );
-    if (localPath != null) {
+    // 2. Protected video (private bucket, on demand, entitlement required).
+    if (demo.hasProtectedVideo) {
+      final id = demo.exerciseId;
+      if (!access.isEntitled) {
+        return DemonstrationMediaSource(
+          type: DemonstrationSourceType.lockedPhoto,
+          uri: photo,
+          isOfflineReady: true,
+          exerciseId: id,
+          photoPath: photo,
+        );
+      }
+      final cached = await access.cachedFile(id);
+      if (cached != null) {
+        return DemonstrationMediaSource(
+          type: DemonstrationSourceType.downloadedFile,
+          uri: cached.path,
+          isOfflineReady: true,
+          localFilePath: cached.path,
+          exerciseId: id,
+          photoPath: photo,
+        );
+      }
       return DemonstrationMediaSource(
-        type: DemonstrationSourceType.downloadedFile,
-        uri: localPath,
-        isOfflineReady: true,
-        localFilePath: localPath,
-      );
-    }
-
-    // 3. Fallback to remote network stream
-    if (demo.videoUrl != null && demo.videoUrl!.isNotEmpty) {
-      return DemonstrationMediaSource(
-        type: DemonstrationSourceType.remoteNetwork,
-        uri: demo.videoUrl!,
+        type: DemonstrationSourceType.protectedDownload,
+        uri: photo,
         isOfflineReady: false,
+        exerciseId: id,
+        photoPath: photo,
       );
     }
 
-    // 4. Default to photo fallback
+    // 3. Anything else has no deliverable video: photo.
     return DemonstrationMediaSource(
       type: DemonstrationSourceType.photoFallback,
-      uri: fallbackImagePath ?? demo.imageFallbackPath ?? '',
+      uri: photo,
       isOfflineReady: true,
+      photoPath: photo,
     );
   }
 
@@ -366,14 +461,17 @@ class ExerciseMediaService {
   }
 
   Map<String, dynamic> getMediaInventoryReport() {
-    final verified = _registryByName.values.where((d) => d.hasVideo).toSet();
-    final bundled = _registryByName.values.where((d) => d.isBundled).toSet();
-    final fallbacks = _registryByName.values.where((d) => !d.hasVideo).toSet();
+    final all = _registryById.values.map((d) => _effective(d)!).toSet();
+    final verified = all.where((d) => d.hasVideo).toSet();
+    final bundled = all.where((d) => d.isBundled).toSet();
+    final protectedVideos = all.where((d) => d.hasProtectedVideo).toSet();
+    final fallbacks = all.where((d) => !d.hasVideo).toSet();
 
     return {
       'total_catalogue_exercises': verified.length + fallbacks.length,
       'verified_demonstrations_count': verified.length,
       'bundled_offline_demonstrations_count': bundled.length,
+      'protected_video_demonstrations_count': protectedVideos.length,
       'photographic_fallbacks_count': fallbacks.length,
       'verified_exercises': verified.map((e) => e.name).toList(),
       'bundled_exercises': bundled.map((e) => e.name).toList(),

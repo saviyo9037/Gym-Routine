@@ -2,16 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../core/theme.dart';
+import '../widgets/load_error_view.dart';
 import '../models/workout_plan.dart';
 import '../models/workout_session.dart';
+import '../services/active_workout_controller.dart';
+import '../core/clock.dart';
+import '../models/weekly_summary.dart';
 import '../services/database_service.dart';
+import '../services/stats_service.dart';
 import '../widgets/voice_recorder_dialog.dart';
 import 'active_workout_screen.dart';
+import 'announcement_banner.dart';
 import 'edit_tomorrow_plan_screen.dart';
 import 'add_edit_exercise_screen.dart';
 import 'routine_management_screen.dart';
 import '../models/routine_today_item.dart';
 import '../services/routine_service.dart';
+import '../core/dev_log.dart';
 
 class HomeScreen extends StatefulWidget {
   final Function(int tabIndex)? onNavigateToTab;
@@ -28,12 +35,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   WorkoutPlan? _todayPlan;
   WorkoutPlan? _tomorrowPlan;
-  List<WorkoutPlan> _weeklyPlans = [];
+  final StatsService _stats = StatsService();
+  WeeklySummary? _week;
   List<WorkoutSession> _recentSessions = [];
   RoutineTodayItem? _nextRoutineItem;
   int _todayRoutinesCount = 0;
   int _todayCompletedRoutinesCount = 0;
   bool _isLoading = true;
+  ActiveWorkoutSummary? _activeSummary;
 
   @override
   void initState() {
@@ -41,26 +50,59 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadDashboardData();
   }
 
+  bool _loadFailed = false;
+
   Future<void> _loadDashboardData() async {
+    try {
+      await _loadDashboardDataImpl();
+      if (mounted && _loadFailed) setState(() => _loadFailed = false);
+    } catch (e, st) {
+      devLog('home_screen.dart: load failed: $e\n$st');
+      if (!mounted) return;
+      setState(() {
+        _loadFailed = true;
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _retryLoad() {
+    setState(() {
+      _loadFailed = false;
+      _isLoading = true;
+    });
+    _loadDashboardData();
+  }
+
+  Future<void> _loadDashboardDataImpl() async {
     final today = await _dbService.getTodayPlan();
     final tomorrow = await _dbService.getTomorrowPlan();
-    final week = await _dbService.getWeeklyPlans(DateTime.now());
+    final week = await _stats.weeklySummary(AppClock.now());
     final recent = await _dbService.getRecentSessions(5);
     final todayRoutineItems = await _routineService.getTodayRoutineItems();
     final nextRoutine = await _routineService.getNextUpcomingRoutine();
     final completedRoutines = todayRoutineItems
         .where((i) => i.isCompleted)
         .length;
+    ActiveWorkoutSummary? activeSummary;
+    try {
+      activeSummary = await ActiveWorkoutController.peekSummary(
+        SqliteActiveSessionStore(),
+      );
+    } catch (_) {
+      activeSummary = null;
+    }
 
     if (mounted) {
       setState(() {
         _todayPlan = today;
         _tomorrowPlan = tomorrow;
-        _weeklyPlans = week;
+        _week = week;
         _recentSessions = recent;
         _nextRoutineItem = nextRoutine;
         _todayRoutinesCount = todayRoutineItems.length;
         _todayCompletedRoutinesCount = completedRoutines;
+        _activeSummary = activeSummary;
         _isLoading = false;
       });
     }
@@ -83,6 +125,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_loadFailed) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(),
+        body: LoadErrorView(onRetry: _retryLoad),
+      );
+    }
     if (_isLoading) {
       return const Scaffold(
         backgroundColor: AppColors.background,
@@ -92,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    final todayDate = DateTime.now();
+    final todayDate = AppClock.now();
     final formattedDate = DateFormat('EEEE, MMMM d').format(todayDate);
 
     return Scaffold(
@@ -112,42 +161,49 @@ class _HomeScreenState extends State<HomeScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: AppColors.primary,
-                                shape: BoxShape.circle,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                  color: AppColors.primary,
+                                  shape: BoxShape.circle,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 6),
-                            const Text(
-                              'REPTRACK',
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 2,
+                              const SizedBox(width: 6),
+                              const Flexible(
+                                child: Text(
+                                  'REPTRACK',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 2,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          formattedDate,
-                          style: const TextStyle(
-                            color: AppColors.textMain,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.5,
+                            ],
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 4),
+                          Text(
+                            formattedDate,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: AppColors.textMain,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     Row(
                       children: [
@@ -203,6 +259,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildRoutineHeaderButton(),
                 const SizedBox(height: 18),
 
+                const AnnouncementBanner(),
+                if (_activeSummary != null) ...[
+                  _buildResumeBanner(_activeSummary!),
+                  const SizedBox(height: 18),
+                ],
+
                 // Weekly 7-Day Completion Tracker
                 _buildWeeklyTracker(),
                 const SizedBox(height: 22),
@@ -230,8 +292,81 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildResumeBanner(ActiveWorkoutSummary a) {
+    return Semantics(
+      button: true,
+      label:
+          'Resume workout ${a.title}, ${a.completedSets} of ${a.totalSets} sets done',
+      child: Material(
+        color: AppColors.primary.withValues(alpha: 0.14),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: AppColors.primary),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () async {
+            final res = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ActiveWorkoutScreen(resume: true),
+              ),
+            );
+            if (res == true || res == false) _loadDashboardData();
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.play_circle_fill_rounded,
+                  color: AppColors.primary,
+                  size: 34,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'RESUME WORKOUT',
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1,
+                          fontSize: 12,
+                        ),
+                      ),
+                      Text(
+                        '${a.title} • ${a.completedSets}/${a.totalSets} sets done',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.textMain,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: AppColors.primary,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildWeeklyTracker() {
-    final now = DateTime.now();
+    final now = AppClock.now();
+    final week = _week;
+    final progress = week == null
+        ? (done: 0, scheduled: 0)
+        : _stats.weekProgress(week);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
@@ -242,8 +377,11 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 4,
             children: [
               const Text(
                 'WEEKLY SCHEDULE',
@@ -255,7 +393,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               Text(
-                '${_weeklyPlans.where((p) => p.isCompleted).length}/7 Completed',
+                progress.scheduled == 0
+                    ? 'No workouts scheduled'
+                    : '${progress.done}/${progress.scheduled} done',
                 style: const TextStyle(
                   color: AppColors.primary,
                   fontSize: 11,
@@ -268,12 +408,10 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: List.generate(7, (i) {
-              DateTime? planDate;
-              if (i < _weeklyPlans.length) {
-                try {
-                  planDate = DateTime.parse(_weeklyPlans[i].date);
-                } catch (_) {}
-              }
+              final day = week != null && i < week.days.length
+                  ? week.days[i]
+                  : null;
+              final planDate = day?.date;
               final dayName = planDate != null
                   ? DateFormat('E').format(planDate).substring(0, 1)
                   : '';
@@ -284,7 +422,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   planDate.month == now.month &&
                   planDate.day == now.day;
               final isDone =
-                  i < _weeklyPlans.length && _weeklyPlans[i].isCompleted;
+                  day != null &&
+                  (day.status == DayStatus.completed ||
+                      day.status == DayStatus.partiallyCompleted);
 
               return Column(
                 children: [
@@ -371,10 +511,14 @@ class _HomeScreenState extends State<HomeScreen> {
               color: AppColors.surfaceElevated,
               borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 8,
+              runSpacing: 6,
               children: [
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(
                       Icons.flash_on_rounded,
@@ -382,13 +526,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       size: 18,
                     ),
                     const SizedBox(width: 6),
-                    const Text(
-                      'TODAY\'S TRAINING',
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.2,
+                    const Flexible(
+                      child: Text(
+                        'TODAY\'S TRAINING',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.2,
+                        ),
                       ),
                     ),
                   ],
@@ -435,7 +583,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Muscle Groups Pill
-                      Row(
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 6,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           _buildMusclePill(plan.primaryMuscleName ?? 'Biceps'),
                           if (plan.secondaryMuscleName != null &&
@@ -592,7 +743,30 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Icons.calendar_month_rounded,
                                 size: 16,
                               ),
-                              label: const Text('View 6-Day Weekly Schedule'),
+                              label: const Text('View weekly schedule'),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppColors.primary,
+                                side: const BorderSide(color: AppColors.border),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            OutlinedButton.icon(
+                              onPressed: () async {
+                                final res = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const ActiveWorkoutScreen(
+                                      startUnplanned: true,
+                                    ),
+                                  ),
+                                );
+                                if (res == true) _loadDashboardData();
+                              },
+                              icon: const Icon(
+                                Icons.play_arrow_rounded,
+                                size: 18,
+                              ),
+                              label: const Text('Start an unplanned workout'),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: AppColors.primary,
                                 side: const BorderSide(color: AppColors.border),
@@ -657,10 +831,13 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 8,
               children: [
                 const Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
                       Icons.upcoming_rounded,
@@ -668,13 +845,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       size: 18,
                     ),
                     SizedBox(width: 8),
-                    Text(
-                      'TOMORROW\'S PREVIEW',
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1.1,
+                    Flexible(
+                      child: Text(
+                        'TOMORROW\'S PREVIEW',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.1,
+                        ),
                       ),
                     ),
                   ],
@@ -709,7 +890,10 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 10),
 
             if (hasTomorrow) ...[
-              Row(
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   _buildMusclePill(tomorrow.primaryMuscleName ?? 'Back'),
                   if (tomorrow.secondaryMuscleName != null &&
@@ -725,7 +909,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(width: 8),
                     _buildMusclePill(tomorrow.secondaryMuscleName!),
                   ],
-                  const Spacer(),
                   Text(
                     '${tomorrow.exercises.length} Exercises',
                     style: const TextStyle(
@@ -759,11 +942,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                         ),
-                        Text(
-                          '${pe.targetSets} sets × ${pe.targetReps} reps',
-                          style: const TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 11.5,
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            '${pe.targetSets} sets × ${pe.targetReps} reps',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 11.5,
+                            ),
                           ),
                         ),
                       ],
@@ -929,8 +1117,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             const Text(
               'RECENT WORKOUTS',
@@ -1157,7 +1346,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
+                      Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 6,
+                        runSpacing: 4,
                         children: [
                           Container(
                             width: 6,
@@ -1167,7 +1359,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               shape: BoxShape.circle,
                             ),
                           ),
-                          const SizedBox(width: 6),
                           const Text(
                             'MY ROUTINE',
                             style: TextStyle(

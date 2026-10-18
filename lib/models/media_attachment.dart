@@ -1,3 +1,5 @@
+import '../core/safe_cast.dart';
+
 class MediaAttachment {
   final int? id;
   final String entityType; // 'muscle', 'exercise', 'plan', 'session'
@@ -37,15 +39,15 @@ class MediaAttachment {
 
   factory MediaAttachment.fromMap(Map<String, dynamic> map) {
     return MediaAttachment(
-      id: map['id'] as int?,
-      entityType: map['entity_type'] as String,
-      entityId: map['entity_id'] as int,
-      mediaType: map['media_type'] as String,
-      filePath: map['file_path'] as String,
-      title: map['title'] as String? ?? 'Attachment',
-      description: map['description'] as String?,
-      durationSeconds: map['duration_seconds'] as int?,
-      createdAt: map['created_at'] as String?,
+      id: asInt(map['id']),
+      entityType: (asStr(map['entity_type']) ?? ''),
+      entityId: (asInt(map['entity_id']) ?? 0),
+      mediaType: (asStr(map['media_type']) ?? ''),
+      filePath: (asStr(map['file_path']) ?? ''),
+      title: asStr(map['title']) ?? 'Attachment',
+      description: asStr(map['description']),
+      durationSeconds: asInt(map['duration_seconds']),
+      createdAt: asStr(map['created_at']),
     );
   }
 

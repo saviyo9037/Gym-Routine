@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../core/theme.dart';
+import '../widgets/exercise_picker_sheet.dart';
+import '../widgets/load_error_view.dart';
 import '../models/workout_session.dart';
+import '../core/clock.dart';
 import '../models/weekly_summary.dart';
+import '../services/stats_service.dart';
 import '../services/database_service.dart';
 import '../widgets/media_attachment_section.dart';
 import 'active_workout_screen.dart';
+import '../core/dev_log.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -17,12 +22,14 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   final DatabaseService _dbService = DatabaseService();
+  final StatsService _stats = StatsService();
+  bool _sundayStart = false;
 
   // Segmented Navigation: 0 = This Week, 1 = All Sessions, 2 = Muscle History
   int _selectedSegment = 0;
 
   // Weekly Summary State
-  DateTime _currentWeekAnchor = DateTime.now();
+  DateTime _currentWeekAnchor = AppClock.now();
   WeeklySummary? _weeklySummary;
 
   // All Sessions State
@@ -32,8 +39,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
   DateTimeRange? _customRange;
   bool _isCalendarView = false;
   DateTime _calendarMonth = DateTime(
-    DateTime.now().year,
-    DateTime.now().month,
+    AppClock.now().year,
+    AppClock.now().month,
     1,
   );
   DateTime? _selectedCalendarDate;
@@ -52,8 +59,33 @@ class _HistoryScreenState extends State<HistoryScreen> {
     _loadAllData();
   }
 
+  bool _loadFailed = false;
+
   Future<void> _loadAllData() async {
-    final week = await _dbService.getWeeklySummary(_currentWeekAnchor);
+    try {
+      await _loadAllDataImpl();
+      if (mounted && _loadFailed) setState(() => _loadFailed = false);
+    } catch (e, st) {
+      devLog('history_screen.dart: load failed: $e\n$st');
+      if (!mounted) return;
+      setState(() {
+        _loadFailed = true;
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _retryLoad() {
+    setState(() {
+      _loadFailed = false;
+      _isLoading = true;
+    });
+    _loadAllData();
+  }
+
+  Future<void> _loadAllDataImpl() async {
+    _sundayStart = await _stats.weekStartsOnSunday();
+    final week = await _stats.weeklySummary(_currentWeekAnchor);
     final all = await _dbService.getAllSessions();
 
     if (mounted) {
@@ -69,34 +101,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   // ------------------- DATE RANGE FILTERING -------------------
   void _applyDateRangeFilter() {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-
     List<WorkoutSession> result = List.from(_allSessions);
 
-    if (_dateRangeFilter == 'This Week') {
-      final monday = today.subtract(Duration(days: today.weekday - 1));
-      final sunday = monday.add(const Duration(days: 6));
-      final monStr = DateFormat('yyyy-MM-dd').format(monday);
-      final sunStr = DateFormat('yyyy-MM-dd').format(sunday);
+    final range = StatsService.rangeForFilter(
+      _dateRangeFilter,
+      AppClock.now(),
+      sundayStart: _sundayStart,
+    );
+    if (range != null) {
       result = result
           .where(
             (s) =>
-                s.date.compareTo(monStr) >= 0 && s.date.compareTo(sunStr) <= 0,
+                s.date.compareTo(range.start) >= 0 &&
+                s.date.compareTo(range.end) <= 0,
           )
           .toList();
-    } else if (_dateRangeFilter == 'Last 7 Days') {
-      final sevenDaysAgo = today.subtract(const Duration(days: 7));
-      final cutoffStr = DateFormat('yyyy-MM-dd').format(sevenDaysAgo);
-      result = result.where((s) => s.date.compareTo(cutoffStr) >= 0).toList();
-    } else if (_dateRangeFilter == 'This Month') {
-      final firstDay = DateTime(now.year, now.month, 1);
-      final firstDayStr = DateFormat('yyyy-MM-dd').format(firstDay);
-      result = result.where((s) => s.date.compareTo(firstDayStr) >= 0).toList();
-    } else if (_dateRangeFilter == 'Last 30 Days') {
-      final thirtyDaysAgo = today.subtract(const Duration(days: 30));
-      final cutoffStr = DateFormat('yyyy-MM-dd').format(thirtyDaysAgo);
-      result = result.where((s) => s.date.compareTo(cutoffStr) >= 0).toList();
     } else if (_dateRangeFilter == 'Custom' && _customRange != null) {
       final startStr = DateFormat('yyyy-MM-dd').format(_customRange!.start);
       final endStr = DateFormat('yyyy-MM-dd').format(_customRange!.end);
@@ -120,35 +139,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   // ------------------- MUSCLE HISTORY LOADING -------------------
   Future<void> _loadMuscleHistoryData() async {
-    String? startStr;
-    String? endStr;
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-
-    if (_muscleFilterPeriod == 'This Week') {
-      final monday = today.subtract(Duration(days: today.weekday - 1));
-      final sunday = monday.add(const Duration(days: 6));
-      startStr = DateFormat('yyyy-MM-dd').format(monday);
-      endStr = DateFormat('yyyy-MM-dd').format(sunday);
-    } else if (_muscleFilterPeriod == 'This Month') {
-      startStr = DateFormat('yyyy-MM-dd')
-          .format(DateTime(now.year, now.month, 1));
-      endStr = DateFormat('yyyy-MM-dd').format(now);
-    } else if (_muscleFilterPeriod == 'Last 30 Days') {
-      startStr = DateFormat('yyyy-MM-dd')
-          .format(today.subtract(const Duration(days: 30)));
-      endStr = DateFormat('yyyy-MM-dd').format(now);
-    }
-
-    final stats = await _dbService.getMuscleFrequencyStats(
-      startDate: startStr,
-      endDate: endStr,
+    final range = StatsService.rangeForFilter(
+      _muscleFilterPeriod,
+      AppClock.now(),
+      sundayStart: _sundayStart,
     );
-
-    final sessions = await _dbService.getSessionsForMuscle(
+    final stats = await _stats.muscleFrequency(range);
+    final sessions = await _stats.sessionsForMuscle(
       _selectedMuscleCategory,
-      startDate: startStr,
-      endDate: endStr,
+      range,
     );
 
     if (mounted) {
@@ -161,8 +160,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   // ------------------- WEEK NAVIGATION -------------------
   void _navigateWeek(int dayOffset) async {
-    final newAnchor = _currentWeekAnchor.add(Duration(days: dayOffset));
-    final summary = await _dbService.getWeeklySummary(newAnchor);
+    final a = _currentWeekAnchor;
+    final newAnchor = DateTime(a.year, a.month, a.day + dayOffset);
+    final summary = await _stats.weeklySummary(newAnchor);
     if (mounted) {
       setState(() {
         _currentWeekAnchor = newAnchor;
@@ -172,8 +172,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   void _resetToCurrentWeek() async {
-    final now = DateTime.now();
-    final summary = await _dbService.getWeeklySummary(now);
+    final now = AppClock.now();
+    final summary = await _stats.weeklySummary(now);
     if (mounted) {
       setState(() {
         _currentWeekAnchor = now;
@@ -183,18 +183,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   bool get _isCurrentWeek {
-    final now = DateTime.now();
-    final todayMidnight = DateTime(now.year, now.month, now.day);
-    final mondayNow = todayMidnight.subtract(Duration(days: now.weekday - 1));
-    final currentAnchorMidnight = DateTime(
-      _currentWeekAnchor.year,
-      _currentWeekAnchor.month,
-      _currentWeekAnchor.day,
+    final nowStart = StatsService.weekStart(
+      AppClock.now(),
+      sundayStart: _sundayStart,
     );
-    final mondayAnchor = currentAnchorMidnight.subtract(
-      Duration(days: _currentWeekAnchor.weekday - 1),
+    final anchorStart = StatsService.weekStart(
+      _currentWeekAnchor,
+      sundayStart: _sundayStart,
     );
-    return mondayNow.isAtSameMomentAs(mondayAnchor);
+    return nowStart == anchorStart;
   }
 
   // ------------------- SESSION DETAILS BOTTOM SHEET -------------------
@@ -596,15 +593,27 @@ class _HistoryScreenState extends State<HistoryScreen> {
               Navigator.pop(ctx); // Close dialog
               Navigator.pop(context); // Close bottom sheet
               if (session.id != null) {
-                await _dbService.deleteWorkoutSession(session.id!);
-                _loadAllData();
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Workout session removed from history'),
-                      backgroundColor: Colors.redAccent,
-                    ),
-                  );
+                try {
+                  await _dbService.deleteWorkoutSession(session.id!);
+                  _loadAllData();
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Workout session removed from history'),
+                        backgroundColor: Colors.redAccent,
+                      ),
+                    );
+                  }
+                } catch (_) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Could not delete the session. Nothing was changed.',
+                        ),
+                      ),
+                    );
+                  }
                 }
               }
             },
@@ -622,20 +631,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
     int durationMinutes = 45;
     final notesController = TextEditingController();
 
-    final List<Map<String, dynamic>> manualSets = [
-      {
-        'exercise': 'Barbell Bench Press',
-        'sets': 3,
-        'reps': 10,
-        'weight': 60.0,
-      },
-      {
-        'exercise': 'Incline Dumbbell Press',
-        'sets': 3,
-        'reps': 10,
-        'weight': 22.0,
-      },
-    ];
+    // Starts empty: a manual log only ever contains what the user adds.
+    final List<Map<String, dynamic>> manualSets = [];
+    String? formError;
 
     showModalBottomSheet(
       context: context,
@@ -746,6 +744,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<String>(
+                        key: ValueKey('primary_$primaryMuscle'),
+                        isExpanded: true,
                         initialValue: primaryMuscle,
                         dropdownColor: AppColors.surfaceElevated,
                         decoration: const InputDecoration(
@@ -778,6 +778,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: DropdownButtonFormField<String>(
+                        isExpanded: true,
                         initialValue: secondaryMuscle,
                         dropdownColor: AppColors.surfaceElevated,
                         decoration: const InputDecoration(
@@ -828,6 +829,151 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
                 const SizedBox(height: 16),
 
+                // Exercises actually performed (required)
+                const Text(
+                  'EXERCISES',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                if (manualSets.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      'Add at least one exercise with its sets, reps and weight.',
+                      style: TextStyle(color: AppColors.textSecondary),
+                    ),
+                  ),
+                for (int i = 0; i < manualSets.length; i++)
+                  Container(
+                    key: ValueKey('manual_ex_$i'),
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.cardSurface,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                manualSets[i]['exercise'] as String,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: 'Remove exercise',
+                              icon: const Icon(Icons.close_rounded, size: 18),
+                              onPressed: () =>
+                                  setModalState(() => manualSets.removeAt(i)),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            for (final f in const [
+                              ('sets', 'Sets'),
+                              ('reps', 'Reps'),
+                              ('weight', 'Kg'),
+                            ])
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: TextFormField(
+                                    key: ValueKey('manual_${i}_${f.$1}'),
+                                    initialValue: () {
+                                      final v = manualSets[i][f.$1] as num;
+                                      return v == v.roundToDouble()
+                                          ? v.toStringAsFixed(0)
+                                          : v.toString();
+                                    }(),
+                                    keyboardType:
+                                        const TextInputType.numberWithOptions(
+                                          decimal: true,
+                                        ),
+                                    decoration: InputDecoration(
+                                      labelText: f.$2,
+                                      isDense: true,
+                                    ),
+                                    onChanged: (v) {
+                                      final n = double.tryParse(
+                                        v.trim().replaceAll(',', '.'),
+                                      );
+                                      if (n == null || n < 0) return;
+                                      manualSets[i][f.$1] = f.$1 == 'weight'
+                                          ? n
+                                          : n.round();
+                                    },
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    final ex = await ExercisePickerSheet.show(
+                      context,
+                      title: 'Add to this session',
+                      alreadyAddedIds: {
+                        for (final m in manualSets) m['id'] as int,
+                      },
+                    );
+                    if (ex == null) return;
+                    setModalState(() {
+                      const primaries = [
+                        'Chest',
+                        'Back',
+                        'Shoulders',
+                        'Biceps',
+                        'Triceps',
+                        'Quadriceps',
+                        'Hamstrings',
+                        'Glutes',
+                        'Abs and Core',
+                        'Full Body',
+                      ];
+                      if (manualSets.isEmpty &&
+                          primaries.contains(ex.muscleGroupName)) {
+                        primaryMuscle = ex.muscleGroupName;
+                      }
+                      manualSets.add({
+                        'id': ex.id ?? 0,
+                        'exercise': ex.name,
+                        'group': ex.muscleGroupName,
+                        'sets': ex.defaultSets,
+                        'reps': ex.defaultReps,
+                        'weight': ex.defaultWeightKg,
+                      });
+                      formError = null;
+                    });
+                  },
+                  icon: const Icon(Icons.add_rounded, size: 18),
+                  label: const Text('Add exercise'),
+                ),
+                if (formError != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      formError!,
+                      style: const TextStyle(color: AppColors.error),
+                    ),
+                  ),
+                const SizedBox(height: 16),
+
                 // Save Button
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -837,13 +983,44 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
                   onPressed: () async {
                     final messenger = ScaffoldMessenger.of(context);
+                    if (manualSets.isEmpty) {
+                      setModalState(
+                        () => formError = 'Add at least one exercise first.',
+                      );
+                      return;
+                    }
+                    if (durationMinutes < 1 || durationMinutes > 600) {
+                      setModalState(
+                        () => formError = 'Duration must be 1-600 minutes.',
+                      );
+                      return;
+                    }
+                    for (final m in manualSets) {
+                      if ((m['sets'] as int) < 1 ||
+                          (m['reps'] as int) < 1 ||
+                          (m['sets'] as int) > 50) {
+                        setModalState(
+                          () => formError =
+                              'Check sets and reps for ${m['exercise']}.',
+                        );
+                        return;
+                      }
+                    }
                     final dateStr = DateFormat('yyyy-MM-dd')
                         .format(selectedDate);
+                    final start = DateTime(
+                      selectedDate.year,
+                      selectedDate.month,
+                      selectedDate.day,
+                      10,
+                    );
+                    final end = start.add(Duration(minutes: durationMinutes));
+                    String hhmm(DateTime d) =>
+                        '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
                     final session = WorkoutSession(
                       date: dateStr,
-                      startTime: '10:00',
-                      endTime:
-                          '10:${durationMinutes.toString().padLeft(2, '0')}',
+                      startTime: hhmm(start),
+                      endTime: hhmm(end),
                       durationSeconds: durationMinutes * 60,
                       primaryMuscle: primaryMuscle,
                       secondaryMuscle: secondaryMuscle == 'None'
@@ -861,7 +1038,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           )
                             WorkoutSetRecord(
                               sessionId: 0,
-                              exerciseId: i + 1,
+                              exerciseId: manualSets[i]['id'] as int,
                               exerciseName: manualSets[i]['exercise'] as String,
                               setNumber: s,
                               reps: manualSets[i]['reps'] as int,
@@ -872,7 +1049,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ],
                     );
 
-                    await _dbService.createWorkoutSession(session);
+                    try {
+                      await _dbService.createWorkoutSession(session);
+                    } catch (_) {
+                      setModalState(
+                        () => formError =
+                            'Could not save the workout. Try again.',
+                      );
+                      return;
+                    }
                     if (ctx.mounted) {
                       Navigator.pop(ctx);
                     }
@@ -904,6 +1089,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
   // ------------------- BUILD UI -------------------
   @override
   Widget build(BuildContext context) {
+    if (_loadFailed) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(),
+        body: LoadErrorView(onRetry: _retryLoad),
+      );
+    }
     if (_isLoading) {
       return const Scaffold(
         backgroundColor: AppColors.background,
@@ -1039,6 +1231,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
+                tooltip: 'Back',
                 icon: const Icon(
                   Icons.arrow_back_ios_rounded,
                   color: AppColors.primary,
@@ -1046,54 +1239,58 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
                 onPressed: () => _navigateWeek(-7),
               ),
-              Column(
-                children: [
-                  Text(
-                    '$weekStartStr – $weekEndStr',
-                    style: const TextStyle(
-                      color: AppColors.textMain,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14.5,
+              Expanded(
+                child: Column(
+                  children: [
+                    Text(
+                      '$weekStartStr – $weekEndStr',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: AppColors.textMain,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 14.5,
+                      ),
                     ),
-                  ),
-                  if (_isCurrentWeek)
-                    Container(
-                      margin: const EdgeInsets.only(top: 2),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 1,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Text(
-                        'CURRENT WEEK',
-                        style: TextStyle(
-                          color: AppColors.primary,
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.bold,
+                    if (_isCurrentWeek)
+                      Container(
+                        margin: const EdgeInsets.only(top: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 1,
                         ),
-                      ),
-                    )
-                  else
-                    InkWell(
-                      onTap: _resetToCurrentWeek,
-                      child: const Padding(
-                        padding: EdgeInsets.only(top: 2),
-                        child: Text(
-                          'Jump to This Week',
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          'CURRENT WEEK',
                           style: TextStyle(
                             color: AppColors.primary,
-                            fontSize: 11,
+                            fontSize: 9.5,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                      )
+                    else
+                      InkWell(
+                        onTap: _resetToCurrentWeek,
+                        child: const Padding(
+                          padding: EdgeInsets.only(top: 2),
+                          child: Text(
+                            'Jump to This Week',
+                            style: TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
               IconButton(
+                tooltip: 'Forward',
                 icon: const Icon(
                   Icons.arrow_forward_ios_rounded,
                   color: AppColors.primary,
@@ -1105,6 +1302,24 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ),
         ),
         const SizedBox(height: 12),
+
+        if (!_allSessions.any((x) => x.isEffective)) ...[
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: AppColors.cardSurface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: const Text(
+              'No workouts logged yet. Finish your first workout and your '
+              'weekly totals, volume and progress will appear here.',
+              style: TextStyle(color: AppColors.textSecondary, height: 1.4),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
 
         // 4 Summary Metrics Cards (2x2 Grid)
         Row(
@@ -1153,8 +1368,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
         const SizedBox(height: 16),
 
         // Timeline Header
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          runSpacing: 4,
           children: [
             const Text(
               '7-DAY WORKOUT SCHEDULE',
@@ -1260,12 +1478,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
         statusColor = AppColors.textMuted;
         statusIcon = Icons.nightlight_round;
         break;
+      case DayStatus.noPlan:
+        statusColor = AppColors.textMuted;
+        statusIcon = Icons.remove_rounded;
+        break;
     }
 
     final hasSession = day.sessions.isNotEmpty;
     final primaryMuscle =
         day.primaryMuscle ??
-        (day.status == DayStatus.restDay ? 'Rest Day' : 'Workout');
+        (day.status == DayStatus.restDay
+            ? 'Rest Day'
+            : (day.status == DayStatus.noPlan ? 'Not scheduled' : 'Workout'));
     final secondaryMuscle = day.secondaryMuscle;
 
     return InkWell(
@@ -1336,12 +1560,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        '$primaryMuscle${secondaryMuscle != null ? " + $secondaryMuscle" : ""}',
-                        style: const TextStyle(
-                          color: AppColors.textMain,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14,
+                      Flexible(
+                        child: Text(
+                          '$primaryMuscle${secondaryMuscle != null ? " + $secondaryMuscle" : ""}',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: AppColors.textMain,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                       if (day.isToday) ...[
@@ -1369,11 +1597,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    hasSession
+                    day.completedExerciseCount > 0
                         ? '${day.completedExerciseCount} exercises completed • ${day.sessions.first.durationSeconds ~/ 60}m'
-                        : (day.status == DayStatus.restDay
-                              ? 'Scheduled rest and recovery'
-                              : '${day.plannedExerciseCount} exercises planned'),
+                        : (hasSession
+                              ? 'Session saved with no completed sets'
+                              : (day.status == DayStatus.restDay
+                                    ? 'Scheduled rest and recovery'
+                                    : (day.status == DayStatus.noPlan
+                                          ? 'Nothing scheduled'
+                                          : '${day.plannedExerciseCount} exercises planned'))),
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 11.5,
@@ -1384,30 +1616,38 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
 
             // Right Status Badge
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: statusColor.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: statusColor.withValues(alpha: 0.4),
-                  width: 1,
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(statusIcon, color: statusColor, size: 12),
-                  const SizedBox(width: 4),
-                  Text(
-                    day.statusLabel,
-                    style: TextStyle(
-                      color: statusColor,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
+            const SizedBox(width: 8),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 110),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: statusColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: statusColor.withValues(alpha: 0.4),
+                    width: 1,
                   ),
-                ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(statusIcon, color: statusColor, size: 12),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        day.statusLabel,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: statusColor,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -1706,6 +1946,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             IconButton(
+              tooltip: 'Previous',
               icon: const Icon(
                 Icons.chevron_left_rounded,
                 color: AppColors.primary,
@@ -1722,6 +1963,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
             ),
             IconButton(
+              tooltip: 'Next',
               icon: const Icon(
                 Icons.chevron_right_rounded,
                 color: AppColors.primary,
@@ -1957,6 +2199,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final totalSets = s.totalSetsCount;
 
     return InkWell(
+      key: ValueKey('history_session_${s.id}'),
       onTap: () => _showSessionDetails(s),
       borderRadius: BorderRadius.circular(14),
       child: Container(
@@ -1970,7 +2213,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Top Row: Date & Status Badge & Duration
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 Text(
                   s.date,
@@ -1980,7 +2226,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 6,
@@ -2001,7 +2246,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     ),
                   ),
                 ),
-                const Spacer(),
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
@@ -2045,14 +2289,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   size: 15,
                 ),
                 const SizedBox(width: 6),
-                Text(
-                  '$completedSets/$totalSets sets logged • ${s.totalVolumeKg.toStringAsFixed(0)} kg vol',
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 12,
+                Expanded(
+                  child: Text(
+                    '$completedSets/$totalSets sets logged • ${s.totalVolumeKg.toStringAsFixed(0)} kg vol',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
-                const Spacer(),
                 const Text(
                   'Details',
                   style: TextStyle(
@@ -2081,205 +2328,254 @@ class _HistoryScreenState extends State<HistoryScreen> {
       (a, b) => a + b,
     );
 
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      children: [
-        // Time Period Filter Chips
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: ['All Time', 'This Month', 'Last 30 Days', 'This Week']
-                .map((period) {
-                  final isSel = _muscleFilterPeriod == period;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
-                      label: Text(
-                        period,
-                        style: TextStyle(
-                          color: isSel ? Colors.black : AppColors.textSecondary,
-                          fontSize: 12,
-                        ),
-                      ),
-                      selected: isSel,
-                      selectedColor: AppColors.primary,
-                      backgroundColor: AppColors.surfaceElevated,
-                      side: BorderSide(
-                        color: isSel ? AppColors.primary : AppColors.border,
-                      ),
-                      onSelected: (val) {
-                        setState(() {
-                          _muscleFilterPeriod = period;
-                          _loadMuscleHistoryData();
-                        });
-                      },
-                    ),
-                  );
-                })
-                .toList(),
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        // Frequency Breakdown Progress Card
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.cardSurface,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'MUSCLE TRAINING FREQUENCY',
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.1,
-                    ),
+    return CustomScrollView(
+      key: const PageStorageKey<String>('history_muscle_scroll'),
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          sliver: SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Time Period Filter Chips
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children:
+                        [
+                          'All Time',
+                          'This Month',
+                          'Last 30 Days',
+                          'This Week',
+                        ].map((period) {
+                          final isSel = _muscleFilterPeriod == period;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: ChoiceChip(
+                              label: Text(
+                                period,
+                                style: TextStyle(
+                                  color: isSel
+                                      ? Colors.black
+                                      : AppColors.textSecondary,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              selected: isSel,
+                              selectedColor: AppColors.primary,
+                              backgroundColor: AppColors.surfaceElevated,
+                              side: BorderSide(
+                                color: isSel
+                                    ? AppColors.primary
+                                    : AppColors.border,
+                              ),
+                              onSelected: (val) {
+                                setState(() {
+                                  _muscleFilterPeriod = period;
+                                  _loadMuscleHistoryData();
+                                });
+                              },
+                            ),
+                          );
+                        }).toList(),
                   ),
-                  Text(
-                    '$totalTrainings total hits',
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 11,
-                    ),
+                ),
+                const SizedBox(height: 16),
+
+                // Frequency Breakdown Progress Card
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.cardSurface,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: AppColors.border),
                   ),
-                ],
-              ),
-              const SizedBox(height: 14),
-
-              ..._muscleFrequencyStats.entries.map((entry) {
-                final muscle = entry.key;
-                final count = entry.value;
-                final fraction = totalTrainings > 0
-                    ? count / totalTrainings
-                    : 0.0;
-
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            muscle,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
+                          const Flexible(
+                            child: Text(
+                              'MUSCLE TRAINING FREQUENCY',
+                              style: TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 1.1,
+                              ),
                             ),
                           ),
-                          Text(
-                            '$count sessions (${(fraction * 100).toStringAsFixed(0)}%)',
-                            style: const TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: 12,
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              '$totalTrainings total hits',
+                              textAlign: TextAlign.end,
+                              style: const TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 11,
+                              ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
-                      LinearProgressIndicator(
-                        value: fraction,
-                        backgroundColor: AppColors.surfaceElevated,
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                          AppColors.primary,
-                        ),
-                        minHeight: 6,
-                        borderRadius: BorderRadius.circular(3),
-                      ),
+                      const SizedBox(height: 14),
+
+                      ..._muscleFrequencyStats.entries.map((entry) {
+                        final muscle = entry.key;
+                        final count = entry.value;
+                        final fraction = totalTrainings > 0
+                            ? count / totalTrainings
+                            : 0.0;
+
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      muscle,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Flexible(
+                                    child: Text(
+                                      '$count sessions (${(fraction * 100).toStringAsFixed(0)}%)',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: AppColors.textSecondary,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              LinearProgressIndicator(
+                                value: fraction,
+                                backgroundColor: AppColors.surfaceElevated,
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                  AppColors.primary,
+                                ),
+                                minHeight: 6,
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
                     ],
                   ),
-                );
-              }),
-            ],
-          ),
-        ),
-        const SizedBox(height: 18),
+                ),
+                const SizedBox(height: 18),
 
-        // Filter sessions by specific muscle
-        const Text(
-          'FILTER BY TARGET MUSCLE',
-          style: TextStyle(
-            color: AppColors.primary,
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 1.1,
-          ),
-        ),
-        const SizedBox(height: 8),
+                // Filter sessions by specific muscle
+                const Text(
+                  'FILTER BY TARGET MUSCLE',
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.1,
+                  ),
+                ),
+                const SizedBox(height: 8),
 
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children:
-                [
-                  'All',
-                  'Chest',
-                  'Back',
-                  'Shoulders',
-                  'Biceps',
-                  'Triceps',
-                  'Legs',
-                  'Abs',
-                  'Full Body',
-                ].map((m) {
-                  final isSel = _selectedMuscleCategory == m;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 6),
-                    child: FilterChip(
-                      label: Text(
-                        m,
-                        style: TextStyle(
-                          color: isSel ? Colors.black : Colors.white,
-                          fontSize: 11.5,
-                        ),
-                      ),
-                      selected: isSel,
-                      selectedColor: AppColors.primary,
-                      backgroundColor: AppColors.surfaceElevated,
-                      side: BorderSide(
-                        color: isSel ? AppColors.primary : AppColors.border,
-                      ),
-                      onSelected: (val) {
-                        setState(() {
-                          _selectedMuscleCategory = m;
-                          _loadMuscleHistoryData();
-                        });
-                      },
-                    ),
-                  );
-                }).toList(),
-          ),
-        ),
-        const SizedBox(height: 12),
-
-        // Filtered Sessions List
-        if (_muscleSessions.isEmpty)
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppColors.cardSurface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children:
+                        [
+                          'All',
+                          'Chest',
+                          'Back',
+                          'Shoulders',
+                          'Biceps',
+                          'Triceps',
+                          'Legs',
+                          'Abs',
+                          'Full Body',
+                        ].map((m) {
+                          final isSel = _selectedMuscleCategory == m;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 6),
+                            child: FilterChip(
+                              label: Text(
+                                m,
+                                style: TextStyle(
+                                  color: isSel ? Colors.black : Colors.white,
+                                  fontSize: 11.5,
+                                ),
+                              ),
+                              selected: isSel,
+                              selectedColor: AppColors.primary,
+                              backgroundColor: AppColors.surfaceElevated,
+                              side: BorderSide(
+                                color: isSel
+                                    ? AppColors.primary
+                                    : AppColors.border,
+                              ),
+                              onSelected: (val) {
+                                setState(() {
+                                  _selectedMuscleCategory = m;
+                                  _loadMuscleHistoryData();
+                                });
+                              },
+                            ),
+                          );
+                        }).toList(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
             ),
-            child: Center(
-              child: Text(
-                'No workouts found targeting $_selectedMuscleCategory in this time period.',
-                style: const TextStyle(color: AppColors.textSecondary),
+          ),
+        ),
+
+        // Filtered sessions: lazy sliver list (only visible cards are built).
+        if (_muscleSessions.isEmpty)
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            sliver: SliverToBoxAdapter(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppColors.cardSurface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Center(
+                  child: Text(
+                    'No workouts found targeting $_selectedMuscleCategory in this time period.',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: AppColors.textSecondary),
+                  ),
+                ),
               ),
             ),
           )
         else
-          ..._muscleSessions.map((s) => _buildSessionCard(s)),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            sliver: SliverList.separated(
+              itemCount: _muscleSessions.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (ctx, i) => _buildSessionCard(_muscleSessions[i]),
+            ),
+          ),
       ],
     );
   }

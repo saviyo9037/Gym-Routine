@@ -175,6 +175,7 @@ class _VoiceRecorderDialogState extends State<VoiceRecorderDialog> {
                   ),
                 ),
                 IconButton(
+                  tooltip: 'Close',
                   icon: const Icon(
                     Icons.close_rounded,
                     color: AppColors.textSecondary,

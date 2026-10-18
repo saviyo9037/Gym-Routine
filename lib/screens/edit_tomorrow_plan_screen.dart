@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../core/theme.dart';
+import '../widgets/load_error_view.dart';
 import '../models/muscle_group.dart';
 import '../models/exercise.dart';
 import '../models/workout_plan.dart';
 import '../services/database_service.dart';
 import '../widgets/voice_recorder_dialog.dart';
 import '../widgets/exercise_image_widget.dart';
+import '../core/dev_log.dart';
 
 class EditTomorrowPlanScreen extends StatefulWidget {
   final WorkoutPlan? existingPlan;
@@ -47,7 +49,31 @@ class _EditTomorrowPlanScreenState extends State<EditTomorrowPlanScreen> {
     _loadData();
   }
 
+  bool _loadFailed = false;
+
   Future<void> _loadData() async {
+    try {
+      await _loadDataImpl();
+      if (mounted && _loadFailed) setState(() => _loadFailed = false);
+    } catch (e, st) {
+      devLog('edit_tomorrow_plan_screen.dart: load failed: $e\n$st');
+      if (!mounted) return;
+      setState(() {
+        _loadFailed = true;
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _retryLoad() {
+    setState(() {
+      _loadFailed = false;
+      _isLoading = true;
+    });
+    _loadData();
+  }
+
+  Future<void> _loadDataImpl() async {
     final mgs = await _dbService.getAllMuscleGroups();
     final exs = await _dbService.getAllExercises();
 
@@ -251,7 +277,22 @@ class _EditTomorrowPlanScreenState extends State<EditTomorrowPlanScreen> {
   }
 
   @override
+  void dispose() {
+    _notesController.dispose();
+    _trainerInstructionsController.dispose();
+    _changeReasonController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_loadFailed) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(),
+        body: LoadErrorView(onRetry: _retryLoad),
+      );
+    }
     if (_isLoading) {
       return Scaffold(
         appBar: AppBar(title: const Text('Edit Tomorrow')),
@@ -531,6 +572,7 @@ class _EditTomorrowPlanScreenState extends State<EditTomorrowPlanScreen> {
                                 ),
                               ),
                               IconButton(
+                                tooltip: 'Delete',
                                 icon: const Icon(
                                   Icons.delete_outline_rounded,
                                   color: AppColors.error,

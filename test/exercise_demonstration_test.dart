@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+
+import 'helpers/video_fakes.dart';
+
 import 'package:reptrack/models/exercise_demonstration.dart';
 import 'package:reptrack/services/exercise_media_service.dart';
 
@@ -137,36 +140,44 @@ void main() {
       },
     );
 
-    test('All 201 catalogue exercises are bundled and physically exist in assets/videos/exercises', () {
-      final bundledEntries = demoRegistry.values
-          .where((v) => v['local_bundled_path'] != null)
+    test('123 exercises have a protected (non-bundled) video; the other 78 have none (NO_VIDEO)', () {
+      final protectedEntries = demoRegistry.values
+          .where((v) => v['storage_path'] != null)
           .toList();
 
-      expect(bundledEntries.length, 201);
-
-      for (final entry in bundledEntries) {
-        final relPath = entry['local_bundled_path'] as String;
-        final file = File(relPath);
+      expect(protectedEntries.length, 123);
+      expect(demoRegistry.length - protectedEntries.length, 78);
+      for (final v in demoRegistry.values.where(
+        (v) => v['storage_path'] == null,
+      )) {
+        expect(v['has_video'], false);
+        expect(v['status'], 'NO_VIDEO');
+      }
+      for (final entry in demoRegistry.values) {
         expect(
-          file.existsSync(),
-          true,
-          reason: 'Bundled video $relPath must exist on disk',
+          entry['local_bundled_path'],
+          isNull,
+          reason: 'nothing is bundled in the app: ${entry['name']}',
         );
         expect(
-          file.lengthSync(),
-          greaterThan(10000),
-          reason: 'Video $relPath must have authentic byte content',
+          entry['video_url'],
+          isNull,
+          reason: 'no third-party stream: ${entry['name']}',
         );
       }
     });
 
-    test('All 201 catalogue exercises have valid video media type and demonstration cues', () {
+    test('Every exercise has demonstration cues; the 123 with video have a valid media type', () {
       final verifiedEntries = demoRegistry.values
           .where((v) => v['has_video'] == true)
           .toList();
 
-      expect(verifiedEntries.length, 201);
+      expect(verifiedEntries.length, 123);
 
+      for (final entry in demoRegistry.values) {
+        final cues = entry['demonstration_cues'] as List<dynamic>?;
+        expect(cues!.length, greaterThanOrEqualTo(3));
+      }
       for (final entry in verifiedEntries) {
         expect(entry['media_type'], 'video');
         expect(entry['duration_seconds'], greaterThan(0));
@@ -191,10 +202,9 @@ void main() {
       expect(flatDb, isNotNull);
       expect(flatDb['muscle_group'], 'Chest');
       expect(flatDb['mapped_model_source'], 'Dumbbell Lying Hammer Press');
-      expect(
-        flatDb['local_bundled_path'],
-        'assets/videos/exercises/flat_dumbbell_press.mp4',
-      );
+      // Its video was byte-identical to Dumbbell Pullover's, so it was removed.
+      expect(flatDb['local_bundled_path'], isNull);
+      expect(flatDb['has_video'], false);
 
       final shoulderPress = demoRegistry['Seated Dumbbell Shoulder Press'];
       expect(shoulderPress, isNotNull);
@@ -310,25 +320,35 @@ void main() {
 
   group('ExerciseMediaService Source Resolution and Fallback Tests', () {
     final mediaService = ExerciseMediaService.instance;
+    // MOCK-ONLY entitlement/backend (videos come from a private bucket).
+    late VideoTestRig rig;
+    setUp(() {
+      rig = VideoTestRig();
+      mediaService.accessForTesting = rig.service;
+    });
+    tearDown(() {
+      mediaService.accessForTesting = null;
+      rig.dispose();
+    });
 
-    test('Resolves bundledAsset source for Barbell Bench Press', () async {
+    test('Barbell Bench Press has no video (duplicate removed) and resolves to its photo', () async {
       final source = await mediaService.resolveMediaSource(
         'Barbell Bench Press',
         exerciseId: 1,
       );
-      expect(source.type, DemonstrationSourceType.bundledAsset);
+      expect(source.type, DemonstrationSourceType.photoFallback);
       expect(source.isOfflineReady, true);
-      expect(source.uri, 'assets/videos/exercises/barbell_bench_press.mp4');
+      expect(source.uri, 'assets/images/exercises/barbell_bench_press.jpg');
     });
 
-    test('Resolves bundledAsset source for Flat Dumbbell Press', () async {
+    test('Flat Dumbbell Press has no video (duplicate removed) and resolves to its photo', () async {
       final source = await mediaService.resolveMediaSource(
         'Flat Dumbbell Press',
         exerciseId: 4,
       );
-      expect(source.type, DemonstrationSourceType.bundledAsset);
+      expect(source.type, DemonstrationSourceType.photoFallback);
       expect(source.isOfflineReady, true);
-      expect(source.uri, 'assets/videos/exercises/flat_dumbbell_press.mp4');
+      expect(source.uri, 'assets/images/exercises/flat_dumbbell_press.jpg');
     });
 
     test('Resolves by exerciseId directly', () async {
@@ -349,55 +369,41 @@ void main() {
         'Standing Dumbbell Curl',
         exerciseId: 1, // Intentional mismatch
       );
-      expect(source.type, DemonstrationSourceType.bundledAsset);
-      expect(source.uri, 'assets/videos/exercises/standing_dumbbell_curl.mp4');
+      // MOCK-ONLY entitlement: an entitled user's video is requested by the
+      // exercise the NAME resolves to (69), never by the mismatched id.
+      expect(source.type, DemonstrationSourceType.protectedDownload);
+      expect(source.exerciseId, 69);
 
       final hammerSource = await mediaService.resolveMediaSource(
         'Hammer Curl',
         exerciseId: 1, // Intentional mismatch
       );
-      expect(hammerSource.type, DemonstrationSourceType.bundledAsset);
-      expect(hammerSource.uri, 'assets/videos/exercises/hammer_curl.mp4');
-
-      final barbellCurlSource = await mediaService.resolveMediaSource(
-        'Barbell Curl',
-        exerciseId: 1, // Intentional mismatch
-      );
-      expect(barbellCurlSource.type, DemonstrationSourceType.bundledAsset);
-      expect(
-        barbellCurlSource.uri,
-        anyOf(
-          'assets/videos/exercises/barbell_curl.mp4',
-          'assets/videos/exercises/straight_bar_curl.mp4',
-        ),
-      );
+      expect(hammerSource.type, DemonstrationSourceType.photoFallback);
+      expect(hammerSource.uri, 'assets/images/exercises/hammer_curl.jpg');
 
       final benchSource = await mediaService.resolveMediaSource(
         'Bench Press',
         exerciseId: 69, // Intentional mismatch
       );
-      expect(benchSource.type, DemonstrationSourceType.bundledAsset);
-      expect(
-        benchSource.uri,
-        'assets/videos/exercises/barbell_bench_press.mp4',
-      );
+      expect(benchSource.type, DemonstrationSourceType.photoFallback);
+      expect(benchSource.uri, endsWith('.jpg'));
     });
 
-    test('Cardio exercise resolves to verified bundled video with valid asset path', () async {
+    test('Cardio exercise with a video resolves to its own protected on-demand video', () async {
       final source = await mediaService.resolveMediaSource(
         'Treadmill Walking',
         exerciseId: 191,
       );
-      expect(source.type, DemonstrationSourceType.bundledAsset);
-      expect(source.uri, 'assets/videos/exercises/treadmill_walking.mp4');
-      expect(File(source.uri).existsSync(), true);
+      expect(source.type, DemonstrationSourceType.protectedDownload);
+      expect(source.exerciseId, 191);
     });
 
     test('Case-insensitive and punctuation-insensitive resolution', () async {
-      expect(mediaService.hasDemonstration('barbell bench press'), true);
-      expect(mediaService.hasDemonstration('BARBELL BENCH PRESS'), true);
-      expect(mediaService.hasDemonstration('Barbell  Bench-Press!'), true);
-      expect(mediaService.hasDemonstration('flat dumbbell press'), true);
+      expect(mediaService.hasDemonstration('standing dumbbell curl'), true);
+      expect(mediaService.hasDemonstration('STANDING DUMBBELL CURL'), true);
+      expect(mediaService.hasDemonstration('Standing  Dumbbell-Curl!'), true);
+      // NO_VIDEO exercises report no demonstration video.
+      expect(mediaService.hasDemonstration('flat dumbbell press'), false);
     });
 
     test(
@@ -418,9 +424,10 @@ void main() {
       () {
         final report = mediaService.getMediaInventoryReport();
         expect(report['total_catalogue_exercises'], 201);
-        expect(report['verified_demonstrations_count'], 201);
-        expect(report['bundled_offline_demonstrations_count'], 201);
-        expect(report['photographic_fallbacks_count'], 0);
+        expect(report['verified_demonstrations_count'], 123);
+        expect(report['bundled_offline_demonstrations_count'], 0);
+        expect(report['protected_video_demonstrations_count'], 123);
+        expect(report['photographic_fallbacks_count'], 78);
       },
     );
   });

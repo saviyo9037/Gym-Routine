@@ -10,6 +10,10 @@ class ExerciseDemonstration {
   final String? thumbnailUrl;
   final String? imageFallbackPath;
   final String? localBundledPath;
+
+  /// Object key of the video in the PRIVATE Supabase bucket `exercise-videos` (informational: the app asks the
+  /// `video-url` function by exercise id; the server decides the real object). Null = no protected video.
+  final String? storagePath;
   final int durationSeconds;
   final String license;
   final String attribution;
@@ -27,6 +31,7 @@ class ExerciseDemonstration {
     this.thumbnailUrl,
     this.imageFallbackPath,
     this.localBundledPath,
+    this.storagePath,
     this.durationSeconds = 10,
     required this.license,
     required this.attribution,
@@ -35,6 +40,31 @@ class ExerciseDemonstration {
 
   bool get isBundled =>
       localBundledPath != null && localBundledPath!.isNotEmpty;
+
+  /// Has a video that is delivered on demand from the private bucket.
+  bool get hasProtectedVideo =>
+      hasVideo && storagePath != null && storagePath!.isNotEmpty;
+
+  /// Same entry presented as NO_VIDEO (photo only). Used by the global
+  /// kBundledVideosEnabled switch; nothing is deleted.
+  ExerciseDemonstration withoutVideo() => ExerciseDemonstration(
+    exerciseId: exerciseId,
+    name: name,
+    slug: slug,
+    muscleGroup: muscleGroup,
+    equipment: equipment,
+    hasVideo: false,
+    mediaType: 'image',
+    videoUrl: null,
+    thumbnailUrl: thumbnailUrl,
+    imageFallbackPath: imageFallbackPath,
+    localBundledPath: null,
+    storagePath: null,
+    durationSeconds: durationSeconds,
+    license: license,
+    attribution: attribution,
+    demonstrationCues: demonstrationCues,
+  );
 
   Map<String, dynamic> toMap() {
     return {
@@ -49,6 +79,7 @@ class ExerciseDemonstration {
       'thumbnail_url': thumbnailUrl,
       'image_fallback_path': imageFallbackPath,
       'local_bundled_path': localBundledPath,
+      'storage_path': storagePath,
       'duration_seconds': durationSeconds,
       'license': license,
       'attribution': attribution,
@@ -69,8 +100,9 @@ class ExerciseDemonstration {
       thumbnailUrl: map['thumbnail_url'] as String?,
       imageFallbackPath: map['image_fallback_path'] as String?,
       localBundledPath: map['local_bundled_path'] as String?,
+      storagePath: map['storage_path'] as String?,
       durationSeconds: map['duration_seconds'] as int? ?? 10,
-      license: map['license'] as String? ?? 'MIT License',
+      license: map['license'] as String? ?? 'UNVERIFIED',
       attribution: map['attribution'] as String? ?? '',
       demonstrationCues:
           (map['demonstration_cues'] as List<dynamic>?)

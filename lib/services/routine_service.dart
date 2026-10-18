@@ -1,12 +1,13 @@
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../core/clock.dart';
 import '../data/db_helper.dart';
 import '../models/routine.dart';
 import '../models/routine_completion.dart';
 import '../models/routine_today_item.dart';
-import 'routine_notification_service.dart';
 import 'alarm_service.dart';
+import 'access_guard.dart';
 
 class RoutineWeeklyStats {
   final int totalScheduled;
@@ -28,8 +29,6 @@ class RoutineService {
   RoutineService._internal();
 
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
-  final RoutineNotificationService _notificationService =
-      RoutineNotificationService();
   final AlarmService _alarmService = AlarmService();
 
   /// Retrieves all routines from the database sorted by start time
@@ -68,24 +67,22 @@ class RoutineService {
 
   /// Inserts a new routine and schedules notifications and alarms if enabled
   Future<int> insertRoutine(Routine routine) async {
+    AccessGuard.ensureWritable();
     final db = await _dbHelper.database;
     final id = await db.insert('routines', routine.toMap());
     final createdRoutine = routine.copyWith(id: id);
 
-    // Schedule notifications and native AlarmManager alarms
+    // The native scheduler decides what to arm (alarm, lead-time reminder or
+    // both) and cancels anything that no longer applies.
     if (createdRoutine.isEnabled) {
-      if (createdRoutine.isReminderEnabled) {
-        await _notificationService.scheduleRoutineReminder(createdRoutine);
-      }
-      if (createdRoutine.isAlarmEnabled) {
-        await _alarmService.scheduleRoutineAlarm(createdRoutine);
-      }
+      await _alarmService.scheduleRoutineAlarm(createdRoutine);
     }
     return id;
   }
 
   /// Updates an existing routine, synchronizing notification and alarm schedules
   Future<int> updateRoutine(Routine routine) async {
+    AccessGuard.ensureWritable();
     final db = await _dbHelper.database;
     final count = await db.update(
       'routines',
@@ -95,22 +92,9 @@ class RoutineService {
     );
 
     if (routine.isEnabled) {
-      if (routine.isReminderEnabled) {
-        await _notificationService.scheduleRoutineReminder(routine);
-      } else if (routine.id != null) {
-        await _notificationService.cancelRoutineReminder(routine.id!);
-      }
-
-      if (routine.isAlarmEnabled) {
-        await _alarmService.scheduleRoutineAlarm(routine);
-      } else if (routine.id != null) {
-        await _alarmService.cancelRoutineAlarm(routine.id!);
-      }
-    } else {
-      if (routine.id != null) {
-        await _notificationService.cancelRoutineReminder(routine.id!);
-        await _alarmService.cancelRoutineAlarm(routine.id!);
-      }
+      await _alarmService.scheduleRoutineAlarm(routine);
+    } else if (routine.id != null) {
+      await _alarmService.cancelRoutineAlarm(routine.id!);
     }
     return count;
   }
@@ -155,8 +139,8 @@ class RoutineService {
 
   /// Deletes a routine permanently and removes related completions, alarms & notifications
   Future<int> deleteRoutine(int id) async {
+    AccessGuard.ensureWritable();
     final db = await _dbHelper.database;
-    await _notificationService.cancelRoutineReminder(id);
     await _alarmService.cancelRoutineAlarm(id);
     await db.delete(
       'routine_completions',
@@ -205,14 +189,20 @@ class RoutineService {
 
   /// Convenient helper for today's routine items
   Future<List<RoutineTodayItem>> getTodayRoutineItems() async {
-    return await getRoutineItemsForDate(DateTime.now());
+    return await getRoutineItemsForDate(AppClock.now());
   }
 
   /// Returns the currently active item, or the next upcoming item today
   Future<RoutineTodayItem?> getNextUpcomingRoutine([
     DateTime? referenceTime,
   ]) async {
-    final now = referenceTime ?? DateTime.now();
+    final now = referenceTime ?? AppClock.now();
+
+    // 0. An overnight routine that started yesterday and is still running
+    //    (e.g. sleep 22:30-07:15 checked at 02:00).
+    final carryOver = await _inProgressFromYesterday(now);
+    if (carryOver != null) return carryOver;
+
     final todayItems = await getTodayRoutineItems();
 
     if (todayItems.isEmpty) return null;
@@ -237,6 +227,15 @@ class RoutineService {
     }
 
     // All completed or skipped for today
+    return null;
+  }
+
+  Future<RoutineTodayItem?> _inProgressFromYesterday(DateTime now) async {
+    final yesterday = DateTime(now.year, now.month, now.day - 1);
+    final items = await getRoutineItemsForDate(yesterday);
+    for (final item in items) {
+      if (item.routine.isOvernight && item.isInProgress) return item;
+    }
     return null;
   }
 
@@ -296,15 +295,22 @@ class RoutineService {
     return '${dinnerHour.toString().padLeft(2, '0')}:${dinnerMinute.toString().padLeft(2, '0')}';
   }
 
-  /// Reschedules all enabled alarms across the system
+  /// Pushes every routine in the database to the native scheduler (the
+  /// database is the source of truth) and drops native alarms whose routine
+  /// was deleted or disabled. Safe to call repeatedly; call it on app start
+  /// and when the app returns to the foreground.
   Future<void> rescheduleAllRoutines() async {
     final routines = await getEnabledRoutines();
+    final keep = <int>{};
     for (final r in routines) {
-      if (r.isAlarmEnabled) {
-        await _alarmService.scheduleRoutineAlarm(r);
-      }
-      if (r.isReminderEnabled) {
-        await _notificationService.scheduleRoutineReminder(r);
+      if (r.id == null) continue;
+      final scheduled = await _alarmService.scheduleRoutineAlarm(r);
+      if (scheduled) keep.add(r.id!);
+    }
+    final native = await _alarmService.getScheduledAlarms();
+    for (final a in native) {
+      if (!keep.contains(a.routineId)) {
+        await _alarmService.cancelRoutineAlarm(a.routineId);
       }
     }
   }
@@ -316,6 +322,7 @@ class RoutineService {
     required String status, // 'completed' | 'skipped'
     String? notes,
   }) async {
+    AccessGuard.ensureWritable();
     final db = await _dbHelper.database;
     final dateStr = DateFormat('yyyy-MM-dd').format(date);
     final nowIso = DateTime.now().toIso8601String();
@@ -363,8 +370,8 @@ class RoutineService {
     final db = await _dbHelper.database;
 
     // Calculate Monday of the anchor week
-    final monday = anchorDate.subtract(Duration(days: anchorDate.weekday - 1));
-    final sunday = monday.add(const Duration(days: 6));
+    final monday = AppClock.weekStart(anchorDate);
+    final sunday = DateTime(monday.year, monday.month, monday.day + 6);
     final startStr = DateFormat('yyyy-MM-dd').format(monday);
     final endStr = DateFormat('yyyy-MM-dd').format(sunday);
 
@@ -372,7 +379,7 @@ class RoutineService {
     int totalScheduled = 0;
 
     for (int i = 0; i < 7; i++) {
-      final day = monday.add(Duration(days: i));
+      final day = DateTime(monday.year, monday.month, monday.day + i);
       totalScheduled += allRoutines.where((r) => r.appliesToDate(day)).length;
     }
 

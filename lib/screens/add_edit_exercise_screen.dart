@@ -196,6 +196,22 @@ class _AddEditExerciseScreenState extends State<AddEditExerciseScreen> {
   }
 
   @override
+  void dispose() {
+    _nameController.dispose();
+    _targetController.dispose();
+    _descriptionController.dispose();
+    _instructionsController.dispose();
+    _equipmentController.dispose();
+    _mistakesController.dispose();
+    _setsController.dispose();
+    _repsController.dispose();
+    _weightController.dispose();
+    _restController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
@@ -221,6 +237,7 @@ class _AddEditExerciseScreenState extends State<AddEditExerciseScreen> {
         actions: [
           if (isEditing)
             IconButton(
+              tooltip: 'Delete',
               icon: const Icon(
                 Icons.delete_outline_rounded,
                 color: AppColors.error,
@@ -267,8 +284,9 @@ class _AddEditExerciseScreenState extends State<AddEditExerciseScreen> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      runSpacing: 8,
                       children: [
                         OutlinedButton.icon(
                           onPressed: _capturePhoto,

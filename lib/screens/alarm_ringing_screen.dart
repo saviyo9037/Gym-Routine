@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/theme.dart';
 import '../models/routine.dart';
 import '../services/alarm_service.dart';
+import '../services/cloud_services.dart';
 import 'active_workout_screen.dart';
 
 class AlarmRingingScreen extends StatefulWidget {
@@ -211,7 +212,9 @@ class _AlarmRingingScreenState extends State<AlarmRingingScreen>
                 // Bottom actions (Stop / Snooze / Gym Workout Link)
                 Column(
                   children: [
-                    if (isGym) ...[
+                    // A locked (unsubscribed) user can still stop/snooze the alarm, but the
+                    // workout shortcut is hidden because starting workouts is locked.
+                    if (isGym && !CloudServices.premium.isLocked) ...[
                       OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.primary,

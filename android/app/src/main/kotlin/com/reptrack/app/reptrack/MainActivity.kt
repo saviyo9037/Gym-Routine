@@ -1,5 +1,6 @@
 package com.reptrack.app.reptrack
 
+import android.Manifest
 import android.app.AlarmManager
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -11,6 +12,7 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.view.WindowManager
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -72,52 +74,31 @@ class MainActivity : FlutterActivity() {
                 "scheduleAlarm" -> {
                     try {
                         val routineId = call.argument<Int>("routineId") ?: 0
-                        val title = call.argument<String>("title") ?: "Routine"
-                        val category = call.argument<String>("category") ?: "Routine"
-                        val time = call.argument<String>("time") ?: ""
-                        val triggerEpochMs = call.argument<Long>("triggerEpochMs") ?: 0L
-                        val isAudible = call.argument<Boolean>("isAudible") ?: true
-                        val vibration = call.argument<Boolean>("vibration") ?: true
-
-                        if (triggerEpochMs <= System.currentTimeMillis()) {
-                            result.error("INVALID_TIME", "Trigger time must be in the future", null)
-                            return@setMethodCallHandler
-                        }
-
-                        val intent = Intent(this, AlarmReceiver::class.java).apply {
-                            action = AlarmReceiver.ACTION_TRIGGER_ALARM
-                            putExtra(AlarmReceiver.EXTRA_ROUTINE_ID, routineId)
-                            putExtra(AlarmReceiver.EXTRA_TITLE, title)
-                            putExtra(AlarmReceiver.EXTRA_CATEGORY, category)
-                            putExtra(AlarmReceiver.EXTRA_TIME, time)
-                            putExtra(AlarmReceiver.EXTRA_IS_AUDIBLE, isAudible)
-                            putExtra(AlarmReceiver.EXTRA_VIBRATION, vibration)
-                        }
-
-                        val pendingIntent = PendingIntent.getBroadcast(
-                            this,
-                            routineId,
-                            intent,
-                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                        val repeatDays = (call.argument<List<Int>>("repeatDays") ?: emptyList())
+                            .filter { it in 1..7 }
+                        val def = AlarmDef(
+                            routineId = routineId,
+                            title = call.argument<String>("title") ?: "Routine",
+                            category = call.argument<String>("category") ?: "Routine",
+                            time = call.argument<String>("time") ?: "00:00",
+                            repeatDays = repeatDays,
+                            alarmEnabled = call.argument<Boolean>("alarmEnabled") ?: true,
+                            audible = call.argument<Boolean>("isAudible") ?: true,
+                            vibration = call.argument<Boolean>("vibration") ?: true,
+                            soundName = call.argument<String>("soundName") ?: "",
+                            leadMinutes = call.argument<Int>("leadMinutes") ?: 0,
+                            reminderEnabled = call.argument<Boolean>("reminderEnabled") ?: false
                         )
-
-                        val showIntent = Intent(this, MainActivity::class.java).apply {
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                            putExtra("alarm_routine_id", routineId)
-                            putExtra("alarm_title", title)
+                        if (repeatDays.isEmpty()) {
+                            // Nothing to repeat on: make sure no stale alarm survives.
+                            AlarmStore.remove(this, routineId)
+                            AlarmScheduler.cancel(this, routineId)
+                            result.success(false)
+                        } else {
+                            AlarmStore.put(this, def)
+                            AlarmScheduler.schedule(this, def)
+                            result.success(true)
                         }
-                        val pendingShow = PendingIntent.getActivity(
-                            this,
-                            routineId + 40000,
-                            showIntent,
-                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                        )
-
-                        // setAlarmClock guarantees reliable wakeup in Doze mode and shows alarm icon in status bar
-                        val clockInfo = AlarmManager.AlarmClockInfo(triggerEpochMs, pendingShow)
-                        alarmManager.setAlarmClock(clockInfo, pendingIntent)
-
-                        result.success(true)
                     } catch (e: Exception) {
                         result.error("ALARM_ERROR", e.message, null)
                     }
@@ -126,17 +107,8 @@ class MainActivity : FlutterActivity() {
                 "cancelAlarm" -> {
                     try {
                         val routineId = call.argument<Int>("routineId") ?: 0
-                        val intent = Intent(this, AlarmReceiver::class.java).apply {
-                            action = AlarmReceiver.ACTION_TRIGGER_ALARM
-                        }
-                        val pendingIntent = PendingIntent.getBroadcast(
-                            this,
-                            routineId,
-                            intent,
-                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                        )
-                        alarmManager.cancel(pendingIntent)
-                        pendingIntent.cancel()
+                        AlarmStore.remove(this, routineId)
+                        AlarmScheduler.cancel(this, routineId)
 
                         // Also ensure audio service is stopped for this routine
                         val stopIntent = Intent(this, AlarmAudioService::class.java).apply {
@@ -221,10 +193,13 @@ class MainActivity : FlutterActivity() {
                             putExtra(AlarmReceiver.EXTRA_TIME, "+${snoozeMinutes}m")
                             putExtra(AlarmReceiver.EXTRA_IS_AUDIBLE, true)
                             putExtra(AlarmReceiver.EXTRA_VIBRATION, true)
+                            putExtra(AlarmReceiver.EXTRA_IS_SNOOZE, true)
                         }
+                        // Own request code: replaces only an earlier snooze, never the routine's
+                        // regular repeating alarm.
                         val pendingIntent = PendingIntent.getBroadcast(
                             this,
-                            routineId,
+                            routineId + AlarmScheduler.SNOOZE_OFFSET,
                             intent,
                             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                         )
@@ -258,11 +233,20 @@ class MainActivity : FlutterActivity() {
                         true
                     }
 
+                    val canFullScreen = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                        notificationManager.canUseFullScreenIntent()
+                    } else {
+                        true
+                    }
+
                     result.success(mapOf(
                         "canScheduleExactAlarms" to canExactAlarm,
                         "notificationsEnabled" to notifGranted,
                         "isBatteryOptimizationIgnored" to batteryIgnored,
-                        "isDndAccessGranted" to dndGranted
+                        "isDndAccessGranted" to dndGranted,
+                        "canUseFullScreenIntent" to canFullScreen,
+                        "manufacturer" to (Build.MANUFACTURER ?: ""),
+                        "sdkInt" to Build.VERSION.SDK_INT
                     ))
                 }
 
@@ -277,12 +261,74 @@ class MainActivity : FlutterActivity() {
                 }
 
                 "requestBatteryOptimizationExemption" -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-                            data = Uri.parse("package:$packageName")
+                    // Opens the system "battery optimisation" list. We deliberately do not use
+                    // ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS (restricted by Play policy).
+                    try {
+                        startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+                    } catch (e: Exception) {
+                        openAppDetails()
+                    }
+                    result.success(true)
+                }
+
+                "requestNotificationPermission" -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        ActivityCompat.requestPermissions(
+                            this,
+                            arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                            7001
+                        )
+                    }
+                    result.success(true)
+                }
+
+                "openNotificationSettings" -> {
+                    try {
+                        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                            putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
                         }
                         startActivity(intent)
+                    } catch (e: Exception) {
+                        openAppDetails()
                     }
+                    result.success(true)
+                }
+
+                "openFullScreenIntentSettings" -> {
+                    try {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                            val intent = Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT).apply {
+                                data = Uri.parse("package:$packageName")
+                            }
+                            startActivity(intent)
+                        } else {
+                            openAppDetails()
+                        }
+                    } catch (e: Exception) {
+                        openAppDetails()
+                    }
+                    result.success(true)
+                }
+
+                "openAppSettings" -> {
+                    openAppDetails()
+                    result.success(true)
+                }
+
+                "getScheduledAlarms" -> {
+                    val now = System.currentTimeMillis()
+                    result.success(AlarmStore.all(this).map {
+                        mapOf(
+                            "routineId" to it.routineId,
+                            "title" to it.title,
+                            "nextAlarmEpochMs" to AlarmScheduler.nextMainTrigger(it, now),
+                            "nextReminderEpochMs" to AlarmScheduler.nextReminderTrigger(it, now)
+                        )
+                    })
+                }
+
+                "rescheduleAll" -> {
+                    AlarmScheduler.scheduleAll(this)
                     result.success(true)
                 }
 
@@ -305,6 +351,17 @@ class MainActivity : FlutterActivity() {
 
                 else -> result.notImplemented()
             }
+        }
+    }
+
+    private fun openAppDetails() {
+        try {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.parse("package:$packageName")
+            }
+            startActivity(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 }

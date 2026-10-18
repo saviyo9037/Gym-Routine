@@ -1,11 +1,15 @@
 import 'dart:io';
+import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
+import '../core/strings.dart';
 import '../core/theme.dart';
 import '../models/exercise_demonstration.dart';
 import '../services/exercise_media_service.dart';
+import '../services/video_access_service.dart';
+import '../screens/paywall_screen.dart';
 import 'exercise_image_widget.dart';
 
 class ExerciseDemonstrationPlayer extends StatefulWidget {
@@ -33,6 +37,8 @@ class ExerciseDemonstrationPlayer extends StatefulWidget {
       _ExerciseDemonstrationPlayerState();
 }
 
+enum _VideoProblem { none, offline }
+
 class _ExerciseDemonstrationPlayerState
     extends State<ExerciseDemonstrationPlayer>
     with WidgetsBindingObserver {
@@ -51,6 +57,11 @@ class _ExerciseDemonstrationPlayerState
   bool _showControls = true;
   bool _isDownloading = false;
   double _downloadProgress = 0.0;
+
+  // Protected (private-bucket) video: on-demand download + user-facing problems.
+  bool _protectedDownloading = false;
+  double _protectedProgress = 0.0;
+  _VideoProblem _problem = _VideoProblem.none;
 
   @override
   void initState() {
@@ -91,6 +102,9 @@ class _ExerciseDemonstrationPlayerState
       _hasError = false;
       _errorMessage = null;
       _controller = null;
+      _protectedDownloading = false;
+      _protectedProgress = 0.0;
+      _problem = _VideoProblem.none;
     });
 
     try {
@@ -115,11 +129,66 @@ class _ExerciseDemonstrationPlayerState
       if (!mounted || currentToken != _initToken) return;
       _mediaSource = source;
 
-      if (source.type == DemonstrationSourceType.photoFallback) {
+      if (source.type == DemonstrationSourceType.photoFallback ||
+          source.type == DemonstrationSourceType.lockedPhoto ||
+          source.type == DemonstrationSourceType.trialLockedPhoto) {
         setState(() {
           _isLoading = false;
         });
         return;
+      }
+
+      // Protected video that is not on the device yet: download it now (one
+      // exercise, on demand). The photo stays visible underneath meanwhile.
+      File? protectedFile;
+      if (source.type == DemonstrationSourceType.protectedDownload) {
+        setState(() {
+          _isLoading = false;
+          _protectedDownloading = true;
+          _protectedProgress = 0.0;
+        });
+        try {
+          protectedFile = await _mediaService.access.ensureDownloaded(
+            source.exerciseId ?? 0,
+            onProgress: (v) {
+              if (mounted && currentToken == _initToken) {
+                setState(() => _protectedProgress = v);
+              }
+            },
+          );
+        } on VideoAccessException catch (e) {
+          if (!mounted || currentToken != _initToken) return;
+          setState(() {
+            _protectedDownloading = false;
+            switch (e.kind) {
+              case VideoAccessFailure.offline:
+                _problem = _VideoProblem.offline;
+              case VideoAccessFailure.failed:
+                _hasError = true;
+                _errorMessage = 'Could not load demonstration video';
+              case VideoAccessFailure.notEntitled:
+              case VideoAccessFailure.unavailable:
+                // Treated like a locked video: photo + short explanation.
+                _mediaSource = DemonstrationMediaSource(
+                  type: DemonstrationSourceType.lockedPhoto,
+                  uri: source.uri,
+                  isOfflineReady: true,
+                  exerciseId: source.exerciseId,
+                  photoPath: source.photoPath,
+                );
+              case VideoAccessFailure.noVideo:
+                _mediaSource = DemonstrationMediaSource(
+                  type: DemonstrationSourceType.photoFallback,
+                  uri: source.uri,
+                  isOfflineReady: true,
+                  photoPath: source.photoPath,
+                );
+            }
+          });
+          return;
+        }
+        if (!mounted || currentToken != _initToken) return;
+        setState(() => _protectedDownloading = false);
       }
 
       VideoPlayerController controller;
@@ -133,7 +202,12 @@ class _ExerciseDemonstrationPlayerState
         case DemonstrationSourceType.remoteNetwork:
           controller = VideoPlayerController.networkUrl(Uri.parse(source.uri));
           break;
+        case DemonstrationSourceType.protectedDownload:
+          controller = VideoPlayerController.file(protectedFile!);
+          break;
         case DemonstrationSourceType.photoFallback:
+        case DemonstrationSourceType.lockedPhoto:
+        case DemonstrationSourceType.trialLockedPhoto:
           return;
       }
 
@@ -310,14 +384,16 @@ class _ExerciseDemonstrationPlayerState
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // 1. Base Layer: Authentic Exercise Photo Thumbnail
-            ExerciseImageWidget(
-              imagePath: widget.fallbackImagePath,
-              personalPhotoPath: widget.personalPhotoPath,
-              exerciseName: widget.exerciseName,
-              borderRadius: BorderRadius.zero,
-              fit: BoxFit.cover,
-            ),
+            // 1. Base Layer: Authentic Exercise Photo Thumbnail (blurred when
+            // the trial tier has this video locked).
+            if (_trialLocked)
+              ImageFiltered(
+                key: const ValueKey('trial_locked_blur'),
+                imageFilter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+                child: _photo(),
+              )
+            else
+              _photo(),
 
             // 2. Video Player Layer (if video available and initialized)
             if (_controller != null && _controller!.value.isInitialized)
@@ -348,8 +424,16 @@ class _ExerciseDemonstrationPlayerState
             ),
 
             // 4. Content / Controls Overlay
-            if (_hasError)
+            if (_trialLocked)
+              _buildTrialLockedOverlay()
+            else if (_hasError)
               _buildErrorOverlay()
+            else if (_problem == _VideoProblem.offline)
+              _buildOfflineOverlay()
+            else if (_protectedDownloading)
+              _buildDownloadingOverlay()
+            else if (_mediaSource?.type == DemonstrationSourceType.lockedPhoto)
+              _buildLockedOverlay()
             else if (_mediaSource?.type ==
                 DemonstrationSourceType.photoFallback)
               _buildPhotoFallbackOverlay()
@@ -357,6 +441,45 @@ class _ExerciseDemonstrationPlayerState
               _buildVideoControlsOverlay(),
           ],
         ),
+      ),
+    );
+  }
+
+  bool get _trialLocked =>
+      _mediaSource?.type == DemonstrationSourceType.trialLockedPhoto;
+
+  Widget _photo() => ExerciseImageWidget(
+    imagePath: widget.fallbackImagePath,
+    personalPhotoPath: widget.personalPhotoPath,
+    exerciseName: widget.exerciseName,
+    borderRadius: BorderRadius.zero,
+    fit: BoxFit.cover,
+  );
+
+  void _openPaywall() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            const PaywallScreen(reason: AppStrings.trialVideosPaywallReason),
+      ),
+    );
+  }
+
+  Widget _buildTrialLockedOverlay() {
+    return _infoOverlay(
+      icon: Icons.lock_rounded,
+      title: AppStrings.trialVideosLockedTitle,
+      semanticsLabel: AppStrings.trialVideosLockedSemantics,
+      action: ElevatedButton(
+        key: const ValueKey('trial_videos_subscribe'),
+        onPressed: _openPaywall,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.black,
+          textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+        ),
+        child: const Text(AppStrings.trialVideosLockedSubscribe),
       ),
     );
   }
@@ -394,7 +517,7 @@ class _ExerciseDemonstrationPlayerState
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'High-Definition Photo Guide',
+                    AppStrings.noVideoYet,
                     style: TextStyle(
                       color: AppColors.textMain,
                       fontSize: 12.5,
@@ -402,7 +525,7 @@ class _ExerciseDemonstrationPlayerState
                     ),
                   ),
                   Text(
-                    'Instructional video in production for next release',
+                    AppStrings.noVideoPhoto,
                     style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 11,
@@ -417,49 +540,166 @@ class _ExerciseDemonstrationPlayerState
     );
   }
 
-  Widget _buildErrorOverlay() {
-    return Center(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 24),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: AppColors.surfaceElevated.withValues(alpha: 0.95),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.redAccent.withValues(alpha: 0.5)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.error_outline_rounded,
-              color: Colors.redAccent,
-              size: 28,
-            ),
-            const SizedBox(height: 6),
-            Text(
-              _errorMessage ?? 'Failed to play demonstration',
-              style: const TextStyle(color: AppColors.textMain, fontSize: 12.5),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton.icon(
-              onPressed: _initializePlayer,
-              icon: const Icon(Icons.refresh_rounded, size: 16),
-              label: const Text('Retry Playback'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.black,
+  /// Compact status card used by the protected-video states. Scrolls instead
+  /// of overflowing on small screens / large text.
+  Widget _infoOverlay({
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    Widget? leading,
+    Widget? action,
+    Color color = AppColors.primary,
+    String? semanticsLabel,
+  }) {
+    return Positioned.fill(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Semantics(
+              container: true,
+              label: semanticsLabel ?? title,
+              child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 14,
-                  vertical: 6,
+                  vertical: 12,
                 ),
-                textStyle: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
+                decoration: BoxDecoration(
+                  color: AppColors.cardSurface.withValues(alpha: 0.94),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    leading ?? Icon(icon, color: color, size: 26),
+                    const SizedBox(height: 6),
+                    Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: AppColors.textMain,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 3),
+                      Text(
+                        subtitle,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 11.5,
+                        ),
+                      ),
+                    ],
+                    if (action != null) ...[const SizedBox(height: 8), action],
+                  ],
                 ),
               ),
             ),
-          ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLockedOverlay() {
+    return _infoOverlay(
+      icon: Icons.lock_outline_rounded,
+      title: 'Video demonstration',
+      subtitle: 'Included with an active subscription. Showing the photo.',
+    );
+  }
+
+  Widget _buildOfflineOverlay() {
+    return _infoOverlay(
+      icon: Icons.cloud_off_rounded,
+      color: AppColors.warning,
+      title: 'Connect once to download this video',
+      subtitle: 'After that it plays offline.',
+      action: ElevatedButton.icon(
+        onPressed: _initializePlayer,
+        icon: const Icon(Icons.refresh_rounded, size: 16),
+        label: const Text('Retry'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.black,
+          textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDownloadingOverlay() {
+    final pct = (_protectedProgress * 100).clamp(0, 100).toInt();
+    return _infoOverlay(
+      icon: Icons.downloading_rounded,
+      title: _protectedProgress > 0
+          ? 'Downloading video... $pct%'
+          : 'Preparing video...',
+      semanticsLabel: 'Downloading demonstration video, $pct percent',
+      leading: SizedBox(
+        width: 28,
+        height: 28,
+        child: CircularProgressIndicator(
+          value: _protectedProgress > 0 ? _protectedProgress : null,
+          strokeWidth: 3,
+          color: AppColors.primary,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorOverlay() {
+    return Center(
+      child: SingleChildScrollView(
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceElevated.withValues(alpha: 0.95),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.redAccent.withValues(alpha: 0.5)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.error_outline_rounded,
+                color: Colors.redAccent,
+                size: 28,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                _errorMessage ?? 'Failed to play demonstration',
+                style: const TextStyle(
+                  color: AppColors.textMain,
+                  fontSize: 12.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton.icon(
+                onPressed: _initializePlayer,
+                icon: const Icon(Icons.refresh_rounded, size: 16),
+                label: const Text('Retry Playback'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 6,
+                  ),
+                  textStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -489,7 +729,7 @@ class _ExerciseDemonstrationPlayerState
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildSourceBadge(),
+                Flexible(child: _buildSourceBadge()),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -560,6 +800,7 @@ class _ExerciseDemonstrationPlayerState
                               ),
                             ),
                             child: IconButton(
+                              tooltip: 'Replay',
                               icon: Icon(
                                 isEnded
                                     ? Icons.replay_rounded
@@ -713,12 +954,16 @@ class _ExerciseDemonstrationPlayerState
           children: [
             Icon(icon, color: color, size: 14),
             const SizedBox(width: 5),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],

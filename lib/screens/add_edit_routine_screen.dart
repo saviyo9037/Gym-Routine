@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/alarm_permission_prompt.dart';
 import '../core/theme.dart';
 import '../models/routine.dart';
 import '../services/routine_service.dart';
@@ -255,6 +256,13 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
         await _routineService.updateRoutine(routine);
       }
 
+      if (mounted && _isEnabled && _alarmType != 'none') {
+        await AlarmPermissionPrompt.ensureFor(
+          context,
+          wantsAudibleAlarm: _alarmType == 'alarm',
+        );
+      }
+
       if (mounted) {
         Navigator.pop(context, true);
       }
@@ -292,6 +300,7 @@ class _AddEditRoutineScreenState extends State<AddEditRoutineScreen> {
         backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
+          tooltip: 'Back',
           icon: const Icon(
             Icons.arrow_back_ios_new_rounded,
             color: Colors.white,

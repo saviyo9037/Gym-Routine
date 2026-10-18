@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../core/theme.dart';
+import '../widgets/load_error_view.dart';
 import '../models/muscle_group.dart';
 import '../models/exercise.dart';
 import '../services/database_service.dart';
@@ -12,6 +13,7 @@ import '../widgets/exercise_image_widget.dart';
 import 'muscle_detail_screen.dart';
 import 'exercise_detail_screen.dart';
 import 'add_edit_exercise_screen.dart';
+import '../core/dev_log.dart';
 
 enum LibraryViewMode {
   mainCategories,
@@ -247,7 +249,31 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
     _searchController.addListener(_onSearchOrFilterChanged);
   }
 
+  bool _loadFailed = false;
+
   Future<void> _loadData() async {
+    try {
+      await _loadDataImpl();
+      if (mounted && _loadFailed) setState(() => _loadFailed = false);
+    } catch (e, st) {
+      devLog('exercise_library_screen.dart: load failed: $e\n$st');
+      if (!mounted) return;
+      setState(() {
+        _loadFailed = true;
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _retryLoad() {
+    setState(() {
+      _loadFailed = false;
+      _isLoading = true;
+    });
+    _loadData();
+  }
+
+  Future<void> _loadDataImpl() async {
     await ExerciseMediaService.instance.initialize();
     final mgs = await _dbService.getAllMuscleGroups();
     final counts = await _dbService.getAllCatalogueCounts();
@@ -556,6 +582,13 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_loadFailed) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(),
+        body: LoadErrorView(onRetry: _retryLoad),
+      );
+    }
     if (_isLoading) {
       return const Scaffold(
         backgroundColor: AppColors.background,
@@ -617,366 +650,339 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Search field
-            TextField(
-              controller: _searchController,
-              style: const TextStyle(color: AppColors.textMain),
-              decoration: InputDecoration(
-                hintText:
-                    'Search ${_allExercises.length}+ exercises, equipment, muscles...',
-                prefixIcon: const Icon(
-                  Icons.search_rounded,
-                  color: AppColors.primary,
-                ),
-                suffixIcon: _isSearching
-                    ? IconButton(
-                        icon: const Icon(
-                          Icons.clear,
-                          color: AppColors.textSecondary,
-                        ),
-                        onPressed: () {
-                          _searchController.clear();
-                          _onSearchOrFilterChanged();
-                        },
-                      )
-                    : null,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // View Mode selector pills
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
+      body: CustomScrollView(
+        // Keeps the scroll offset when the screen is rebuilt or revisited.
+        key: const PageStorageKey<String>('exercise_library_scroll'),
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildModeChip(
-                    'Main (8)',
-                    LibraryViewMode.mainCategories,
-                    Icons.dashboard_rounded,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildModeChip(
-                    'Muscles (14)',
-                    LibraryViewMode.muscleCatalogues,
-                    Icons.sports_gymnastics_rounded,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildModeChip(
-                    'Modalities (6)',
-                    LibraryViewMode.modalityCatalogues,
-                    Icons.fitness_center_rounded,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildModeChip(
-                    'All (${_allExercises.length})',
-                    LibraryViewMode.allExercises,
-                    Icons.list_alt_rounded,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildModeChip(
-                    'Recommended',
-                    LibraryViewMode.recommended,
-                    Icons.star_rounded,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildModeChip(
-                    'Favourites',
-                    LibraryViewMode.favourites,
-                    Icons.favorite_rounded,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildModeChip(
-                    'Custom',
-                    LibraryViewMode.custom,
-                    Icons.person_rounded,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Filters & Exercise List options
-            if (showExerciseList) ...[
-              // 1. Category Filter Chips
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: _categoryFilterOptions.map((cat) {
-                    final isSel = _selectedCategory == cat;
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 6),
-                      child: FilterChip(
-                        selected: isSel,
-                        label: Text(cat),
-                        labelStyle: TextStyle(
-                          color: isSel ? Colors.black : AppColors.textMain,
-                          fontSize: 12,
-                          fontWeight: isSel ? FontWeight.w800 : FontWeight.w600,
-                        ),
-                        backgroundColor: AppColors.cardSurface,
-                        selectedColor: AppColors.primary,
-                        checkmarkColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          side: BorderSide(
-                            color: isSel ? AppColors.primary : AppColors.border,
-                          ),
-                        ),
-                        onSelected: (val) {
-                          setState(() {
-                            _selectedCategory = val ? cat : 'All';
-                            _selectedSubCategory = 'All';
-                          });
-                          _applyFilters();
-                        },
+                  // Search field
+                  TextField(
+                    controller: _searchController,
+                    style: const TextStyle(color: AppColors.textMain),
+                    decoration: InputDecoration(
+                      hintText:
+                          'Search ${_allExercises.length}+ exercises, equipment, muscles...',
+                      prefixIcon: const Icon(
+                        Icons.search_rounded,
+                        color: AppColors.primary,
                       ),
-                    );
-                  }).toList(),
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // 2. Sub-Category Chips (for Legs or Back)
-              if (_selectedCategory == 'Legs') ...[
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children:
-                        [
-                          'All Legs',
-                          'Quads',
-                          'Hamstrings',
-                          'Glutes',
-                          'Calves',
-                        ].map((sub) {
-                          final isSel =
-                              _selectedSubCategory == sub ||
-                              (_selectedSubCategory == 'All' &&
-                                  sub == 'All Legs');
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 6),
-                            child: FilterChip(
-                              selected: isSel,
-                              label: Text(sub),
-                              labelStyle: TextStyle(
-                                color: isSel
-                                    ? Colors.black
-                                    : AppColors.textSecondary,
-                                fontSize: 11.5,
-                                fontWeight: isSel
-                                    ? FontWeight.bold
-                                    : FontWeight.w500,
+                      suffixIcon: _isSearching
+                          ? IconButton(
+                              tooltip: 'Clear',
+                              icon: const Icon(
+                                Icons.clear,
+                                color: AppColors.textSecondary,
                               ),
-                              backgroundColor: AppColors.surfaceElevated,
-                              selectedColor: AppColors.primary,
-                              checkmarkColor: Colors.black,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                                side: BorderSide(
-                                  color: isSel
-                                      ? AppColors.primary
-                                      : AppColors.border,
-                                ),
-                              ),
-                              onSelected: (val) {
-                                setState(() {
-                                  _selectedSubCategory = val ? sub : 'All Legs';
-                                });
-                                _applyFilters();
+                              onPressed: () {
+                                _searchController.clear();
+                                _onSearchOrFilterChanged();
                               },
-                            ),
-                          );
-                        }).toList(),
+                            )
+                          : null,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-              ] else if (_selectedCategory == 'Back') ...[
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children:
-                        [
-                          'All Back',
-                          'Lats',
-                          'Upper Back & Traps',
-                          'Mid/Lower Back',
-                        ].map((sub) {
-                          final isSel =
-                              _selectedSubCategory == sub ||
-                              (_selectedSubCategory == 'All' &&
-                                  sub == 'All Back');
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 6),
-                            child: FilterChip(
-                              selected: isSel,
-                              label: Text(sub),
-                              labelStyle: TextStyle(
-                                color: isSel
-                                    ? Colors.black
-                                    : AppColors.textSecondary,
-                                fontSize: 11.5,
-                                fontWeight: isSel
-                                    ? FontWeight.bold
-                                    : FontWeight.w500,
-                              ),
-                              backgroundColor: AppColors.surfaceElevated,
-                              selectedColor: AppColors.primary,
-                              checkmarkColor: Colors.black,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                                side: BorderSide(
-                                  color: isSel
-                                      ? AppColors.primary
-                                      : AppColors.border,
-                                ),
-                              ),
-                              onSelected: (val) {
-                                setState(() {
-                                  _selectedSubCategory = val ? sub : 'All Back';
-                                });
-                                _applyFilters();
-                              },
-                            ),
-                          );
-                        }).toList(),
+                  const SizedBox(height: 12),
+
+                  // View Mode selector pills
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _buildModeChip(
+                          'Main (8)',
+                          LibraryViewMode.mainCategories,
+                          Icons.dashboard_rounded,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildModeChip(
+                          'Muscles (14)',
+                          LibraryViewMode.muscleCatalogues,
+                          Icons.sports_gymnastics_rounded,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildModeChip(
+                          'Modalities (6)',
+                          LibraryViewMode.modalityCatalogues,
+                          Icons.fitness_center_rounded,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildModeChip(
+                          'All (${_allExercises.length})',
+                          LibraryViewMode.allExercises,
+                          Icons.list_alt_rounded,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildModeChip(
+                          'Recommended',
+                          LibraryViewMode.recommended,
+                          Icons.star_rounded,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildModeChip(
+                          'Favourites',
+                          LibraryViewMode.favourites,
+                          Icons.favorite_rounded,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildModeChip(
+                          'Custom',
+                          LibraryViewMode.custom,
+                          Icons.person_rounded,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-              ],
+                  const SizedBox(height: 12),
 
-              // 3. Assisting / Secondary Muscle Filter
-              if (_availableSecondaryMuscles.length > 1) ...[
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(right: 6),
-                        child: Text(
-                          'Assisting:',
-                          style: TextStyle(
-                            color: AppColors.textMuted,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      ..._availableSecondaryMuscles.take(8).map((sec) {
-                        final isSel = _selectedSecondary == sec;
-                        final label = sec == 'All' ? 'All' : '+ $sec';
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 6),
-                          child: FilterChip(
-                            selected: isSel,
-                            label: Text(label),
-                            labelStyle: TextStyle(
-                              color: isSel
-                                  ? Colors.black
-                                  : AppColors.textSecondary,
-                              fontSize: 11,
-                              fontWeight: isSel
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ),
-                            backgroundColor: AppColors.surfaceElevated,
-                            selectedColor: AppColors.primary,
-                            checkmarkColor: Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                              side: BorderSide(
-                                color: isSel
-                                    ? AppColors.primary
-                                    : AppColors.border,
-                              ),
-                            ),
-                            onSelected: (val) {
-                              setState(() {
-                                _selectedSecondary = val ? sec : 'All';
-                              });
-                              _applyFilters();
-                            },
-                          ),
-                        );
-                      }),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-              ],
-
-              // 4. Filter chips (Equipment)
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: _equipmentOptions.map((eq) {
-                    final isSel = _selectedEquipment == eq;
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: FilterChip(
-                        selected: isSel,
-                        label: Text(eq),
-                        labelStyle: TextStyle(
-                          color: isSel ? Colors.black : AppColors.textSecondary,
-                          fontSize: 12,
-                          fontWeight: isSel
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                        ),
-                        backgroundColor: AppColors.cardSurface,
-                        selectedColor: AppColors.primary,
-                        checkmarkColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          side: BorderSide(
-                            color: isSel ? AppColors.primary : AppColors.border,
-                          ),
-                        ),
-                        onSelected: (val) {
-                          setState(() {
-                            _selectedEquipment = eq;
-                          });
-                          _applyFilters();
-                        },
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // 5. Difficulty + Sort
-              Row(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
+                  // Filters & Exercise List options
+                  if (showExerciseList) ...[
+                    // 1. Category Filter Chips
+                    SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
-                        children: _difficultyOptions.map((diff) {
-                          final isSel = _selectedDifficulty == diff;
+                        children: _categoryFilterOptions.map((cat) {
+                          final isSel = _selectedCategory == cat;
                           return Padding(
                             padding: const EdgeInsets.only(right: 6),
                             child: FilterChip(
                               selected: isSel,
-                              label: Text(diff),
+                              label: Text(cat),
+                              labelStyle: TextStyle(
+                                color: isSel
+                                    ? Colors.black
+                                    : AppColors.textMain,
+                                fontSize: 12,
+                                fontWeight: isSel
+                                    ? FontWeight.w800
+                                    : FontWeight.w600,
+                              ),
+                              backgroundColor: AppColors.cardSurface,
+                              selectedColor: AppColors.primary,
+                              checkmarkColor: Colors.black,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                side: BorderSide(
+                                  color: isSel
+                                      ? AppColors.primary
+                                      : AppColors.border,
+                                ),
+                              ),
+                              onSelected: (val) {
+                                setState(() {
+                                  _selectedCategory = val ? cat : 'All';
+                                  _selectedSubCategory = 'All';
+                                });
+                                _applyFilters();
+                              },
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    // 2. Sub-Category Chips (for Legs or Back)
+                    if (_selectedCategory == 'Legs') ...[
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children:
+                              [
+                                'All Legs',
+                                'Quads',
+                                'Hamstrings',
+                                'Glutes',
+                                'Calves',
+                              ].map((sub) {
+                                final isSel =
+                                    _selectedSubCategory == sub ||
+                                    (_selectedSubCategory == 'All' &&
+                                        sub == 'All Legs');
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 6),
+                                  child: FilterChip(
+                                    selected: isSel,
+                                    label: Text(sub),
+                                    labelStyle: TextStyle(
+                                      color: isSel
+                                          ? Colors.black
+                                          : AppColors.textSecondary,
+                                      fontSize: 11.5,
+                                      fontWeight: isSel
+                                          ? FontWeight.bold
+                                          : FontWeight.w500,
+                                    ),
+                                    backgroundColor: AppColors.surfaceElevated,
+                                    selectedColor: AppColors.primary,
+                                    checkmarkColor: Colors.black,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                      side: BorderSide(
+                                        color: isSel
+                                            ? AppColors.primary
+                                            : AppColors.border,
+                                      ),
+                                    ),
+                                    onSelected: (val) {
+                                      setState(() {
+                                        _selectedSubCategory = val
+                                            ? sub
+                                            : 'All Legs';
+                                      });
+                                      _applyFilters();
+                                    },
+                                  ),
+                                );
+                              }).toList(),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                    ] else if (_selectedCategory == 'Back') ...[
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children:
+                              [
+                                'All Back',
+                                'Lats',
+                                'Upper Back & Traps',
+                                'Mid/Lower Back',
+                              ].map((sub) {
+                                final isSel =
+                                    _selectedSubCategory == sub ||
+                                    (_selectedSubCategory == 'All' &&
+                                        sub == 'All Back');
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 6),
+                                  child: FilterChip(
+                                    selected: isSel,
+                                    label: Text(sub),
+                                    labelStyle: TextStyle(
+                                      color: isSel
+                                          ? Colors.black
+                                          : AppColors.textSecondary,
+                                      fontSize: 11.5,
+                                      fontWeight: isSel
+                                          ? FontWeight.bold
+                                          : FontWeight.w500,
+                                    ),
+                                    backgroundColor: AppColors.surfaceElevated,
+                                    selectedColor: AppColors.primary,
+                                    checkmarkColor: Colors.black,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                      side: BorderSide(
+                                        color: isSel
+                                            ? AppColors.primary
+                                            : AppColors.border,
+                                      ),
+                                    ),
+                                    onSelected: (val) {
+                                      setState(() {
+                                        _selectedSubCategory = val
+                                            ? sub
+                                            : 'All Back';
+                                      });
+                                      _applyFilters();
+                                    },
+                                  ),
+                                );
+                              }).toList(),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+
+                    // 3. Assisting / Secondary Muscle Filter
+                    if (_availableSecondaryMuscles.length > 1) ...[
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(right: 6),
+                              child: Text(
+                                'Assisting:',
+                                style: TextStyle(
+                                  color: AppColors.textMuted,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            ..._availableSecondaryMuscles.take(8).map((sec) {
+                              final isSel = _selectedSecondary == sec;
+                              final label = sec == 'All' ? 'All' : '+ $sec';
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 6),
+                                child: FilterChip(
+                                  selected: isSel,
+                                  label: Text(label),
+                                  labelStyle: TextStyle(
+                                    color: isSel
+                                        ? Colors.black
+                                        : AppColors.textSecondary,
+                                    fontSize: 11,
+                                    fontWeight: isSel
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                  backgroundColor: AppColors.surfaceElevated,
+                                  selectedColor: AppColors.primary,
+                                  checkmarkColor: Colors.black,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    side: BorderSide(
+                                      color: isSel
+                                          ? AppColors.primary
+                                          : AppColors.border,
+                                    ),
+                                  ),
+                                  onSelected: (val) {
+                                    setState(() {
+                                      _selectedSecondary = val ? sec : 'All';
+                                    });
+                                    _applyFilters();
+                                  },
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+
+                    // 4. Filter chips (Equipment)
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: _equipmentOptions.map((eq) {
+                          final isSel = _selectedEquipment == eq;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: FilterChip(
+                              selected: isSel,
+                              label: Text(eq),
                               labelStyle: TextStyle(
                                 color: isSel
                                     ? Colors.black
                                     : AppColors.textSecondary,
-                                fontSize: 11,
+                                fontSize: 12,
                                 fontWeight: isSel
                                     ? FontWeight.bold
                                     : FontWeight.normal,
                               ),
-                              backgroundColor: AppColors.surfaceElevated,
+                              backgroundColor: AppColors.cardSurface,
                               selectedColor: AppColors.primary,
                               checkmarkColor: Colors.black,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(16),
                                 side: BorderSide(
                                   color: isSel
                                       ? AppColors.primary
@@ -985,7 +991,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                               ),
                               onSelected: (val) {
                                 setState(() {
-                                  _selectedDifficulty = diff;
+                                  _selectedEquipment = eq;
                                 });
                                 _applyFilters();
                               },
@@ -994,286 +1000,360 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                         }).toList(),
                       ),
                     ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceElevated,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: _selectedSort,
-                        dropdownColor: AppColors.surfaceElevated,
-                        icon: const Icon(
-                          Icons.sort_rounded,
-                          size: 16,
-                          color: AppColors.primary,
-                        ),
-                        style: const TextStyle(
-                          color: AppColors.textMain,
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'name_asc',
-                            child: Text('A to Z'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'name_desc',
-                            child: Text('Z to A'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'difficulty',
-                            child: Text('Difficulty'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'recommended',
-                            child: Text('Recommended'),
-                          ),
-                        ],
-                        onChanged: (val) {
-                          if (val != null) {
-                            setState(() {
-                              _selectedSort = val;
-                            });
-                            _applyFilters();
-                          }
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
+                    const SizedBox(height: 8),
 
-              // 6. Active Filters Banner with Clear All
-              if (_hasActiveFilters) ...[
-                Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceElevated,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: AppColors.primary.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.filter_list_rounded,
-                        color: AppColors.primary,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Filters active (${_displayExercises.length} results)',
-                          style: const TextStyle(
-                            color: AppColors.textMain,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                    // 5. Difficulty + Sort
+                    Row(
+                      children: [
+                        Expanded(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: _difficultyOptions.map((diff) {
+                                final isSel = _selectedDifficulty == diff;
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 6),
+                                  child: FilterChip(
+                                    selected: isSel,
+                                    label: Text(diff),
+                                    labelStyle: TextStyle(
+                                      color: isSel
+                                          ? Colors.black
+                                          : AppColors.textSecondary,
+                                      fontSize: 11,
+                                      fontWeight: isSel
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
+                                    backgroundColor: AppColors.surfaceElevated,
+                                    selectedColor: AppColors.primary,
+                                    checkmarkColor: Colors.black,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                      side: BorderSide(
+                                        color: isSel
+                                            ? AppColors.primary
+                                            : AppColors.border,
+                                      ),
+                                    ),
+                                    onSelected: (val) {
+                                      setState(() {
+                                        _selectedDifficulty = diff;
+                                      });
+                                      _applyFilters();
+                                    },
+                                  ),
+                                );
+                              }).toList(),
+                            ),
                           ),
                         ),
-                      ),
-                      InkWell(
-                        onTap: _clearAllFilters,
-                        borderRadius: BorderRadius.circular(6),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceElevated,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.border),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.close_rounded,
-                                color: Colors.redAccent,
-                                size: 14,
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _selectedSort,
+                              dropdownColor: AppColors.surfaceElevated,
+                              icon: const Icon(
+                                Icons.sort_rounded,
+                                size: 16,
+                                color: AppColors.primary,
                               ),
-                              SizedBox(width: 4),
-                              Text(
-                                'Clear All',
-                                style: TextStyle(
-                                  color: Colors.redAccent,
-                                  fontSize: 11.5,
-                                  fontWeight: FontWeight.bold,
+                              style: const TextStyle(
+                                color: AppColors.textMain,
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              items: const [
+                                DropdownMenuItem(
+                                  value: 'name_asc',
+                                  child: Text('A to Z'),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'name_desc',
+                                  child: Text('Z to A'),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'difficulty',
+                                  child: Text('Difficulty'),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'recommended',
+                                  child: Text('Recommended'),
+                                ),
+                              ],
+                              onChanged: (val) {
+                                if (val != null) {
+                                  setState(() {
+                                    _selectedSort = val;
+                                  });
+                                  _applyFilters();
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+
+                    // 6. Active Filters Banner with Clear All
+                    if (_hasActiveFilters) ...[
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceElevated,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: AppColors.primary.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.filter_list_rounded,
+                              color: AppColors.primary,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Filters active (${_displayExercises.length} results)',
+                                style: const TextStyle(
+                                  color: AppColors.textMain,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                            InkWell(
+                              onTap: _clearAllFilters,
+                              borderRadius: BorderRadius.circular(6),
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.close_rounded,
+                                      color: Colors.redAccent,
+                                      size: 14,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      'Clear All',
+                                      style: TextStyle(
+                                        color: Colors.redAccent,
+                                        fontSize: 11.5,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
-                  ),
-                ),
-              ],
-              const SizedBox(height: 6),
-            ],
+                    const SizedBox(height: 6),
+                  ],
+                ],
+              ),
+            ),
+          ),
 
-            // Content switch: Exercise Cards List OR Catalogues
-            if (showExerciseList) ...[
-              // Section header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    _isSearching
-                        ? 'SEARCH RESULTS (${_displayExercises.length})'
-                        : '${_getModeTitle().toUpperCase()} (${_displayExercises.length})',
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.1,
-                    ),
-                  ),
-                  if (_isSearching)
-                    TextButton(
-                      onPressed: () {
-                        _searchController.clear();
-                        setState(() {
-                          _currentMode = LibraryViewMode.mainCategories;
-                        });
-                        _applyFilters();
-                      },
-                      child: const Text(
-                        'Back to Main',
-                        style: TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 12,
+          // Content switch: Exercise Cards List OR Catalogues. Every list below is a
+          // lazy sliver, so only the visible cards are built.
+          if (showExerciseList) ...[
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+              sliver: SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          _isSearching
+                              ? 'SEARCH RESULTS (${_displayExercises.length})'
+                              : '${_getModeTitle().toUpperCase()} (${_displayExercises.length})',
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.1,
+                          ),
                         ),
                       ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 10),
-
-              if (_displayExercises.isEmpty)
-                _buildEmptyState()
-              else
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _displayExercises.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final ex = _displayExercises[index];
-                    return _buildExerciseCard(ex);
-                  },
-                ),
-            ] else if (_currentMode == LibraryViewMode.mainCategories) ...[
-              // 8 Main Muscle Categories
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'MAIN MUSCLE CATEGORIES (8)',
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.1,
-                    ),
+                      if (_isSearching)
+                        TextButton(
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() {
+                              _currentMode = LibraryViewMode.mainCategories;
+                            });
+                            _applyFilters();
+                          },
+                          child: const Text(
+                            'Back to Main',
+                            style: TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-                  Text(
-                    '${_allExercises.length} Total Exercises',
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: ExerciseLibraryScreen.mainCategories.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final mg = ExerciseLibraryScreen.mainCategories[index];
-                  final count = _getCountForCategory(mg.name);
-                  return _buildMuscleGroupVisualCard(mg, count);
-                },
-              ),
-            ] else if (_currentMode == LibraryViewMode.muscleCatalogues) ...[
-              // 14/15 Target Muscle Catalogues
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'TARGET MUSCLE CATALOGUES (14)',
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.1,
-                    ),
-                  ),
-                  Text(
-                    '${_allExercises.length} Exercises Seeded',
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _muscleGroups.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final mg = _muscleGroups[index];
-                  final count =
-                      _catalogueCounts[mg.name] ??
-                      _allExercises
-                          .where((e) => e.muscleGroupId == mg.id)
-                          .length;
-                  return _buildMuscleGroupVisualCard(mg, count);
-                },
-              ),
-            ] else if (_currentMode == LibraryViewMode.modalityCatalogues) ...[
-              // 6 Movement & Equipment Modality Catalogues
-              const Text(
-                'MOVEMENT & EQUIPMENT MODALITIES (6)',
-                style: TextStyle(
-                  color: AppColors.primary,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.1,
                 ),
               ),
-              const SizedBox(height: 12),
-
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: ExerciseLibraryScreen.modalityCategories.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final mod = ExerciseLibraryScreen.modalityCategories[index];
-                  final count = _catalogueCounts[mod.name] ?? 0;
-                  return _buildMuscleGroupVisualCard(mod, count);
-                },
+            ),
+            if (_displayExercises.isEmpty)
+              SliverToBoxAdapter(child: _buildEmptyState())
+            else
+              _lazyList(
+                count: _displayExercises.length,
+                builder: (index) =>
+                    _buildExerciseCard(_displayExercises[index]),
               ),
-            ],
-
-            const SizedBox(height: 40),
+          ] else if (_currentMode == LibraryViewMode.mainCategories) ...[
+            // 8 Main Muscle Categories
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  children: [
+                    const Text(
+                      'MAIN MUSCLE CATEGORIES (8)',
+                      style: TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.1,
+                      ),
+                    ),
+                    Text(
+                      '${_allExercises.length} Total Exercises',
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            _lazyList(
+              count: ExerciseLibraryScreen.mainCategories.length,
+              builder: (index) {
+                final mg = ExerciseLibraryScreen.mainCategories[index];
+                return _buildMuscleGroupVisualCard(
+                  mg,
+                  _getCountForCategory(mg.name),
+                );
+              },
+            ),
+          ] else if (_currentMode == LibraryViewMode.muscleCatalogues) ...[
+            // 14/15 Target Muscle Catalogues
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  children: [
+                    const Text(
+                      'TARGET MUSCLE CATALOGUES (14)',
+                      style: TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.1,
+                      ),
+                    ),
+                    Text(
+                      '${_allExercises.length} Exercises Seeded',
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            _lazyList(
+              count: _muscleGroups.length,
+              builder: (index) {
+                final mg = _muscleGroups[index];
+                final count =
+                    _catalogueCounts[mg.name] ??
+                    _allExercises.where((e) => e.muscleGroupId == mg.id).length;
+                return _buildMuscleGroupVisualCard(mg, count);
+              },
+            ),
+          ] else if (_currentMode == LibraryViewMode.modalityCatalogues) ...[
+            // 6 Movement & Equipment Modality Catalogues
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: Text(
+                  'MOVEMENT & EQUIPMENT MODALITIES (6)',
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.1,
+                  ),
+                ),
+              ),
+            ),
+            _lazyList(
+              count: ExerciseLibraryScreen.modalityCategories.length,
+              builder: (index) {
+                final mod = ExerciseLibraryScreen.modalityCategories[index];
+                return _buildMuscleGroupVisualCard(
+                  mod,
+                  _catalogueCounts[mod.name] ?? 0,
+                );
+              },
+            ),
           ],
-        ),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 40)),
+        ],
+      ),
+    );
+  }
+
+  /// Lazy, padded, separated list of cards (SliverList builds only visible items).
+  Widget _lazyList({
+    required int count,
+    required Widget Function(int index) builder,
+  }) {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      sliver: SliverList.separated(
+        itemCount: count,
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        itemBuilder: (context, index) => builder(index),
       ),
     );
   }
@@ -1384,17 +1464,21 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 8,
+                      runSpacing: 4,
                       children: [
                         Text(
                           mg.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             color: AppColors.textMain,
                             fontSize: 17,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
-                        const Spacer(),
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
@@ -1483,6 +1567,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
 
   Widget _buildExerciseCard(Exercise ex) {
     return InkWell(
+      key: ValueKey('library_card_${ex.id}'),
       onTap: () {
         Navigator.push(
           context,
@@ -1600,6 +1685,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                             ),
                             // Favourite toggle
                             IconButton(
+                              tooltip: 'Toggle favourite',
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
                               icon: Icon(
@@ -1666,65 +1752,72 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                         const SizedBox(height: 6),
                         Row(
                           children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.surfaceElevated,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                ex.difficulty,
-                                style: TextStyle(
-                                  color: ex.difficulty == 'Beginner'
-                                      ? Colors.greenAccent
-                                      : (ex.difficulty == 'Advanced'
-                                            ? Colors.orangeAccent
-                                            : AppColors.primary),
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            if (ex.isCompound) ...[
-                              const SizedBox(width: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(
-                                    alpha: 0.15,
-                                  ),
-                                  borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(
-                                    color: AppColors.primary.withValues(
-                                      alpha: 0.4,
+                            Expanded(
+                              child: Wrap(
+                                spacing: 6,
+                                runSpacing: 4,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.surfaceElevated,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      ex.difficulty,
+                                      style: TextStyle(
+                                        color: ex.difficulty == 'Beginner'
+                                            ? Colors.greenAccent
+                                            : (ex.difficulty == 'Advanced'
+                                                  ? Colors.orangeAccent
+                                                  : AppColors.primary),
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                child: const Text(
-                                  'Compound',
-                                  style: TextStyle(
-                                    color: AppColors.primary,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
+                                  if (ex.isCompound) ...[
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primary.withValues(
+                                          alpha: 0.15,
+                                        ),
+                                        borderRadius: BorderRadius.circular(4),
+                                        border: Border.all(
+                                          color: AppColors.primary.withValues(
+                                            alpha: 0.4,
+                                          ),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Compound',
+                                        style: TextStyle(
+                                          color: AppColors.primary,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                  Text(
+                                    '${ex.defaultSets}×${ex.defaultReps} reps',
+                                    style: const TextStyle(
+                                      color: AppColors.textMuted,
+                                      fontSize: 11,
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ],
-                            const SizedBox(width: 8),
-                            Text(
-                              '${ex.defaultSets}×${ex.defaultReps} reps',
-                              style: const TextStyle(
-                                color: AppColors.textMuted,
-                                fontSize: 11,
+                                ],
                               ),
                             ),
-                            const Spacer(),
+                            const SizedBox(width: 6),
                             const Icon(
                               Icons.arrow_forward_ios_rounded,
                               color: AppColors.textMuted,

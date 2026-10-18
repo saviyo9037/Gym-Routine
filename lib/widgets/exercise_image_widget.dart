@@ -27,6 +27,11 @@ class ExerciseImageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final effectiveRadius = borderRadius ?? BorderRadius.circular(12);
+    // Decode at display size: a 200-card list must not hold 200 full-size bitmaps.
+    final dpr = MediaQuery.maybeOf(context)?.devicePixelRatio ?? 2.0;
+    final decodeWidth = (width != null && width!.isFinite)
+        ? (width! * dpr).round().clamp(64, 1080)
+        : 720;
 
     Widget imageContent;
 
@@ -36,16 +41,17 @@ class ExerciseImageWidget extends StatelessWidget {
       if (file.existsSync()) {
         imageContent = Image.file(
           file,
+          cacheWidth: decodeWidth,
           width: width,
           height: height,
           fit: fit,
           errorBuilder: (_, __, ___) => _buildPlaceholder(),
         );
       } else {
-        imageContent = _buildAssetOrPlaceholder();
+        imageContent = _buildAssetOrPlaceholder(decodeWidth);
       }
     } else {
-      imageContent = _buildAssetOrPlaceholder();
+      imageContent = _buildAssetOrPlaceholder(decodeWidth);
     }
 
     return ClipRRect(
@@ -59,11 +65,12 @@ class ExerciseImageWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildAssetOrPlaceholder() {
+  Widget _buildAssetOrPlaceholder(int decodeWidth) {
     if (imagePath != null && imagePath!.isNotEmpty) {
       if (imagePath!.startsWith('assets/')) {
         return Image.asset(
           imagePath!,
+          cacheWidth: decodeWidth,
           width: width,
           height: height,
           fit: fit,
@@ -74,6 +81,7 @@ class ExerciseImageWidget extends StatelessWidget {
         if (f.existsSync()) {
           return Image.file(
             f,
+            cacheWidth: decodeWidth,
             width: width,
             height: height,
             fit: fit,

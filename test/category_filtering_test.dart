@@ -322,7 +322,7 @@ void main() {
       },
     );
 
-    test('9. Verify video demonstration mapping integrity and fallback safety', () {
+    test('9. Spot-check 3 kept and 3 removed video mappings, and every exercise has a local image fallback', () {
       final exercises = SeedData.exercises;
 
       final file = File('assets/exercise_demonstrations.json');
@@ -331,32 +331,34 @@ void main() {
         file.readAsStringSync(),
       );
 
-      final verifiedNames = [
+      // Exercises whose video was unique (kept) vs. byte-identical to another
+      // exercise's video (removed, NO_VIDEO).
+      const withVideo = [
         'Standing Dumbbell Curl',
-        'Hammer Curl',
         'Standing EZ-Bar Curl',
-        'Barbell Bench Press',
         'Barbell Back Squat',
+      ];
+      const withoutVideo = [
+        'Hammer Curl',
+        'Barbell Bench Press',
         'Conventional Deadlift',
       ];
 
-      for (final name in verifiedNames) {
-        expect(
-          demoRegistry.containsKey(name),
-          isTrue,
-          reason: 'Expected entry in demonstration registry for: $name',
-        );
+      for (final name in withVideo) {
         final entry = demoRegistry[name] as Map<String, dynamic>;
-        expect(entry['has_video'], isTrue);
-        final localPath = entry['local_bundled_path'] as String?;
-        expect(localPath, isNotNull);
-        expect(localPath!.endsWith('.mp4'), isTrue);
-        final videoFile = File(localPath);
+        expect(entry['has_video'], isTrue, reason: name);
+        expect(entry['local_bundled_path'], isNull, reason: name);
         expect(
-          videoFile.existsSync(),
-          isTrue,
-          reason: 'Demonstration video file must exist: $localPath',
+          entry['storage_path'],
+          'videos/${entry['exercise_id']}.mp4',
+          reason: name,
         );
+      }
+      for (final name in withoutVideo) {
+        final entry = demoRegistry[name] as Map<String, dynamic>;
+        expect(entry['has_video'], isFalse, reason: name);
+        expect(entry['local_bundled_path'], isNull, reason: name);
+        expect(entry['status'], 'NO_VIDEO', reason: name);
       }
 
       // For every exercise, verify image fallback is intact

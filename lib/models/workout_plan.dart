@@ -1,3 +1,4 @@
+import '../core/safe_cast.dart';
 import 'exercise.dart';
 
 class WorkoutPlan {
@@ -54,18 +55,18 @@ class WorkoutPlan {
     List<PlannedExercise> exercises = const [],
   }) {
     return WorkoutPlan(
-      id: map['id'] as int?,
-      date: map['date'] as String,
-      primaryMuscleId: map['primary_muscle_id'] as int?,
-      primaryMuscleName: map['primary_muscle_name'] as String?,
-      secondaryMuscleId: map['secondary_muscle_id'] as int?,
-      secondaryMuscleName: map['secondary_muscle_name'] as String?,
-      notes: map['notes'] as String?,
-      trainerInstructions: map['trainer_instructions'] as String?,
-      isCompleted: (map['is_completed'] as int?) == 1,
-      isRestDay: (map['is_rest_day'] as int?) == 1,
-      createdAt: map['created_at'] as String?,
-      updatedAt: map['updated_at'] as String?,
+      id: asInt(map['id']),
+      date: (asStr(map['date']) ?? ''),
+      primaryMuscleId: asInt(map['primary_muscle_id']),
+      primaryMuscleName: asStr(map['primary_muscle_name']),
+      secondaryMuscleId: asInt(map['secondary_muscle_id']),
+      secondaryMuscleName: asStr(map['secondary_muscle_name']),
+      notes: asStr(map['notes']),
+      trainerInstructions: asStr(map['trainer_instructions']),
+      isCompleted: (asInt(map['is_completed'])) == 1,
+      isRestDay: (asInt(map['is_rest_day'])) == 1,
+      createdAt: asStr(map['created_at']),
+      updatedAt: asStr(map['updated_at']),
       exercises: exercises,
     );
   }
@@ -117,6 +118,10 @@ class PlannedExercise {
   final String? imagePath;
   final Exercise? exercise;
 
+  /// Cardio targets (null for strength work).
+  final int? targetDurationSeconds;
+  final double? targetDistanceKm;
+
   PlannedExercise({
     this.id,
     required this.planId,
@@ -131,6 +136,8 @@ class PlannedExercise {
     this.notes,
     this.imagePath,
     this.exercise,
+    this.targetDurationSeconds,
+    this.targetDistanceKm,
   });
 
   Map<String, dynamic> toMap() {
@@ -147,6 +154,8 @@ class PlannedExercise {
       'rest_seconds': restSeconds,
       'notes': notes,
       'image_path': imagePath,
+      'target_duration_seconds': targetDurationSeconds,
+      'target_distance_km': targetDistanceKm,
     };
   }
 
@@ -155,24 +164,25 @@ class PlannedExercise {
     Exercise? exercise,
   }) {
     return PlannedExercise(
-      id: map['id'] as int?,
-      planId: map['plan_id'] as int? ?? 0,
-      exerciseId: map['exercise_id'] as int? ?? 0,
+      id: asInt(map['id']),
+      planId: asInt(map['plan_id']) ?? 0,
+      exerciseId: asInt(map['exercise_id']) ?? 0,
       exerciseName:
-          map['exercise_name'] as String? ?? (exercise?.name ?? 'Exercise'),
+          asStr(map['exercise_name']) ?? (exercise?.name ?? 'Exercise'),
       muscleGroupName:
-          map['muscle_group_name'] as String? ??
-          (exercise?.muscleGroupName ?? ''),
-      exerciseOrder: map['exercise_order'] as int? ?? 0,
-      targetSets: map['target_sets'] as int? ?? (exercise?.defaultSets ?? 3),
-      targetReps: map['target_reps'] as int? ?? (exercise?.defaultReps ?? 10),
+          asStr(map['muscle_group_name']) ?? (exercise?.muscleGroupName ?? ''),
+      exerciseOrder: asInt(map['exercise_order']) ?? 0,
+      targetSets: asInt(map['target_sets']) ?? (exercise?.defaultSets ?? 3),
+      targetReps: asInt(map['target_reps']) ?? (exercise?.defaultReps ?? 10),
       targetWeightKg:
-          (map['target_weight_kg'] as num?)?.toDouble() ??
+          asDouble(map['target_weight_kg']) ??
           (exercise?.defaultWeightKg ?? 15.0),
-      restSeconds: map['rest_seconds'] as int? ?? (exercise?.restSeconds ?? 90),
-      notes: map['notes'] as String?,
-      imagePath: map['image_path'] as String? ?? exercise?.imagePath,
+      restSeconds: asInt(map['rest_seconds']) ?? (exercise?.restSeconds ?? 90),
+      notes: asStr(map['notes']),
+      imagePath: asStr(map['image_path']) ?? exercise?.imagePath,
       exercise: exercise,
+      targetDurationSeconds: asInt(map['target_duration_seconds']),
+      targetDistanceKm: asDouble(map['target_distance_km']),
     );
   }
 
@@ -190,6 +200,8 @@ class PlannedExercise {
     String? notes,
     String? imagePath,
     Exercise? exercise,
+    int? targetDurationSeconds,
+    double? targetDistanceKm,
   }) {
     return PlannedExercise(
       id: id ?? this.id,
@@ -205,6 +217,9 @@ class PlannedExercise {
       notes: notes ?? this.notes,
       imagePath: imagePath ?? this.imagePath,
       exercise: exercise ?? this.exercise,
+      targetDurationSeconds:
+          targetDurationSeconds ?? this.targetDurationSeconds,
+      targetDistanceKm: targetDistanceKm ?? this.targetDistanceKm,
     );
   }
 }

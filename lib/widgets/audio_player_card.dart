@@ -433,6 +433,7 @@ class _AudioPlayerCardState extends State<AudioPlayerCard> {
                   Row(
                     children: [
                       IconButton(
+                        tooltip: 'Back 10 seconds',
                         icon: const Icon(
                           Icons.replay_10_rounded,
                           color: AppColors.textSecondary,
@@ -449,6 +450,7 @@ class _AudioPlayerCardState extends State<AudioPlayerCard> {
                         },
                       ),
                       IconButton(
+                        tooltip: 'Play or pause',
                         icon: Icon(
                           _isPlaying
                               ? Icons.pause_circle_filled_rounded
@@ -459,6 +461,7 @@ class _AudioPlayerCardState extends State<AudioPlayerCard> {
                         onPressed: _togglePlay,
                       ),
                       IconButton(
+                        tooltip: 'Forward 10 seconds',
                         icon: const Icon(
                           Icons.forward_10_rounded,
                           color: AppColors.textSecondary,

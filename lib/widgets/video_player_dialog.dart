@@ -290,6 +290,7 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
                   ),
                 ),
                 IconButton(
+                  tooltip: 'Close',
                   icon: const Icon(Icons.close, color: AppColors.textSecondary),
                   onPressed: () => Navigator.pop(context),
                 ),

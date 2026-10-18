@@ -7,6 +7,7 @@ enum DayStatus {
   planned, // Future or today's scheduled workout, not yet completed
   missed, // Past scheduled workout that was never performed
   restDay, // Scheduled or designated rest day
+  noPlan, // Nothing scheduled and nothing performed (not a planned rest day)
 }
 
 class DayWorkoutSummary {
@@ -48,20 +49,25 @@ class DayWorkoutSummary {
         return 'Missed';
       case DayStatus.restDay:
         return 'Rest Day';
+      case DayStatus.noPlan:
+        return 'Not scheduled';
     }
   }
 }
 
 class WeeklySummary {
-  final DateTime startOfWeek; // Monday
-  final DateTime endOfWeek; // Sunday
-  final List<DayWorkoutSummary> days; // 7 days (Mon to Sun)
+  final DateTime startOfWeek; // first day of the week (Monday or Sunday)
+  final DateTime endOfWeek; // last day of the week
+  final List<DayWorkoutSummary> days; // 7 days, in week order
   final int workoutsCompleted;
   final int exercisesCompleted;
   final int plannedWorkouts;
   final int restDays;
   final double totalVolumeKg;
   final int totalDurationSeconds;
+  final int setsCompleted;
+  final int cardioSeconds;
+  final double cardioKm;
 
   WeeklySummary({
     required this.startOfWeek,
@@ -73,5 +79,8 @@ class WeeklySummary {
     required this.restDays,
     required this.totalVolumeKg,
     required this.totalDurationSeconds,
+    this.setsCompleted = 0,
+    this.cardioSeconds = 0,
+    this.cardioKm = 0,
   });
 }

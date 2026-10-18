@@ -1,0 +1,33 @@
+# RUN3_ACCESS - subscription-required model (fork A)
+
+Nothing here was run on a device or against real RevenueCat/Play. Tests that use a fake store are labelled MOCK-ONLY.
+
+## What changed
+- `lib/core/access_config.dart`: `ACCESS_MODEL` = `subscription_required` (default) | `freemium` (`--dart-define=ACCESS_MODEL=...`), test hook `AccessConfig.debugOverride`. Unknown values fail CLOSED (subscription required).
+- `lib/services/premium_service.dart`:
+  - **AccessGate** = `PremiumService.accessLevel` (`checking` / `full` / `locked`, plus `hasFullAccess`, `isLocked`, `isChecking`). Single source of truth; freemium mode is always `full`.
+  - Trial awareness: `PremiumSnapshot.isTrial` (RevenueCat `periodType == trial`), new `EntitlementState.trial` (premium state; refund/expiry rules unchanged; cached snapshots without the flag read as no trial).
+  - `PremiumOffer.trial` (`TrialInfo`) read from the store offer only (Play free phase of the default option, or a zero-price introductory price). No trial length is hard-coded anywhere; no trial in the offer => no trial wording.
+  - Cold start: no flash of the paywall for subscribers (`checking` until the first store answer; with a cached snapshot the cache is used immediately). Store failure or no answer within `fetchTimeout` (8 s) => "Could not verify your subscription - retry" state (`verificationFailed`) + automatic retry with exponential backoff (20 s doubling, max 10 min). A valid cache (<= 14 days) never locks the user out.
+  - Debug builds without a store key stay open for development (`_devOpen`); a RELEASE build without `REVENUECAT_ANDROID_API_KEY` is locked ("Subscriptions are not available in this build").
+  - `canCreatePlan`: unlimited when the user has full access in subscription-required mode; freemium keeps the 2-plan limit.
+- `lib/services/access_guard.dart` + `CloudServices.installAccessGuard()` (called in `main()` and `initialize()`): write entry points throw `AccessLockedException` when locked: start a workout (`ActiveWorkoutController.start`), save/duplicate/delete/activate plans, create/update/delete routines and completions, create/update/delete exercises, save dated plans, favourite toggle, delete session, manual workout log (`createWorkoutSession` WITHOUT `clientRef`). **Not guarded on purpose:** finishing an already running workout (it has a `clientRef`; refusing would lose a workout), reads, exports, settings, `rescheduleAllRoutines()` and natively scheduled alarms. `materializeDate` returns null while locked (reading must not write).
+- Screens: `onboarding_screen.dart` (3 pages, collects nothing, flag `onboarding_done` in `user_settings`, shown once, skippable), `access_root.dart` (onboarding -> loader -> app | locked), `locked_screen.dart` (`LockedScreen`, `AccessCheckingScreen`), `paywall_screen.dart` (locked mode: no back button, trial/price text from the offer, auto-renew + cancel text, Restore, Manage subscription, privacy/terms links, retry card, "Export my data" (read-only `BackupService.exportJson`, works offline), "Account and delete account" when signed in). Subscription-required wording never says "free" except trial wording derived from the offer; the old "Free forever" line exists only in freemium.
+- `lib/main.dart`: new `AppHost` above the gate keeps alarm-ringing detection, re-arming alarms from the DB, cloud resume work and subscription re-check on resume in EVERY state (also locked). `MainNavigationShell` is now only the tabs.
+- `lib/services/cloud_config.dart`: `PRIVACY_POLICY_URL`, `TERMS_URL` (https only; empty => link hidden). `lib/screens/settings_screen.dart`: privacy/terms rows (hidden when unset), subscription wording per mode. `.env.example` rewritten (placeholders only, new variables).
+
+## Found and fixed on the way
+- `.env.example` had been edited to contain what looks like a real Supabase publishable key repeated in all four variables (also wrong for URL / RevenueCat / Google). It was replaced with empty placeholders. If that key matters, take it from your Supabase dashboard and put real values only in the gitignored `env.local.json`.
+
+## Tests (flutter analyze clean for my files; new file `test/access_gate_test.dart`, 32 tests)
+- Pure: `ACCESS_MODEL` parsing (fail closed), https-only legal links, trial / premium / cancelled / grace / expired / free / unknown / offline cache (13 days ok, 15 days stale, clock moved back), snapshot JSON, trial length parsing.
+- Service (MOCK-ONLY): locked, trial, premium, expired, cold-start checking, offline valid cache, offline stale cache, retry with backoff then recovery, store that never answers, no store (debug open), flag switch both values.
+- Data/guard (MOCK-ONLY, in-memory DB): all write entry points refuse when locked; row counts of every user table identical across lock/unlock; alarms not cancelled and re-armed while locked; export works while locked; finishing a running workout still saves; freemium writes work.
+- UI (MOCK-ONLY): onboarding shown once then paywall, Skip completes it, locked-screen allowed actions (restore, manage, export, account deletion only when signed in), no "free" wording, links hidden when unset, trial text from offering (1 day, 7 days, none), subscriber cold start without paywall flash, retry card recovery, freemium has no gate/onboarding, purchase unlocks without popping the root, freemium paywall keeps old wording.
+- Existing tests that described freemium (`premium_service_test`, `cloud_screens_test`, `training_plan_screens_test`) now set `AccessConfig.debugOverride = freemium` in `setUp` (assertions unchanged); they pass.
+
+## UNVERIFIED / needs the parent or you
+- The `release/` drafts and `RELEASE_CHECKLIST.md` still describe the old freemium model: they must say a subscription is required after the trial (never "free"); the trial length comes from your Play offer (you said you will configure 1 day if Play allows; Play free trials are configured on the base-plan offer, minimum length per Play rules - check in Play Console). Privacy/terms URLs must be set via `PRIVACY_POLICY_URL` / `TERMS_URL` before release or the links are simply absent.
+- `TrialInfo` mapping uses `StoreProduct.defaultOption.freePhase` / zero-price `introductoryPrice`; it was never run against a real Play offering (only the mapping logic is tested through fakes).
+- Locked-screen behaviour on a real device (account deletion path, export share sheet, retry timing) is untested; `AlarmRingingScreen` still offers "start workout", which will report an error when locked.
+- Full `flutter test` shows failures only in fork B's in-progress video tests (media/demonstration/flag tests) at the time of my last run.

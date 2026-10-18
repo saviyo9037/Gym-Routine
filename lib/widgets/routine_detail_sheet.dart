@@ -478,6 +478,7 @@ class _RoutineDetailSheetState extends State<RoutineDetailSheet> {
                   ),
                 ),
                 IconButton(
+                  tooltip: 'Close',
                   icon: const Icon(
                     Icons.close_rounded,
                     color: AppColors.textSecondary,

@@ -1,7 +1,10 @@
-import 'package:flutter/foundation.dart';
+import '../core/dev_log.dart';
+
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
 
+import '../core/clock.dart';
+import '../core/next_occurrence.dart';
 import '../models/routine.dart';
 
 class AlarmPermissionStatus {
@@ -9,18 +12,37 @@ class AlarmPermissionStatus {
   final bool notificationsEnabled;
   final bool isBatteryOptimizationIgnored;
   final bool isDndAccessGranted;
+  final bool canUseFullScreenIntent;
+  final String manufacturer;
 
   const AlarmPermissionStatus({
     required this.canScheduleExactAlarms,
     required this.notificationsEnabled,
     required this.isBatteryOptimizationIgnored,
     required this.isDndAccessGranted,
+    this.canUseFullScreenIntent = true,
+    this.manufacturer = '',
   });
 
+  /// Everything an alarm needs. Battery exemption and DND access are
+  /// recommended, never required.
   bool get isFullyConfigured =>
-      canScheduleExactAlarms &&
-      notificationsEnabled &&
-      isBatteryOptimizationIgnored;
+      canScheduleExactAlarms && notificationsEnabled && canUseFullScreenIntent;
+}
+
+/// One alarm the native side currently holds.
+class ScheduledAlarmInfo {
+  final int routineId;
+  final String title;
+  final DateTime? nextAlarm;
+  final DateTime? nextReminder;
+
+  const ScheduledAlarmInfo({
+    required this.routineId,
+    required this.title,
+    this.nextAlarm,
+    this.nextReminder,
+  });
 }
 
 class AlarmService {
@@ -31,9 +53,21 @@ class AlarmService {
   static const MethodChannel _channel = MethodChannel('com.reptrack.app/alarm');
   AudioPlayer? _fallbackPlayer;
 
-  /// Schedules a real reliable Android Alarm using AlarmManager.setAlarmClock
+  /// Hands the routine to the native scheduler, which stores it, arms the next
+  /// occurrence with AlarmManager.setAlarmClock and re-arms it after every
+  /// firing, reboot, app update, clock or timezone change (so Flutter does not
+  /// need to be running). Returns false when nothing was scheduled.
   Future<bool> scheduleRoutineAlarm(Routine routine) async {
-    if (!routine.isEnabled || !routine.isAlarmEnabled || routine.id == null) {
+    final wantsAlarm = routine.isAlarmEnabled && routine.alarmType != 'none';
+    // A heads-up at exactly the start time would duplicate the alarm itself.
+    final wantsReminder =
+        routine.isReminderEnabled &&
+        routine.alarmType != 'none' &&
+        !(wantsAlarm && routine.reminderMinutesBefore <= 0);
+    if (!routine.isEnabled ||
+        routine.id == null ||
+        routine.repeatDays.isEmpty ||
+        (!wantsAlarm && !wantsReminder)) {
       if (routine.id != null) {
         await cancelRoutineAlarm(routine.id!);
       }
@@ -41,52 +75,33 @@ class AlarmService {
     }
 
     try {
-      final now = DateTime.now();
-      final startParts = routine.startTime.split(':');
-      final hour = int.tryParse(startParts[0]) ?? 0;
-      final minute =
-          int.tryParse(startParts.length > 1 ? startParts[1] : '0') ?? 0;
-
-      // Find next occurrence matching routine's repeat days
-      DateTime targetDate = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        hour,
-        minute,
-      );
-
-      // If time has already passed today, check tomorrow onwards
-      if (targetDate.isBefore(now)) {
-        targetDate = targetDate.add(const Duration(days: 1));
-      }
-
-      // Loop up to 7 days to find the next active repeat day
-      int attempts = 0;
-      while (!routine.repeatDays.contains(targetDate.weekday) && attempts < 8) {
-        targetDate = targetDate.add(const Duration(days: 1));
-        attempts++;
-      }
-
-      final triggerEpochMs = targetDate.millisecondsSinceEpoch;
-
       final success = await _channel.invokeMethod<bool>('scheduleAlarm', {
         'routineId': routine.id,
         'title': routine.title,
         'category': routine.category,
         'time': routine.startTime,
-        'triggerEpochMs': triggerEpochMs,
+        'repeatDays': routine.repeatDays,
+        'alarmEnabled': wantsAlarm,
         'isAudible': routine.alarmType == 'alarm',
         'vibration': routine.isVibrationEnabled,
         'soundName': routine.soundName,
+        'leadMinutes': routine.reminderMinutesBefore < 0
+            ? 0
+            : routine.reminderMinutesBefore,
+        'reminderEnabled': wantsReminder,
       });
 
-      debugPrint(
-        '[AlarmService] Scheduled ${routine.alarmType} for "${routine.title}" at $targetDate (epoch $triggerEpochMs). Result: $success',
+      final next = NextOccurrence.compute(
+        AppClock.now(),
+        routine.startTime,
+        routine.repeatDays,
+      );
+      devLog(
+        '[AlarmService] Scheduled "${routine.title}" (next $next). Result: $success',
       );
       return success ?? true;
     } catch (e) {
-      debugPrint(
+      devLog(
         '[AlarmService] Error scheduling alarm for routine ${routine.id}: $e',
       );
       return false;
@@ -99,10 +114,10 @@ class AlarmService {
       final res = await _channel.invokeMethod<bool>('cancelAlarm', {
         'routineId': routineId,
       });
-      debugPrint('[AlarmService] Cancelled alarm for routine $routineId');
+      devLog('[AlarmService] Cancelled alarm for routine $routineId');
       return res ?? true;
     } catch (e) {
-      debugPrint('[AlarmService] Error cancelling alarm $routineId: $e');
+      devLog('[AlarmService] Error cancelling alarm $routineId: $e');
       return false;
     }
   }
@@ -121,12 +136,10 @@ class AlarmService {
         'delaySeconds': delaySeconds,
         'isAudible': isAudible,
       });
-      debugPrint(
-        '[AlarmService] Test alarm launched with delay $delaySeconds s',
-      );
+      devLog('[AlarmService] Test alarm launched with delay $delaySeconds s');
       return res ?? true;
     } catch (e) {
-      debugPrint('[AlarmService] Error triggering test alarm: $e');
+      devLog('[AlarmService] Error triggering test alarm: $e');
       return false;
     }
   }
@@ -136,9 +149,9 @@ class AlarmService {
     try {
       await _channel.invokeMethod('stopAlarm');
       await _stopFallbackAudio();
-      debugPrint('[AlarmService] Alarm audio stopped');
+      devLog('[AlarmService] Alarm audio stopped');
     } catch (e) {
-      debugPrint('[AlarmService] Error stopping alarm: $e');
+      devLog('[AlarmService] Error stopping alarm: $e');
     }
   }
 
@@ -155,11 +168,11 @@ class AlarmService {
         'title': title ?? 'Routine Alarm',
       });
       await _stopFallbackAudio();
-      debugPrint(
+      devLog(
         '[AlarmService] Snoozed routine $routineId for $snoozeMinutes minutes',
       );
     } catch (e) {
-      debugPrint('[AlarmService] Error snoozing alarm: $e');
+      devLog('[AlarmService] Error snoozing alarm: $e');
     }
   }
 
@@ -177,10 +190,13 @@ class AlarmService {
           isBatteryOptimizationIgnored:
               map['isBatteryOptimizationIgnored'] as bool? ?? false,
           isDndAccessGranted: map['isDndAccessGranted'] as bool? ?? false,
+          canUseFullScreenIntent:
+              map['canUseFullScreenIntent'] as bool? ?? true,
+          manufacturer: map['manufacturer'] as String? ?? '',
         );
       }
     } catch (e) {
-      debugPrint('[AlarmService] Error checking permissions: $e');
+      devLog('[AlarmService] Error checking permissions: $e');
     }
 
     return const AlarmPermissionStatus(
@@ -196,7 +212,7 @@ class AlarmService {
     try {
       await _channel.invokeMethod('requestExactAlarmPermission');
     } catch (e) {
-      debugPrint('[AlarmService] Error requesting exact alarm permission: $e');
+      devLog('[AlarmService] Error requesting exact alarm permission: $e');
     }
   }
 
@@ -205,7 +221,78 @@ class AlarmService {
     try {
       await _channel.invokeMethod('requestBatteryOptimizationExemption');
     } catch (e) {
-      debugPrint('[AlarmService] Error requesting battery exemption: $e');
+      devLog('[AlarmService] Error requesting battery exemption: $e');
+    }
+  }
+
+  /// Shows the Android 13+ notification permission prompt (no-op below 13).
+  Future<void> requestNotificationPermission() async {
+    try {
+      await _channel.invokeMethod('requestNotificationPermission');
+    } catch (e) {
+      devLog('[AlarmService] Error requesting notification permission: $e');
+    }
+  }
+
+  Future<void> openNotificationSettings() async {
+    try {
+      await _channel.invokeMethod('openNotificationSettings');
+    } catch (e) {
+      devLog('[AlarmService] Error opening notification settings: $e');
+    }
+  }
+
+  Future<void> openFullScreenIntentSettings() async {
+    try {
+      await _channel.invokeMethod('openFullScreenIntentSettings');
+    } catch (e) {
+      devLog('[AlarmService] Error opening full-screen settings: $e');
+    }
+  }
+
+  Future<void> openAppSettings() async {
+    try {
+      await _channel.invokeMethod('openAppSettings');
+    } catch (e) {
+      devLog('[AlarmService] Error opening app settings: $e');
+    }
+  }
+
+  /// Alarms the native scheduler currently holds, with their next fire times.
+  Future<List<ScheduledAlarmInfo>> getScheduledAlarms() async {
+    try {
+      final raw = await _channel.invokeListMethod<dynamic>(
+        'getScheduledAlarms',
+      );
+      return [
+        for (final e in raw ?? const [])
+          ScheduledAlarmInfo(
+            routineId: (e as Map)['routineId'] as int,
+            title: e['title'] as String? ?? '',
+            nextAlarm: e['nextAlarmEpochMs'] == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(
+                    e['nextAlarmEpochMs'] as int,
+                  ),
+            nextReminder: e['nextReminderEpochMs'] == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(
+                    e['nextReminderEpochMs'] as int,
+                  ),
+          ),
+      ];
+    } catch (e) {
+      devLog('[AlarmService] Error reading scheduled alarms: $e');
+      return const [];
+    }
+  }
+
+  /// Asks the native side to re-arm everything it has stored.
+  Future<void> rescheduleAllNative() async {
+    try {
+      await _channel.invokeMethod('rescheduleAll');
+    } catch (e) {
+      devLog('[AlarmService] Error rescheduling: $e');
     }
   }
 
@@ -214,7 +301,7 @@ class AlarmService {
     try {
       await _channel.invokeMethod('openDndSettings');
     } catch (e) {
-      debugPrint('[AlarmService] Error opening DND settings: $e');
+      devLog('[AlarmService] Error opening DND settings: $e');
     }
   }
 
@@ -226,7 +313,7 @@ class AlarmService {
       );
       return map;
     } catch (e) {
-      debugPrint('[AlarmService] Error checking triggered alarm data: $e');
+      devLog('[AlarmService] Error checking triggered alarm data: $e');
       return null;
     }
   }
@@ -259,7 +346,7 @@ class AlarmService {
       await _fallbackPlayer!.setReleaseMode(ReleaseMode.loop);
       // Play system alert sound or local synthesized beep
     } catch (e) {
-      debugPrint('[AlarmService] Fallback audio player error: $e');
+      devLog('[AlarmService] Fallback audio player error: $e');
     }
   }
 

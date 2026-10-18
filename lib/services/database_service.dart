@@ -1,16 +1,17 @@
-import 'dart:convert';
-
 import 'package:sqflite/sqflite.dart';
 import 'package:intl/intl.dart';
 
+import '../core/clock.dart';
 import '../data/db_helper.dart';
+import 'backup_service.dart';
+import 'training_plan_service.dart';
 import '../models/muscle_group.dart';
 import '../models/exercise.dart';
 import '../models/workout_plan.dart';
 import '../models/workout_session.dart';
 import '../models/media_attachment.dart';
 import '../models/plan_change_log.dart';
-import '../models/weekly_summary.dart';
+import 'access_guard.dart';
 
 class DatabaseService {
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
@@ -57,7 +58,8 @@ class DatabaseService {
     final db = await _dbHelper.database;
     final results = await db.rawQuery('''
       SELECT muscle_group_id, COUNT(*) as count 
-      FROM exercises 
+      FROM exercises
+      WHERE catalogue_archived = 0
       GROUP BY muscle_group_id
     ''');
     final Map<int, int> counts = {};
@@ -86,6 +88,7 @@ class DatabaseService {
     final db = await _dbHelper.database;
     final maps = await db.query(
       'exercises',
+      where: 'catalogue_archived = 0',
       orderBy: 'muscle_group_id ASC, id ASC',
     );
     return maps.map((m) => Exercise.fromMap(m)).toList();
@@ -95,7 +98,7 @@ class DatabaseService {
     final db = await _dbHelper.database;
     final maps = await db.query(
       'exercises',
-      where: 'muscle_group_id = ?',
+      where: 'muscle_group_id = ? AND catalogue_archived = 0',
       whereArgs: [muscleGroupId],
       orderBy: 'id ASC',
     );
@@ -106,7 +109,7 @@ class DatabaseService {
     final db = await _dbHelper.database;
     final maps = await db.query(
       'exercises',
-      where: "muscle_group_name = 'Biceps' OR muscle_group_id = 6",
+      where: "(muscle_group_name = 'Biceps' OR muscle_group_id = 6) AND catalogue_archived = 0",
       orderBy: 'id ASC',
     );
     return maps.map((m) => Exercise.fromMap(m)).toList();
@@ -127,7 +130,7 @@ class DatabaseService {
     final db = await _dbHelper.database;
     final maps = await db.query(
       'exercises',
-      where: 'is_recommended = ?',
+      where: 'is_recommended = ? AND catalogue_archived = 0',
       whereArgs: [1],
       orderBy: 'muscle_group_id ASC, name ASC',
     );
@@ -146,6 +149,7 @@ class DatabaseService {
   }
 
   Future<void> toggleExerciseFavourite(int id, bool isFavourite) async {
+    AccessGuard.ensureWritable();
     final db = await _dbHelper.database;
     await db.update(
       'exercises',
@@ -189,13 +193,13 @@ class DatabaseService {
       } else {
         whereClause = "muscle_group_name = 'Chest'";
       }
-    } else if (nameLower == 'triceps') {
+    } else if (nameLower == 'triceps' || nameLower == 'tricep') {
       if (includeSecondary) {
         whereClause = "(muscle_group_name = 'Triceps' OR secondary_muscles LIKE '%Tricep%')";
       } else {
         whereClause = "muscle_group_name = 'Triceps'";
       }
-    } else if (nameLower == 'biceps') {
+    } else if (nameLower == 'biceps' || nameLower == 'bicep') {
       if (includeSecondary) {
         whereClause = "(muscle_group_name = 'Biceps' OR secondary_muscles LIKE '%Bicep%' OR secondary_muscles LIKE '%Brachialis%')";
       } else {
@@ -207,7 +211,7 @@ class DatabaseService {
       } else {
         whereClause = "muscle_group_name = 'Shoulders'";
       }
-    } else if (nameLower == 'legs') {
+    } else if (nameLower == 'legs' || nameLower == 'leg') {
       if (subCategory != null &&
           subCategory.isNotEmpty &&
           subCategory.toLowerCase() != 'all') {
@@ -340,9 +344,11 @@ class DatabaseService {
         break;
     }
 
+    // Exercises retired from the cloud catalogue stay in the database (plans
+    // and history still resolve them by id/name) but are not offered any more.
     final maps = await db.query(
       'exercises',
-      where: whereClause,
+      where: '($whereClause) AND catalogue_archived = 0',
       whereArgs: whereArgs.isNotEmpty ? whereArgs : null,
       orderBy: orderSql,
     );
@@ -412,7 +418,7 @@ class DatabaseService {
     String sortBy = 'name_asc',
   }) async {
     final db = await _dbHelper.database;
-    final List<String> whereClauses = [];
+    final List<String> whereClauses = ['catalogue_archived = 0'];
     final List<dynamic> whereArgs = [];
 
     if (categoryName != null &&
@@ -443,7 +449,7 @@ class DatabaseService {
         } else {
           whereClauses.add("muscle_group_name = 'Chest'");
         }
-      } else if (nameLower == 'triceps') {
+      } else if (nameLower == 'triceps' || nameLower == 'tricep') {
         if (includeSecondary) {
           whereClauses.add(
             "(muscle_group_name = 'Triceps' OR secondary_muscles LIKE '%Tricep%')",
@@ -451,7 +457,7 @@ class DatabaseService {
         } else {
           whereClauses.add("muscle_group_name = 'Triceps'");
         }
-      } else if (nameLower == 'biceps') {
+      } else if (nameLower == 'biceps' || nameLower == 'bicep') {
         if (includeSecondary) {
           whereClauses.add(
             "(muscle_group_name = 'Biceps' OR secondary_muscles LIKE '%Bicep%' OR secondary_muscles LIKE '%Brachialis%')",
@@ -467,7 +473,7 @@ class DatabaseService {
         } else {
           whereClauses.add("muscle_group_name = 'Shoulders'");
         }
-      } else if (nameLower == 'legs') {
+      } else if (nameLower == 'legs' || nameLower == 'leg') {
         if (subCategory != null &&
             subCategory.isNotEmpty &&
             subCategory.toLowerCase() != 'all') {
@@ -675,11 +681,13 @@ class DatabaseService {
   }
 
   Future<int> insertExercise(Exercise ex) async {
+    AccessGuard.ensureWritable();
     final db = await _dbHelper.database;
     return await db.insert('exercises', ex.toMap());
   }
 
   Future<int> updateExercise(Exercise ex) async {
+    AccessGuard.ensureWritable();
     final db = await _dbHelper.database;
     return await db.update(
       'exercises',
@@ -690,6 +698,7 @@ class DatabaseService {
   }
 
   Future<int> deleteExercise(int id) async {
+    AccessGuard.ensureWritable();
     final db = await _dbHelper.database;
     return await db.delete('exercises', where: 'id = ?', whereArgs: [id]);
   }
@@ -718,18 +727,29 @@ class DatabaseService {
     return WorkoutPlan.fromMap(planMap, exercises: exercises);
   }
 
+  /// Plan for [date]; when none was saved and the date is today or later, the
+  /// active weekly training plan is applied first (never overwrites a saved
+  /// plan, never touches past dates).
+  Future<WorkoutPlan?> getEffectivePlanForDate(DateTime date) async {
+    final key = AppClock.dateKey(date);
+    final existing = await getPlanForDate(key);
+    if (existing != null) return existing;
+    final id = await TrainingPlanService().materializeDate(date);
+    if (id == null) return null;
+    return getPlanForDate(key);
+  }
+
   Future<WorkoutPlan?> getTodayPlan() async {
-    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    return await getPlanForDate(today);
+    return getEffectivePlanForDate(AppClock.now());
   }
 
   Future<WorkoutPlan?> getTomorrowPlan() async {
-    final tomorrow = DateFormat('yyyy-MM-dd')
-        .format(DateTime.now().add(const Duration(days: 1)));
-    return await getPlanForDate(tomorrow);
+    final n = AppClock.now();
+    return getEffectivePlanForDate(DateTime(n.year, n.month, n.day + 1));
   }
 
   Future<int> saveOrUpdatePlan(WorkoutPlan plan) async {
+    AccessGuard.ensureWritable();
     final db = await _dbHelper.database;
     int planId;
 
@@ -857,47 +877,24 @@ class DatabaseService {
   }
 
   Future<List<WorkoutPlan>> getWeeklyPlans(DateTime anchorDate) async {
-    // Find Monday of the anchor week
-    final int diff = anchorDate.weekday - DateTime.monday;
-    final monday = anchorDate.subtract(Duration(days: diff));
-
-    final splitDefaults = [
-      {'primary': 'Chest', 'secondary': 'Triceps', 'rest': false}, // Mon
-      {'primary': 'Back', 'secondary': 'Biceps', 'rest': false}, // Tue
-      {
-        'primary': 'Shoulders',
-        'secondary': 'Abs and Core',
-        'rest': false,
-      }, // Wed
-      {
-        'primary': 'Quadriceps',
-        'secondary': 'Hamstrings',
-        'rest': false,
-      }, // Thu
-      {'primary': 'Chest', 'secondary': 'Back', 'rest': false}, // Fri
-      {'primary': 'Biceps', 'secondary': 'Cardio', 'rest': false}, // Sat
-      {'primary': 'Rest', 'secondary': null, 'rest': true}, // Sun
-    ];
+    // First day of the week honours the Monday/Sunday setting and uses
+    // calendar arithmetic (DST-safe).
+    final sundayStart =
+        (await getSetting('week_starts_on', defaultValue: 'monday')) ==
+        'sunday';
+    final weekFirst = AppClock.weekStart(
+      anchorDate,
+      weekStartsOnSunday: sundayStart,
+    );
 
     final List<WorkoutPlan> result = [];
     for (int i = 0; i < 7; i++) {
-      final day = monday.add(Duration(days: i));
+      final day = DateTime(weekFirst.year, weekFirst.month, weekFirst.day + i);
       final dateStr = DateFormat('yyyy-MM-dd').format(day);
-      final p = await getPlanForDate(dateStr);
-      if (p != null) {
-        result.add(p);
-      } else {
-        final def = splitDefaults[i];
-        final isRest = def['rest'] as bool;
-        result.add(
-          WorkoutPlan(
-            date: dateStr,
-            isRestDay: isRest,
-            primaryMuscleName: isRest ? null : (def['primary'] as String?),
-            secondaryMuscleName: isRest ? null : (def['secondary'] as String?),
-          ),
-        );
-      }
+      final p = await getEffectivePlanForDate(day);
+      // A day nothing is scheduled for is returned as an empty, unsaved plan:
+      // no invented muscle groups and no invented rest day.
+      result.add(p ?? WorkoutPlan(date: dateStr));
     }
     return result;
   }
@@ -1001,11 +998,16 @@ class DatabaseService {
     DateTime anchorDate, {
     bool overwriteExisting = false,
   }) async {
-    final int diff = anchorDate.weekday - DateTime.monday;
-    final monday = anchorDate.subtract(Duration(days: diff));
+    final sundayStart =
+        (await getSetting('week_starts_on', defaultValue: 'monday')) ==
+        'sunday';
+    final weekFirst = AppClock.weekStart(
+      anchorDate,
+      weekStartsOnSunday: sundayStart,
+    );
 
     for (int i = 0; i < 7; i++) {
-      final day = monday.add(Duration(days: i));
+      final day = DateTime(weekFirst.year, weekFirst.month, weekFirst.day + i);
       final dateStr = DateFormat('yyyy-MM-dd').format(day);
       final existingPlan = await getPlanForDate(dateStr);
 
@@ -1015,7 +1017,7 @@ class DatabaseService {
         continue; // Preserve existing user-customized plan
       }
 
-      final cfg = sixDaySplitConfig[i];
+      final cfg = sixDaySplitConfig[day.weekday - 1];
       final isRest = cfg['isRest'] as bool;
 
       final plan = WorkoutPlan(
@@ -1062,25 +1064,55 @@ class DatabaseService {
   }
 
   // ------------------- WORKOUT SESSIONS & HISTORY -------------------
+  /// Saves a finished session with its sets in one transaction. When the
+  /// session carries a [WorkoutSession.clientRef] that was already saved, the
+  /// existing session id is returned and nothing is written (finish-once).
   Future<int> createWorkoutSession(WorkoutSession session) async {
+    // Manual logging is a write; an active workout (clientRef set) is only
+    // being finished and is never refused.
+    if (session.clientRef == null) AccessGuard.ensureWritable();
     final db = await _dbHelper.database;
-    final sessionId = await db.insert('workout_sessions', session.toMap());
+    return db.transaction((txn) async {
+      final ref = session.clientRef;
+      if (ref != null) {
+        final existing = await txn.query(
+          'workout_sessions',
+          columns: ['id'],
+          where: 'client_ref = ?',
+          whereArgs: [ref],
+          limit: 1,
+        );
+        if (existing.isNotEmpty) return existing.first['id'] as int;
+      }
 
-    for (final s in session.sets) {
-      await db.insert('workout_sets', s.toMap()..['session_id'] = sessionId);
-    }
-
-    // Mark plan as completed if planId matches
-    if (session.planId != null) {
-      await db.update(
-        'workout_plans',
-        {'is_completed': 1, 'updated_at': DateTime.now().toIso8601String()},
-        where: 'id = ?',
-        whereArgs: [session.planId],
+      final sessionId = await txn.insert(
+        'workout_sessions',
+        session.toMap()..remove('id'),
       );
-    }
 
-    return sessionId;
+      for (final s in session.sets) {
+        await txn.insert(
+          'workout_sets',
+          s.toMap()
+            ..remove('id')
+            ..['session_id'] = sessionId,
+        );
+      }
+
+      // The plan of the day is marked done only when the workout was done ON
+      // that day. A session performed today from another date's plan is
+      // logged today (history/stats) and leaves that other day's plan open.
+      if (session.planId != null) {
+        await txn.update(
+          'workout_plans',
+          {'is_completed': 1, 'updated_at': AppClock.now().toIso8601String()},
+          where: 'id = ? AND date = ?',
+          whereArgs: [session.planId, session.date],
+        );
+      }
+
+      return sessionId;
+    });
   }
 
   Future<List<WorkoutSession>> getAllSessions() async {
@@ -1177,276 +1209,8 @@ class DatabaseService {
     return sessions;
   }
 
-  Future<WeeklySummary> getWeeklySummary(DateTime anchorDate) async {
-    // 1. Calculate Monday (start) and Sunday (end) of anchor week
-    final anchorMidnight = DateTime(
-      anchorDate.year,
-      anchorDate.month,
-      anchorDate.day,
-    );
-    final monday = anchorMidnight.subtract(
-      Duration(days: anchorDate.weekday - DateTime.monday),
-    );
-    final sunday = monday.add(const Duration(days: 6));
-    final mondayStr = DateFormat('yyyy-MM-dd').format(monday);
-    final sundayStr = DateFormat('yyyy-MM-dd').format(sunday);
-    final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
-
-    // 2. Fetch plans & sessions for the 7 days
-    final weeklyPlans = await getWeeklyPlans(anchorDate);
-    final weeklySessions = await getSessionsForDateRange(mondayStr, sundayStr);
-
-    final List<DayWorkoutSummary> days = [];
-    int totalCompletedWorkouts = 0;
-    int totalPlannedWorkouts = 0;
-    int totalRestDays = 0;
-    double totalVolumeKg = 0;
-    int totalDurationSeconds = 0;
-    final Set<String> distinctExercisesCompletedThisWeek = {};
-
-    for (int i = 0; i < 7; i++) {
-      final dayDate = monday.add(Duration(days: i));
-      final dayStr = DateFormat('yyyy-MM-dd').format(dayDate);
-      final dayName = DateFormat('E').format(dayDate); // Mon, Tue, etc.
-      final isToday = (dayStr == todayStr);
-
-      // Find plan for this day
-      final plan = weeklyPlans.firstWhere(
-        (p) => p.date == dayStr,
-        orElse: () => WorkoutPlan(date: dayStr, isRestDay: (i == 6)),
-      );
-
-      // Find sessions on this day
-      final daySessions = weeklySessions
-          .where((s) => s.date == dayStr)
-          .toList();
-
-      DayStatus dayStatus;
-      String? primaryMuscle;
-      String? secondaryMuscle;
-      int plannedExCount = plan.exercises.length;
-      int completedExCount = 0;
-
-      if (daySessions.isNotEmpty) {
-        totalCompletedWorkouts += daySessions.length;
-        for (final s in daySessions) {
-          totalDurationSeconds += s.durationSeconds;
-          totalVolumeKg += s.totalVolumeKg;
-          final names = s.completedExerciseNames;
-          distinctExercisesCompletedThisWeek.addAll(names);
-          completedExCount += names.length;
-        }
-
-        primaryMuscle = daySessions.first.primaryMuscle;
-        secondaryMuscle =
-            daySessions.first.secondaryMuscle ?? plan.secondaryMuscleName;
-
-        // Check if any set was incomplete or planned exercises skipped
-        if (daySessions.any(
-          (s) => s.completionStatus == 'Partially Completed',
-        )) {
-          dayStatus = DayStatus.partiallyCompleted;
-        } else if (plan.exercises.isNotEmpty &&
-            completedExCount < plan.exercises.length) {
-          dayStatus = DayStatus.partiallyCompleted;
-        } else {
-          dayStatus = DayStatus.completed;
-        }
-      } else {
-        // No sessions recorded for this day
-        primaryMuscle = plan.primaryMuscleName;
-        secondaryMuscle = plan.secondaryMuscleName;
-
-        if (plan.isRestDay) {
-          dayStatus = DayStatus.restDay;
-          totalRestDays++;
-        } else if (plan.exercises.isNotEmpty) {
-          totalPlannedWorkouts++;
-          if (dayStr.compareTo(todayStr) < 0) {
-            dayStatus = DayStatus.missed;
-          } else {
-            dayStatus = DayStatus.planned;
-          }
-        } else {
-          // No exercises configured and not explicitly a workout day -> default rest
-          dayStatus = DayStatus.restDay;
-          totalRestDays++;
-        }
-      }
-
-      days.add(
-        DayWorkoutSummary(
-          date: dayDate,
-          dateStr: dayStr,
-          dayName: dayName,
-          status: dayStatus,
-          primaryMuscle: primaryMuscle,
-          secondaryMuscle: secondaryMuscle,
-          plannedExerciseCount: plannedExCount,
-          completedExerciseCount: completedExCount,
-          plan: plan,
-          sessions: daySessions,
-          isToday: isToday,
-        ),
-      );
-    }
-
-    return WeeklySummary(
-      startOfWeek: monday,
-      endOfWeek: sunday,
-      days: days,
-      workoutsCompleted: totalCompletedWorkouts,
-      exercisesCompleted: distinctExercisesCompletedThisWeek.length,
-      plannedWorkouts: totalPlannedWorkouts,
-      restDays: totalRestDays,
-      totalVolumeKg: totalVolumeKg,
-      totalDurationSeconds: totalDurationSeconds,
-    );
-  }
-
-  Future<Map<String, int>> getMuscleFrequencyStats({
-    String? startDate,
-    String? endDate,
-  }) async {
-    final List<WorkoutSession> sessions;
-    if (startDate != null && endDate != null) {
-      sessions = await getSessionsForDateRange(startDate, endDate);
-    } else {
-      sessions = await getAllSessions();
-    }
-
-    final Map<String, int> counts = {
-      'Chest': 0,
-      'Back': 0,
-      'Shoulders': 0,
-      'Biceps': 0,
-      'Triceps': 0,
-      'Legs': 0,
-      'Abs': 0,
-      'Full Body': 0,
-    };
-
-    for (final s in sessions) {
-      final musclesToTest = [
-        s.primaryMuscle,
-        if (s.secondaryMuscle != null) s.secondaryMuscle!,
-      ];
-
-      final Set<String> matchedCategories = {};
-
-      for (final m in musclesToTest) {
-        final lower = m.toLowerCase();
-        if (lower.contains('chest')) matchedCategories.add('Chest');
-        if (lower.contains('back') ||
-            lower.contains('lat') ||
-            lower.contains('trap')) {
-          matchedCategories.add('Back');
-        }
-        if (lower.contains('shoulder') || lower.contains('delt')) {
-          matchedCategories.add('Shoulders');
-        }
-        if (lower.contains('bicep')) matchedCategories.add('Biceps');
-        if (lower.contains('tricep')) matchedCategories.add('Triceps');
-        if (lower.contains('leg') ||
-            lower.contains('quad') ||
-            lower.contains('hamstring') ||
-            lower.contains('glute') ||
-            lower.contains('calv') ||
-            lower.contains('calf')) {
-          matchedCategories.add('Legs');
-        }
-        if (lower.contains('ab') || lower.contains('core')) {
-          matchedCategories.add('Abs');
-        }
-        if (lower.contains('full body') || lower.contains('compound')) {
-          matchedCategories.add('Full Body');
-        }
-      }
-
-      if (matchedCategories.isEmpty) {
-        counts[s.primaryMuscle] = (counts[s.primaryMuscle] ?? 0) + 1;
-      } else {
-        for (final cat in matchedCategories) {
-          counts[cat] = (counts[cat] ?? 0) + 1;
-        }
-      }
-    }
-
-    return counts;
-  }
-
-  Future<List<WorkoutSession>> getSessionsForMuscle(
-    String muscleCategory, {
-    String? startDate,
-    String? endDate,
-  }) async {
-    final List<WorkoutSession> all;
-    if (startDate != null && endDate != null) {
-      all = await getSessionsForDateRange(startDate, endDate);
-    } else {
-      all = await getAllSessions();
-    }
-
-    final target = muscleCategory.toLowerCase();
-    return all.where((s) {
-      final p = s.primaryMuscle.toLowerCase();
-      final sec = (s.secondaryMuscle ?? '').toLowerCase();
-
-      if (target == 'all') {
-        return true;
-      }
-      if (target == 'chest') {
-        return p.contains('chest') || sec.contains('chest');
-      }
-      if (target == 'back') {
-        return p.contains('back') ||
-            p.contains('lat') ||
-            p.contains('trap') ||
-            sec.contains('back') ||
-            sec.contains('lat') ||
-            sec.contains('trap');
-      }
-      if (target == 'shoulders') {
-        return p.contains('shoulder') ||
-            p.contains('delt') ||
-            sec.contains('shoulder') ||
-            sec.contains('delt');
-      }
-      if (target == 'biceps') {
-        return p.contains('bicep') || sec.contains('bicep');
-      }
-      if (target == 'triceps') {
-        return p.contains('tricep') || sec.contains('tricep');
-      }
-      if (target == 'legs') {
-        return p.contains('leg') ||
-            p.contains('quad') ||
-            p.contains('hamstring') ||
-            p.contains('glute') ||
-            p.contains('calv') ||
-            p.contains('calf') ||
-            sec.contains('leg') ||
-            sec.contains('quad') ||
-            sec.contains('hamstring') ||
-            sec.contains('glute') ||
-            sec.contains('calv') ||
-            sec.contains('calf');
-      }
-      if (target == 'abs') {
-        return p.contains('ab') ||
-            p.contains('core') ||
-            sec.contains('ab') ||
-            sec.contains('core');
-      }
-      if (target == 'full body') {
-        return p.contains('full body') || sec.contains('full body');
-      }
-
-      return p.contains(target) || sec.contains(target);
-    }).toList();
-  }
-
   Future<void> deleteWorkoutSession(int sessionId) async {
+    AccessGuard.ensureWritable();
     final db = await _dbHelper.database;
     await db.delete(
       'workout_sets',
@@ -1534,88 +1298,41 @@ class DatabaseService {
   }
 
   // ------------------- BACKUP & EXPORT -------------------
-  Future<String> exportBackupJson() async {
-    final db = await _dbHelper.database;
-    final muscleGroups = await db.query('muscle_groups');
-    final exercises = await db.query('exercises');
-    final workoutPlans = await db.query('workout_plans');
-    final plannedExercises = await db.query('planned_exercises');
-    final workoutSessions = await db.query('workout_sessions');
-    final workoutSets = await db.query('workout_sets');
-    final mediaAttachments = await db.query('media_attachments');
-    final planChangeLogs = await db.query('plan_change_logs');
-    final userSettings = await db.query('user_settings');
+  /// Tables in dependency order (parents first). Restore inserts in this
+  /// order and deletes in reverse. `active_sessions` is deliberately excluded:
+  /// an in-progress workout is not part of a backup.
+  static const List<String> backupTables = [
+    'muscle_groups',
+    'exercises',
+    'workout_plans',
+    'planned_exercises',
+    'workout_sessions',
+    'workout_sets',
+    'media_attachments',
+    'plan_change_logs',
+    'user_settings',
+    'routines',
+    'routine_completions',
+    'training_plans',
+    'training_plan_days',
+    'training_plan_day_exercises',
+  ];
 
-    final backup = {
-      'version': 1,
-      'exported_at': DateTime.now().toIso8601String(),
-      'muscle_groups': muscleGroups,
-      'exercises': exercises,
-      'workout_plans': workoutPlans,
-      'planned_exercises': plannedExercises,
-      'workout_sessions': workoutSessions,
-      'workout_sets': workoutSets,
-      'media_attachments': mediaAttachments,
-      'plan_change_logs': planChangeLogs,
-      'user_settings': userSettings,
-    };
+  /// Versioned backup (format 3, checksummed). See [BackupService].
+  Future<String> exportBackupJson() => BackupService().exportJson();
 
-    return jsonEncode(backup);
-  }
-
+  /// Replace-restore: validates the whole file first and swaps the data in
+  /// one transaction. Returns false (database untouched) for any invalid file
+  /// or failure. For merge/dry-run use [BackupService] directly.
   Future<bool> restoreBackupJson(String jsonStr) async {
+    final service = BackupService();
     try {
-      final data = jsonDecode(jsonStr) as Map<String, dynamic>;
-      final db = await _dbHelper.database;
-
-      await db.transaction((txn) async {
-        // Clear tables
-        await txn.delete('workout_sets');
-        await txn.delete('workout_sessions');
-        await txn.delete('planned_exercises');
-        await txn.delete('workout_plans');
-        await txn.delete('plan_change_logs');
-        await txn.delete('media_attachments');
-        await txn.delete('exercises');
-        await txn.delete('muscle_groups');
-        await txn.delete('user_settings');
-
-        for (final item in (data['muscle_groups'] as List? ?? [])) {
-          await txn.insert('muscle_groups', Map<String, dynamic>.from(item));
-        }
-        for (final item in (data['exercises'] as List? ?? [])) {
-          await txn.insert('exercises', Map<String, dynamic>.from(item));
-        }
-        for (final item in (data['workout_plans'] as List? ?? [])) {
-          await txn.insert('workout_plans', Map<String, dynamic>.from(item));
-        }
-        for (final item in (data['planned_exercises'] as List? ?? [])) {
-          await txn.insert(
-            'planned_exercises',
-            Map<String, dynamic>.from(item),
-          );
-        }
-        for (final item in (data['workout_sessions'] as List? ?? [])) {
-          await txn.insert('workout_sessions', Map<String, dynamic>.from(item));
-        }
-        for (final item in (data['workout_sets'] as List? ?? [])) {
-          await txn.insert('workout_sets', Map<String, dynamic>.from(item));
-        }
-        for (final item in (data['media_attachments'] as List? ?? [])) {
-          await txn.insert(
-            'media_attachments',
-            Map<String, dynamic>.from(item),
-          );
-        }
-        for (final item in (data['plan_change_logs'] as List? ?? [])) {
-          await txn.insert('plan_change_logs', Map<String, dynamic>.from(item));
-        }
-        for (final item in (data['user_settings'] as List? ?? [])) {
-          await txn.insert('user_settings', Map<String, dynamic>.from(item));
-        }
-      });
-      return true;
-    } catch (e) {
+      final file = service.parse(jsonStr);
+      final result = await service.applyReplace(file, confirmed: true);
+      return result.ok;
+    } on BackupException {
+      return false;
+    } catch (_) {
       return false;
     }
   }

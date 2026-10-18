@@ -1,14 +1,29 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../core/access_config.dart';
 import '../core/theme.dart';
+import '../services/cloud_config.dart';
 import '../models/media_attachment.dart';
 import '../services/database_service.dart';
 import '../services/media_service.dart';
+import '../services/stats_service.dart';
+import '../services/backup_service.dart';
+import '../services/export_service.dart';
+import '../widgets/backup_import_dialog.dart';
+import '../services/premium_service.dart';
+import '../widgets/premium_upsell.dart';
 import '../widgets/video_player_dialog.dart';
+import 'account_screen.dart';
+import 'paywall_screen.dart';
+import 'progress_screen.dart';
+import 'alarm_settings_screen.dart';
+import 'diagnostics_screen.dart';
 import '../widgets/image_viewer_dialog.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -24,8 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final DatabaseService _dbService = DatabaseService();
   final MediaService _mediaService = MediaService.instance;
 
-  String _weightUnit = 'kg';
-  bool _remindersEnabled = false;
+  bool _sundayStart = false;
   List<MediaAttachment> _allMedia = [];
   bool _isLoading = true;
 
@@ -36,26 +50,103 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _loadSettings() async {
-    final unit = await _dbService.getSetting('weight_unit', defaultValue: 'kg');
-    final reminders = await _dbService.getSetting(
-      'reminders_enabled',
-      defaultValue: 'false',
-    );
     final media = await _dbService.getAllMedia();
+    final sunday = await StatsService().weekStartsOnSunday();
 
     if (mounted) {
       setState(() {
-        _weightUnit = unit;
-        _remindersEnabled = reminders == 'true';
+        _sundayStart = sunday;
         _allMedia = media;
         _isLoading = false;
       });
     }
   }
 
-  Future<void> _toggleUnit(String newUnit) async {
-    await _dbService.setSetting('weight_unit', newUnit);
-    setState(() => _weightUnit = newUnit);
+  Future<void> _setWeekStart(bool sunday) async {
+    await StatsService().setWeekStartsOnSunday(sunday);
+    setState(() => _sundayStart = sunday);
+    // Home / History / Plan tabs rebuild so every week view uses the new start.
+    widget.onResetData?.call();
+  }
+
+  Widget _navTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: AppColors.primary),
+      title: Text(
+        title,
+        style: const TextStyle(
+          color: AppColors.textMain,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+      ),
+      trailing: const Icon(
+        Icons.chevron_right_rounded,
+        color: AppColors.textMuted,
+      ),
+      onTap: onTap,
+    );
+  }
+
+  Future<void> _exportHistory() async {
+    final allowed = await PremiumGate.ensure(
+      context,
+      PremiumFeature.exportData,
+      reason: 'Exporting your history as CSV or JSON is a Premium feature.',
+    );
+    if (!allowed || !mounted) return;
+    final csv = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: AppColors.surfaceElevated,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text('CSV (spreadsheet)'),
+              onTap: () => Navigator.pop(ctx, true),
+            ),
+            ListTile(
+              title: const Text('JSON'),
+              onTap: () => Navigator.pop(ctx, false),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (csv == null) return;
+    try {
+      final path = await ExportService().exportToFile(csv: csv);
+      await SharePlus.instance.share(
+        ShareParams(files: [XFile(path)], subject: 'RepTrack history export'),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Export failed. Please try again.')),
+        );
+      }
+    }
+  }
+
+  Future<void> _openLink(Uri uri) async {
+    final ok = await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    ).catchError((_) => false);
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Could not open the link.')));
+    }
   }
 
   Future<void> _exportBackup() async {
@@ -90,25 +181,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
 
       if (files.isNotEmpty && files.first.path != null) {
-        final file = File(files.first.path!);
-        final content = await file.readAsString();
-        final success = await _dbService.restoreBackupJson(content);
-
-        if (mounted) {
-          if (success) {
+        final content = await File(files.first.path!).readAsString();
+        final BackupFile parsed;
+        try {
+          parsed = BackupService().parse(content);
+        } on BackupException catch (e) {
+          if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Database restored successfully!'),
-                backgroundColor: AppColors.successDark,
+              SnackBar(
+                content: Text('Not a valid RepTrack backup: ${e.message}'),
               ),
             );
-            _loadSettings();
-            widget.onResetData?.call();
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Invalid backup JSON format')),
-            );
           }
+          return;
+        }
+        if (!mounted) return;
+        final imported = await BackupImportFlow.run(context, parsed);
+        if (mounted && imported) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Backup imported'),
+              backgroundColor: AppColors.successDark,
+            ),
+          );
+          _loadSettings();
+          widget.onResetData?.call();
         }
       }
     } catch (e) {
@@ -454,38 +551,125 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 24),
 
-            // PREFERENCES SECTION
-            _buildSectionTitle('PREFERENCES & UNITS'),
+            // ACCOUNT & PREMIUM
+            _buildSectionTitle('ACCOUNT & PREMIUM'),
             const SizedBox(height: 10),
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.cardSurface,
+            Material(
+              // A Material (not a decorated Container) so the ListTile ink
+              // splashes are visible.
+              color: AppColors.cardSurface,
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
+                side: const BorderSide(color: AppColors.border),
+              ),
+              child: Column(
+                children: [
+                  _navTile(
+                    icon: Icons.cloud_sync_rounded,
+                    title: 'Account & cloud sync',
+                    subtitle: AccessConfig.subscriptionRequired
+                        ? 'Optional. Sign in to back up and sync'
+                        : 'Optional. Sign in to back up and sync (Premium)',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            AccountScreen(onLocalDataWiped: widget.onResetData),
+                      ),
+                    ),
+                  ),
+                  const Divider(color: AppColors.border, height: 1),
+                  _navTile(
+                    icon: Icons.workspace_premium_rounded,
+                    title: AccessConfig.subscriptionRequired
+                        ? 'Subscription'
+                        : 'RepTrack Premium',
+                    subtitle: AccessConfig.subscriptionRequired
+                        ? 'Your plan, trial and Google Play management'
+                        : 'Sync, charts, unlimited plans, export',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const PaywallScreen()),
+                    ),
+                  ),
+                  const Divider(color: AppColors.border, height: 1),
+                  _navTile(
+                    icon: Icons.show_chart_rounded,
+                    title: 'Progress & charts',
+                    subtitle: AccessConfig.subscriptionRequired
+                        ? 'Per-exercise strength trends'
+                        : 'Per-exercise strength trends (Premium)',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ProgressScreen()),
+                    ),
+                  ),
+                  const Divider(color: AppColors.border, height: 1),
+                  _navTile(
+                    icon: Icons.ios_share_rounded,
+                    title: 'Export history (CSV / JSON)',
+                    subtitle: AccessConfig.subscriptionRequired
+                        ? 'Your workout history as a file'
+                        : 'Premium. The local backup below is always free',
+                    onTap: _exportHistory,
+                  ),
+                  if (CloudConfig.privacyUri != null) ...[
+                    const Divider(color: AppColors.border, height: 1),
+                    _navTile(
+                      icon: Icons.privacy_tip_rounded,
+                      title: 'Privacy policy',
+                      subtitle: 'Opens in your browser',
+                      onTap: () => _openLink(CloudConfig.privacyUri!),
+                    ),
+                  ],
+                  if (CloudConfig.termsUri != null) ...[
+                    const Divider(color: AppColors.border, height: 1),
+                    _navTile(
+                      icon: Icons.description_rounded,
+                      title: 'Terms of use',
+                      subtitle: 'Opens in your browser',
+                      onTap: () => _openLink(CloudConfig.termsUri!),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // PREFERENCES SECTION
+            _buildSectionTitle('PREFERENCES'),
+            const SizedBox(height: 10),
+            Material(
+              // A Material (not a decorated Container) so the ListTile ink
+              // splashes are visible.
+              color: AppColors.cardSurface,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: const BorderSide(color: AppColors.border),
               ),
               child: Column(
                 children: [
                   ListTile(
                     title: const Text(
-                      'Weight Unit',
+                      'Week starts on',
                       style: TextStyle(
                         color: AppColors.textMain,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     subtitle: const Text(
-                      'Select preferred lifting unit (Default: kg)',
+                      'Used for weekly history, stats and the home week strip',
                       style: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 12,
                       ),
                     ),
-                    trailing: SegmentedButton<String>(
+                    trailing: SegmentedButton<bool>(
                       segments: const [
-                        ButtonSegment(value: 'kg', label: Text('KG')),
-                        ButtonSegment(value: 'lbs', label: Text('LBS')),
+                        ButtonSegment(value: false, label: Text('MON')),
+                        ButtonSegment(value: true, label: Text('SUN')),
                       ],
-                      selected: {_weightUnit},
+                      selected: {_sundayStart},
                       style: ButtonStyle(
                         backgroundColor: WidgetStateProperty.resolveWith((
                           states,
@@ -504,31 +688,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           return AppColors.textMain;
                         }),
                       ),
-                      onSelectionChanged: (val) => _toggleUnit(val.first),
+                      onSelectionChanged: (val) => _setWeekStart(val.first),
                     ),
                   ),
                   const Divider(color: AppColors.border, height: 1),
-                  SwitchListTile(
+                  ListTile(
+                    leading: const Icon(
+                      Icons.alarm_on_rounded,
+                      color: AppColors.primary,
+                    ),
                     title: const Text(
-                      'Workout Reminders',
+                      'Reminder reliability',
                       style: TextStyle(
                         color: AppColors.textMain,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     subtitle: const Text(
-                      'Notify for scheduled training session',
+                      'Permissions, battery settings and a test alarm',
                       style: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 12,
                       ),
                     ),
-                    value: _remindersEnabled,
-                    activeThumbColor: AppColors.primary,
-                    onChanged: (val) async {
-                      await _dbService.setSetting('reminders_enabled', '$val');
-                      setState(() => _remindersEnabled = val);
-                    },
+                    trailing: const Icon(
+                      Icons.chevron_right_rounded,
+                      color: AppColors.textMuted,
+                    ),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AlarmSettingsScreen(),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -538,11 +730,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // MEDIA & STORAGE SECTION
             _buildSectionTitle('LOCAL STORAGE & PRIVACY'),
             const SizedBox(height: 10),
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.cardSurface,
+            Material(
+              // A Material (not a decorated Container) so the ListTile ink
+              // splashes are visible.
+              color: AppColors.cardSurface,
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
+                side: const BorderSide(color: AppColors.border),
               ),
               child: Column(
                 children: [
@@ -601,7 +795,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: AppColors.primary,
                     ),
                     title: const Text(
-                      'Restore from Backup',
+                      'Import Backup (merge or replace)',
                       style: TextStyle(
                         color: AppColors.textMain,
                         fontWeight: FontWeight.w600,
@@ -653,16 +847,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 24),
 
+            // Diagnostics: compiled out of release builds (kDebugMode is const).
+            if (kDebugMode) ...[
+              _buildSectionTitle('DEVELOPER (DEBUG BUILD ONLY)'),
+              const SizedBox(height: 10),
+              Material(
+                color: AppColors.cardSurface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: const BorderSide(color: AppColors.border),
+                ),
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.bug_report_rounded,
+                    color: AppColors.primary,
+                  ),
+                  title: const Text('Diagnostics'),
+                  subtitle: const Text(
+                    'Versions, row counts, alarms, permissions, sync, entitlement',
+                  ),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const DiagnosticsScreen(),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+
             // DANGER ZONE
             _buildSectionTitle('DANGER ZONE'),
             const SizedBox(height: 10),
-            Container(
-              decoration: BoxDecoration(
-                color: AppColors.cardSurface,
+            Material(
+              color: AppColors.cardSurface,
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: AppColors.error.withValues(alpha: 0.4),
-                ),
+                side: BorderSide(color: AppColors.error.withValues(alpha: 0.4)),
               ),
               child: ListTile(
                 leading: const Icon(
